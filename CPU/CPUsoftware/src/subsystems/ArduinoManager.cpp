@@ -321,7 +321,15 @@ int ArduinoManager::GetLightLevel(std::shared_ptr<Config> ConfigOut)
     for (k = 0; k < N_CHANNELS_SIPM; k++) {
       sum_sipm[k] += (float)(this->analog_acq->val[0][4+k]);
     }
-    
+
+    /* DEBUG */
+    std::cout << "PH 1:" << "sum_ph[0]" << sum_ph[0] << std::endl;
+    std::cout << "PH 2:" << "sum_ph[1]" << sum_ph[1] << std::endl;
+    std::cout << "PH 3:" << "sum_ph[2]" << sum_ph[2] << std::endl;
+    std::cout << "PH 4:" << "sum_ph[3]" << sum_ph[3] << std::endl;
+    std::cout << "SiPM ch0:" << "sum_sipm[0]" << sum_sipm[0] << std::endl;
+    std::cout << "SiPM ch1:" << "sum_sipm[1]" << sum_sipm[1] << std::endl;
+      
     /* read out the multiplexed 64 channel SiPM values */
    // {
    //std::unique_lock<std::mutex> lock(this->m_light_level);
