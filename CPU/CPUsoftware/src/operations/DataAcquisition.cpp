@@ -850,30 +850,31 @@ int DataAcquisition::ProcessIncomingData(std::shared_ptr<Config> ConfigOut, CmdL
 	  
 	  
 	    /* for HV files from Zynq (hv_XXXXXXXX.dat) */
-	    else if ( (event_name.compare(0, 2, "HV") == 0)
+	    else if ( (event_name.compare(0, 2, "hv") == 0)
 		      && (event_name.compare(event_name.length() - 3, event_name.length(), "dat") == 0) ) {
 	      
 	      /* avoid timeout */
-	      if (first_loop) {
-		first_loop = false;
-	      }
+	      //if (first_loop) {
+	      //first_loop = false;
+	      //}
 	    
-	      hv_file_name = data_str + "/" + event->name;
-	      sleep(1);
-	    
-	      CreateCpuRun(HV, ConfigOut, CmdLine);
+	      //hv_file_name = data_str + "/" + event->name;
+
+	      /* Change so that you just pop HV packet inside existing CPU file  */
+	      /* For now, do nothing to test */
+	      //CreateCpuRun(HV, ConfigOut, CmdLine);
 	    
 	      /* generate hv packet to append to the file */
-	      HV_PACKET * hv_packet = HvPktReadOut(hv_file_name, ConfigOut);
-	      WriteHvPkt(hv_packet, ConfigOut);
+	      //HV_PACKET * hv_packet = HvPktReadOut(hv_file_name, ConfigOut);
+	      //WriteHvPkt(hv_packet, ConfigOut);
 	    
-	      CloseCpuRun(HV);
+	      //CloseCpuRun(HV);
 	    
 	      /* delete upon completion */
-	      std::remove(hv_file_name.c_str());
+	      //std::remove(hv_file_name.c_str());
 	    
 	      /* print update */
-	      std::cout << "Wrote HV file" << std::endl;
+	      //std::cout << "Wrote HV file" << std::endl;
 	    
 	    } /* end of HV packets */
 
