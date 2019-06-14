@@ -26,23 +26,9 @@ ArduinoManager::ArduinoManager() {
  */
 int ArduinoManager::AnalogDataCollect() {
 #if ARDUINO_DEBUG ==1
- /* test implementation for now, just prints output to screen */
- // int fd;
-  
- /* fd = open(DUINO, O_RDWR | O_NOCTTY | O_SYNC);
-  if (fd < 0) {
-    printf("Error opening %s: %s\n", DUINO, std::strerror(errno));
-    return -1;
-  }
-  else {
-    printf("Device has been opened and ready for operation! \n");
-  }
-  */
-  /*baudrate 9600, 8 bits, no parity, 1 stop bit */
-  //SetInterfaceAttribs(fd, BAUDRATE);
-  //printf("Will now run ArduinoManager::SerialReadOut() once...\n");
 
   SerialReadOut(0x00);
+
 #elif ARDUINO_DEBUG ==2
 
   int i, j;
@@ -241,7 +227,7 @@ int ArduinoManager::SerialReadOut(int fd) {
 		 printf(" due %d", this->analog_acq->val[0][2]);
 		 printf(" tre %d", this->analog_acq->val[0][3]);
 #endif
-		 this->analog_acq->val[0][0]=rand() % 150;
+		 //this->analog_acq->val[0][0]=rand() % 150;
 		 //printf("\n SerialReadout: randomizing %d", this->analog_acq->val[0][0]);
 		 for (ijk = 0; ijk < X_SIPM_BUF_SIZE; ijk++)
 		   {
