@@ -878,7 +878,11 @@ int DataAcquisition::ProcessIncomingData(std::shared_ptr<Config> ConfigOut, CmdL
 	    
 	      /* delete upon completion */
 	      std::remove(hv_file_name.c_str());
-	    
+
+	      /* print update to screen */
+	      //printf("PACKET COUNTER = %i\n", packet_counter);
+	      printf("The HV packet %s was read out\n", hv_file_name.c_str());
+	      
 	    } /* end of HV packets */
 
 	    
