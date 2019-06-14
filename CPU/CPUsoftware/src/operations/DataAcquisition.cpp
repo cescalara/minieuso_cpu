@@ -855,7 +855,13 @@ int DataAcquisition::ProcessIncomingData(std::shared_ptr<Config> ConfigOut, CmdL
 	      
 	      /* avoid timeout */
 	      if (first_loop) {
+
+		/* create a new run */
+		CreateCpuRun(CPU, ConfigOut, CmdLine);
+
+		/* reset first_loop status */
 		first_loop = false;
+		
 	      }
 	    
 	      hv_file_name = data_str + "/" + event->name;
