@@ -850,31 +850,39 @@ int DataAcquisition::ProcessIncomingData(std::shared_ptr<Config> ConfigOut, CmdL
 	  
 	  
 	    /* for HV files from Zynq (hv_XXXXXXXX.dat) */
-	    else if ( (event_name.compare(0, 2, "HV") == 0)
+	    else if ( (event_name.compare(0, 2, "hv") == 0)
 		      && (event_name.compare(event_name.length() - 3, event_name.length(), "dat") == 0) ) {
 	      
 	      /* avoid timeout */
 	      if (first_loop) {
+
+		/* create a new run */
+		CreateCpuRun(CPU, ConfigOut, CmdLine);
+
+		/* reset first_loop status */
 		first_loop = false;
+		
 	      }
 	    
 	      hv_file_name = data_str + "/" + event->name;
-	      sleep(1);
-	    
-	      CreateCpuRun(HV, ConfigOut, CmdLine);
+
+	      /* Change so that you just pop HV packet inside existing CPU file  */
+	      /* For now, do nothing to test */
+	      //CreateCpuRun(HV, ConfigOut, CmdLine);
 	    
 	      /* generate hv packet to append to the file */
 	      HV_PACKET * hv_packet = HvPktReadOut(hv_file_name, ConfigOut);
 	      WriteHvPkt(hv_packet, ConfigOut);
 	    
-	      CloseCpuRun(HV);
+	      //CloseCpuRun(HV);
 	    
 	      /* delete upon completion */
 	      std::remove(hv_file_name.c_str());
-	    
-	      /* print update */
-	      std::cout << "Wrote HV file" << std::endl;
-	    
+
+	      /* print update to screen */
+	      //printf("PACKET COUNTER = %i\n", packet_counter);
+	      printf("The HV packet %s was read out\n", hv_file_name.c_str());
+	      
 	    } /* end of HV packets */
 
 	    
@@ -914,7 +922,7 @@ int DataAcquisition::GetHvInfo(std::shared_ptr<Config> ConfigOut, CmdLineInputs 
 
   std::string data_str(DATA_DIR);
 
-  std::cout << "waiting for HV file..." << std::endl;
+  std::cout << "waiting for HV file... (NB: soon to be removed with FW update)" << std::endl;
 
   /* Poll the FTP server */
   FtpPoll(false);
@@ -931,25 +939,16 @@ int DataAcquisition::GetHvInfo(std::shared_ptr<Config> ConfigOut, CmdLineInputs 
       std::string fname(ent->d_name);
      
       if (fname.compare(0, 2, "HV") == 0) {
+
+	/* just delete, HV file moved to main readout */
 	/* read out the HV file, if it exists */
 	std::string hv_file_name = data_str + "/" + fname;
 	
-	CreateCpuRun(HV, ConfigOut, CmdLine);
-	
-	/* generate hv packet to append to the file */
-	HV_PACKET * hv_packet = HvPktReadOut(hv_file_name, ConfigOut);
-	if (hv_packet != NULL) {
-	  WriteHvPkt(hv_packet, ConfigOut);
-	}
-	
-	CloseCpuRun(HV);
-	
-	/* delete upon completion */
-	std::remove(hv_file_name.c_str());
+        std::remove(hv_file_name.c_str());
   
 	/* print update */
-	clog << "info: " << logstream::info << "read out the HV file" << std::endl;
-	std::cout << "read out the HV file" << std::endl;
+	clog << "info: " << logstream::info << "removed the the HVPS log file" << std::endl;
+	std::cout << "removed the HVPS log file" << std::endl;
 	
       }
       else {
