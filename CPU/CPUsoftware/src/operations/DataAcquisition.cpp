@@ -922,7 +922,7 @@ int DataAcquisition::GetHvInfo(std::shared_ptr<Config> ConfigOut, CmdLineInputs 
 
   std::string data_str(DATA_DIR);
 
-  std::cout << "waiting for HV file..." << std::endl;
+  std::cout << "waiting for HV file... (NB: soon to be removed with FW update)" << std::endl;
 
   /* Poll the FTP server */
   FtpPoll(false);
@@ -939,25 +939,16 @@ int DataAcquisition::GetHvInfo(std::shared_ptr<Config> ConfigOut, CmdLineInputs 
       std::string fname(ent->d_name);
      
       if (fname.compare(0, 2, "HV") == 0) {
+
+	/* just delete, HV file moved to main readout */
 	/* read out the HV file, if it exists */
 	std::string hv_file_name = data_str + "/" + fname;
 	
-	CreateCpuRun(HV, ConfigOut, CmdLine);
-	
-	/* generate hv packet to append to the file */
-	HV_PACKET * hv_packet = HvPktReadOut(hv_file_name, ConfigOut);
-	if (hv_packet != NULL) {
-	  WriteHvPkt(hv_packet, ConfigOut);
-	}
-	
-	CloseCpuRun(HV);
-	
-	/* delete upon completion */
-	std::remove(hv_file_name.c_str());
+        std::remove(hv_file_name.c_str());
   
 	/* print update */
-	clog << "info: " << logstream::info << "read out the HV file" << std::endl;
-	std::cout << "read out the HV file" << std::endl;
+	clog << "info: " << logstream::info << "removed the the HVPS log file" << std::endl;
+	std::cout << "removed the HVPS log file" << std::endl;
 	
       }
       else {
