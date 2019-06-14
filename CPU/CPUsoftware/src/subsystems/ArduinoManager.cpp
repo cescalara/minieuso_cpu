@@ -296,6 +296,7 @@ int ArduinoManager::GetLightLevel(std::shared_ptr<Config> ConfigOut)
  
  
   /* interpret the analog acquisition struct */
+  
   /* initialise */
   for(k = 0; k < N_CHANNELS_PHOTODIODE; k++) {
     sum_ph[k] = 0;
@@ -303,7 +304,6 @@ int ArduinoManager::GetLightLevel(std::shared_ptr<Config> ConfigOut)
   for (k = 0; k < N_CHANNELS_SIPM; k++) {
     sum_sipm[k] = 0;
   }
-
   
   /* read out multiplexed sipm 64 values and averages of sipm 1 and photodiodes */
   for(i = 0; i<ConfigOut->average_depth; i++) 

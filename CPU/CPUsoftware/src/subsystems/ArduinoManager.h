@@ -28,22 +28,22 @@
 #include "minieuso_data_format.h"
 #include "ConfigManager.h"
 
-// coming from the .h of arduino 
-
-#define X_HEADER_SIZE 4 // AA55AA55
-#define X_SIPM_BUF_SIZE 64 // 64 channels, two byte
-#define X_OTHER_SENSORS 4 // 4 channels, two byte
-#define X_TOTAL_BUF_SIZE (X_SIPM_BUF_SIZE+X_OTHER_SENSORS)
-#define X_TOTAL_BUF_SIZE_HEADER (X_HEADER_SIZE+X_SIPM_BUF_SIZE+X_OTHER_SENSORS+4+90+56+90+56) // packet number at begin and crc at end
-#define X_DELAY 100 // ms
-#define READ_ARDUINO_TIMEOUT  100 // it should be in ms now is in attempts to read the buffer
-
 /* for use with arduino readout functions */
 #define DUINO "/dev/ttyACM0"
 #define BAUDRATE B9600
 #define BUF_SIZE 14
 #define FIFO_DEPTH 1
 #define CHANNELS (X_OTHER_SENSORS+X_SIPM_BUF_SIZE)
+
+// coming from the .h of arduino 
+#define X_HEADER_SIZE 4 // AA55AA55
+#define X_SIPM_BUF_SIZE 64 // 64 channels, two byte
+#define X_OTHER_SENSORS 4 // 4 channels, two byte
+#define X_TOTAL_BUF_SIZE (X_SIPM_BUF_SIZE+X_OTHER_SENSORS)
+// packet number at begin and crc at end
+#define X_TOTAL_BUF_SIZE_HEADER (X_HEADER_SIZE+X_SIPM_BUF_SIZE+X_OTHER_SENSORS+4+90+56+90+56) 
+#define X_DELAY 100 // ms
+#define READ_ARDUINO_TIMEOUT  100 // it should be in ms now is in attempts to read the buffer
 
 /* for use with conditional variable */
 //#define WAIT_PERIOD 1 /* milliseconds */
