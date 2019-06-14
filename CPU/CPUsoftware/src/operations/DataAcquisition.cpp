@@ -854,27 +854,24 @@ int DataAcquisition::ProcessIncomingData(std::shared_ptr<Config> ConfigOut, CmdL
 		      && (event_name.compare(event_name.length() - 3, event_name.length(), "dat") == 0) ) {
 	      
 	      /* avoid timeout */
-	      //if (first_loop) {
-	      //first_loop = false;
-	      //}
+	      if (first_loop) {
+		first_loop = false;
+	      }
 	    
-	      //hv_file_name = data_str + "/" + event->name;
+	      hv_file_name = data_str + "/" + event->name;
 
 	      /* Change so that you just pop HV packet inside existing CPU file  */
 	      /* For now, do nothing to test */
 	      //CreateCpuRun(HV, ConfigOut, CmdLine);
 	    
 	      /* generate hv packet to append to the file */
-	      //HV_PACKET * hv_packet = HvPktReadOut(hv_file_name, ConfigOut);
-	      //WriteHvPkt(hv_packet, ConfigOut);
+	      HV_PACKET * hv_packet = HvPktReadOut(hv_file_name, ConfigOut);
+	      WriteHvPkt(hv_packet, ConfigOut);
 	    
 	      //CloseCpuRun(HV);
 	    
 	      /* delete upon completion */
-	      //std::remove(hv_file_name.c_str());
-	    
-	      /* print update */
-	      //std::cout << "Wrote HV file" << std::endl;
+	      std::remove(hv_file_name.c_str());
 	    
 	    } /* end of HV packets */
 
