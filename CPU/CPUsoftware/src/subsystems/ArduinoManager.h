@@ -31,8 +31,8 @@
 // coming from the .h of arduino 
 
 #define X_HEADER_SIZE 4 // AA55AA55
-#define X_SIPM_BUF_SIZE 128 // 64 channels, two byte
-#define X_OTHER_SENSORS 8 // 4 channels, two byte
+#define X_SIPM_BUF_SIZE 64 // 64 channels, two byte
+#define X_OTHER_SENSORS 4 // 4 channels, two byte
 #define X_TOTAL_BUF_SIZE (X_SIPM_BUF_SIZE+X_OTHER_SENSORS)
 #define X_TOTAL_BUF_SIZE_HEADER (X_HEADER_SIZE+X_SIPM_BUF_SIZE+X_OTHER_SENSORS+4+90+56+90+56) // packet number at begin and crc at end
 #define X_DELAY 100 // ms

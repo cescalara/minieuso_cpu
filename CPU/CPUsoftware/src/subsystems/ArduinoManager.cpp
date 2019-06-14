@@ -301,7 +301,7 @@ int ArduinoManager::GetLightLevel(std::shared_ptr<Config> ConfigOut)
     sum_ph[k] = 0;
   }
   for (k = 0; k < N_CHANNELS_SIPM; k++) {
-	  sum_sipm[k] = 0;
+    sum_sipm[k] = 0;
   }
 
   
