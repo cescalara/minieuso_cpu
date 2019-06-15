@@ -1,3 +1,4 @@
+
 #include "ZynqManager.h"
 
 /**
@@ -56,30 +57,6 @@ int ZynqManager::CheckConnect() {
   /* initilaise timeout timer */
   time_t start = time(0);
   int time_left = CONNECT_TIMEOUT_SEC;
-
-  /* wait for FTP to be up */  
-  //while (!CpuTools::CheckFtp()) {
-
-    ///* timeout if no activity after CONNECT_TIMEOUT_SEC reached */
-    //time_t end = time(0);
-    //time_t time_taken = end - start;
-    //time_left = CONNECT_TIMEOUT_SEC - time_taken;
-    
-  //}
-  /* catch FTP timeout */
-  //if (!CpuTools::CheckFtp()) {
-
-  //std::cout << "ERROR: FTP server timeout" << std::endl;
-  //std::cout << "Try: /etc/init.d/vsftpd start" << std::endl;
-  //clog << "error: " << logstream::error << "timing out on setup of FTP server" << std::endl;
-  //this->telnet_ed = false;
-    
-  //return -1;
-  //}
-  
-  /* reinitialise timout timer */
-  //start = time(0);
-  //time_left = CONNECT_TIMEOUT_SEC;
   
   /* wait for answer on telnet */
   while (!CheckTelnet() && time_left > 0) {
@@ -286,6 +263,24 @@ int ZynqManager::GetInstStatus() {
   return 0;
 }
 
+/**
+ * remove any files on the FTP server.
+ */
+int ZynqManager::InstrumentClean() {
+
+  int sockfd;
+
+  clog << "info: " << logstream::info << "clearing FTP server on Zynq side" << std::endl;
+
+  /* setup the telnet connection */
+  sockfd = ConnectTelnet();
+
+  std::string status = Telnet("instrument clean\n", sockfd, true);
+  close(sockfd);
+  
+  return 0;
+
+}
 
 /**
  * check the HV status 
