@@ -393,7 +393,7 @@ int ArduinoManager::GetLightLevel(std::shared_ptr<Config> ConfigOut)
     {
       {
 	std::unique_lock<std::mutex> lock(this->m_temperature_acq);
-	this->temperature_acq->val[k] = this->analog_acq->val[0][N_CHANNELS_PHOTODIODE+N_CHANNELS_SIPM+k];
+	this->temperature_acq->val[k] = (float)this->analog_acq->val[0][N_CHANNELS_PHOTODIODE+N_CHANNELS_SIPM+k];
       }
     }
   
