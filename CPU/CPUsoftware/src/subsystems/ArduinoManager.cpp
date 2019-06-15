@@ -332,6 +332,7 @@ int ArduinoManager::GetLightLevel(std::shared_ptr<Config> ConfigOut)
   }
   
   /* DEBUG */
+  /*
   std::cout << "PH 0:" << std::endl;
   std::cout << "val[0][0]" << this->analog_acq->val[0][0] << std::endl;
   std::cout << "ph[0]" << ph[0] << std::endl;
@@ -359,13 +360,13 @@ int ArduinoManager::GetLightLevel(std::shared_ptr<Config> ConfigOut)
     std::cout << "    ";
   }
   std::cout << std::endl;
-
+  */
   
-    /* read out the multiplexed 64 channel SiPM values */
-   // {
-   //std::unique_lock<std::mutex> lock(this->m_light_level);
-   //   this->light_level->sipm_data[i] = this->analog_acq->val[i][5];
-   // } /* release mutex */
+  /* read out the multiplexed 64 channel SiPM values */
+  // {
+  //std::unique_lock<std::mutex> lock(this->m_light_level);
+  //   this->light_level->sipm_data[i] = this->analog_acq->val[i][5];
+  // } /* release mutex */
   //}
 
   /* average the photodiode values */
