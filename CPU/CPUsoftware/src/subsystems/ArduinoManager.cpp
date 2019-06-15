@@ -309,6 +309,12 @@ int ArduinoManager::GetLightLevel(std::shared_ptr<Config> ConfigOut)
     }
 
     /* DEBUG */
+    printf(" packet number %d", (buf[n + 4] << 8) + buf[n + 5]);
+    printf(" zero %d", this->analog_acq->val[0][0]);
+    printf(" uno %d", this->analog_acq->val[0][1]);
+    printf(" due %d", this->analog_acq->val[0][2]);
+    printf(" tre %d", this->analog_acq->val[0][3]);
+    
     std::cout << "PH 1:" << "sum_ph[0]" << sum_ph[0] << std::endl;
     std::cout << "PH 2:" << "sum_ph[1]" << sum_ph[1] << std::endl;
     std::cout << "PH 3:" << "sum_ph[2]" << sum_ph[2] << std::endl;
