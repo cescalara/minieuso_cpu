@@ -250,11 +250,13 @@ int ArduinoManager::SerialReadOut(int fd) {
 		   converted_temp_output = ConvertToTemp(raw_temp_output);
 		   
 		   /* assign to analog_acq struct */
-		   this->analog_acq->val[0][N_CHANNELS_PHOTODIODE+N_CHANNELS_SIPM+ijk] = converted_temp_output; 
-
+		   //this->analog_acq->val[0][N_CHANNELS_PHOTODIODE+N_CHANNELS_SIPM+ijk] = converted_temp_output; 
+		   //std::cout << "Therm " << ijk << " :" << converted_temp_output << std::endl;
+		   
 		   /* debug */
-		   std::cout << "Therm " << ijk << " :" << converted_temp_output << std::endl;
-
+		   /* For now, just assign known numbers while those in Rome continue the debugging */
+		   this->analog_acq->val[0][N_CHANNELS_PHOTODIODE+N_CHANNELS_SIPM+ijk] = 26; 
+		   
 		 }
 	
 		 // calculate checksum

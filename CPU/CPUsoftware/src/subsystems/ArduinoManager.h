@@ -6,7 +6,7 @@
 // 2 use without Arduino connected (ie. automatically in night mode)
 #define ARDUINO_DEBUG 0
 
-#define PRINT_DEBUG_INFO 1
+//#define PRINT_DEBUG_INFO 1
 // COMMENT no debug
 // ANY NUMBER print all
 
