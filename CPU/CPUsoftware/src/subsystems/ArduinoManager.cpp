@@ -7,6 +7,8 @@ ArduinoManager::ArduinoManager() {
 
   this->light_level = std::make_shared<LightLevel>();
   this->analog_acq = std::make_shared<AnalogAcq>();
+  this->temperature_acq = std::make_shared<TemperatureAcq>();
+  
   int i = 0, j = 0;
 
   for (i = 0; i < FIFO_DEPTH; i++) {
