@@ -196,11 +196,6 @@ int RunInstrument::DebugMode() {
   std::cout << std::endl;
   */
 
-  std::cout << "THERMISTORS" << std::endl;
-  std::cout << "running an acquisition (takes ~10 s)..." << std::endl;
-  this->Daq.Thermistors->PrintTemperature();
-  std::cout << std::endl;
-
   this->Lvps.SwitchOn(LvpsManager::CAMERAS);
   std::cout << "CAMERAS" << std::endl;
   std::cout << "running an acquisition..." << std::endl;
@@ -842,9 +837,6 @@ int RunInstrument::Acquisition() {
   }
 
   /* reached for SCURVE acq and instrument mode switch or stop */
-  if (this->CmdLine->cam_on) {
-    this->Cam.KillCamAcq();
-  }
 
   #endif
   return 0;
