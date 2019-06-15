@@ -374,7 +374,7 @@ int ArduinoManager::GetLightLevel(std::shared_ptr<Config> ConfigOut)
     {
       {
 	std::unique_lock<std::mutex> lock(this->m_light_level);
-	this->light_level->photodiode_data[k] = ph[k] / ConfigOut->average_depth;
+	this->light_level->photodiode_data[k] = ph[k];
       } /* release mutex */
       
     }
@@ -384,7 +384,7 @@ int ArduinoManager::GetLightLevel(std::shared_ptr<Config> ConfigOut)
     {
       {
 	std::unique_lock<std::mutex> lock(this->m_light_level);
-	this->light_level->sipm_data[k] = sipm[k] / ConfigOut->average_depth;
+	this->light_level->sipm_data[k] = sipm[k];
       } /* release mutex */
     }
   return 0;
