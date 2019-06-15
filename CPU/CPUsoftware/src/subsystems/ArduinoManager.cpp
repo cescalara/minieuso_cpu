@@ -278,66 +278,61 @@ int ArduinoManager::SerialReadOut(int fd) {
 int ArduinoManager::GetLightLevel(std::shared_ptr<Config> ConfigOut) 
 {
   int i, k;
-  float sum_ph[N_CHANNELS_PHOTODIODE];
-  float sum_sipm[N_CHANNELS_SIPM];
+  float ph[N_CHANNELS_PHOTODIODE];
+  float sipm[N_CHANNELS_SIPM];
  
  
   /* interpret the analog acquisition struct */
   
   /* initialise */
   for(k = 0; k < N_CHANNELS_PHOTODIODE; k++) {
-    sum_ph[k] = 0;
+    ph[k] = 0;
   }
   for (k = 0; k < N_CHANNELS_SIPM; k++) {
-    sum_sipm[k] = 0;
+    sipm[k] = 0;
   }
   
-  /* read out multiplexed sipm 64 values and averages of sipm 1 and photodiodes */
-  //  for(i = 0; i<ConfigOut->average_depth; i++) 
-  // {
-    /* read out the data */
-  //  AnalogDataCollect();
-
-    /* sum the four photodiode channels */
-  // sum_ph[0] += (float)(this->analog_acq->val[0][0]); // fixed at 0
-  //sum_ph[1] += (float)(this->analog_acq->val[0][1]);
-  //sum_ph[2] += (float)(this->analog_acq->val[0][2]);
-  //sum_ph[3] += (float)(this->analog_acq->val[0][3]);
-
-    /* sum the one channel SiPM values */
-    //for (k = 0; k < N_CHANNELS_SIPM; k++) {
-  // sum_sipm[k] += (float)(this->analog_acq->val[0][4+k]);
-      //}
 
   /* read out the data */
   AnalogDataCollect();
-  sum_ph[0] = (float)(this->analog_acq->val[0][0]); // fixed at 0
-  sum_ph[1] = (float)(this->analog_acq->val[0][1]);
-  sum_ph[2] = (float)(this->analog_acq->val[0][2]);
-  sum_ph[3] = (float)(this->analog_acq->val[0][3]);
+  ph[0] = (float)(this->analog_acq->val[0][0]); // fixed at 0
+  ph[1] = (float)(this->analog_acq->val[0][1]);
+  ph[2] = (float)(this->analog_acq->val[0][2]);
+  ph[3] = (float)(this->analog_acq->val[0][3]);
   
+  for (k = 0; k < N_CHANNELS_SIPM; k++) {
+    sipm[k] = (float)(this->analog_acq->val[0][4+k]);
+  }
   
   /* DEBUG */
   std::cout << "PH 0:" << std::endl;
   std::cout << "val[0][0]" << this->analog_acq->val[0][0] << std::endl;
-  std::cout << "sum_ph[0]" << sum_ph[0] << std::endl;
+  std::cout << "ph[0]" << ph[0] << std::endl;
   std::cout << std::endl;
   
   std::cout << "PH 1:" << std::endl;
   std::cout << "val[0][1]" << this->analog_acq->val[0][1] << std::endl;
-  std::cout << "sum_ph[1]" << sum_ph[1] << std::endl;
+  std::cout << "ph[1]" << ph[1] << std::endl;
   std::cout << std::endl;
 
   std::cout << "PH 2:" << std::endl;
   std::cout << "val[0][2]" << this->analog_acq->val[0][2] << std::endl;
-  std::cout << "sum_ph[2]" << sum_ph[2] << std::endl;
+  std::cout << "ph[2]" << ph[2] << std::endl;
   std::cout << std::endl;
   
   std::cout << "PH 3:" << std::endl;
   std::cout << "val[0][3]" << this->analog_acq->val[0][3] << std::endl;
-  std::cout << "sum_ph[3]" << sum_ph[3] << std::endl;
+  std::cout << "ph[3]" << ph[3] << std::endl;
   std::cout << std::endl;
 
+  std::cout << "SIPM 64 channels:" << std::endl;
+  for (k=0; k < N_CHANNELS_SIPM; k++) {
+    std::cout << this->analog_acq->val[0][k+4];
+    std::cout << sipm[k]; 
+  }
+  std::cout << std::endl;
+
+  
     /* read out the multiplexed 64 channel SiPM values */
    // {
    //std::unique_lock<std::mutex> lock(this->m_light_level);
@@ -350,7 +345,7 @@ int ArduinoManager::GetLightLevel(std::shared_ptr<Config> ConfigOut)
     {
       {
 	std::unique_lock<std::mutex> lock(this->m_light_level);
-	this->light_level->photodiode_data[k] = sum_ph[k] / ConfigOut->average_depth;
+	this->light_level->photodiode_data[k] = ph[k] / ConfigOut->average_depth;
       } /* release mutex */
       
     }
@@ -360,7 +355,7 @@ int ArduinoManager::GetLightLevel(std::shared_ptr<Config> ConfigOut)
     {
       {
 	std::unique_lock<std::mutex> lock(this->m_light_level);
-	this->light_level->sipm_data[k] = sum_sipm[k] / ConfigOut->average_depth;
+	this->light_level->sipm_data[k] = sipm[k] / ConfigOut->average_depth;
       } /* release mutex */
     }
   return 0;
