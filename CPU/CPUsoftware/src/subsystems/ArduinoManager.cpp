@@ -71,10 +71,10 @@ int ArduinoManager::AnalogDataCollect() {
 int ArduinoManager::SerialReadOut(int fd) {
 
 	unsigned char a[] = { 0xAA, 0x55, 0xAA, 0x55 };
-	unsigned char buf[(unsigned int)(X_TOTAL_BUF_SIZE_HEADER*4)];
-	unsigned char temp_buf[(unsigned int)(X_TOTAL_BUF_SIZE_HEADER * 4)];
+	unsigned char buf[(unsigned int)(X_TOTAL_BUF_SIZE_HEADER*4 + 120)];
+	unsigned char temp_buf[(unsigned int)(X_TOTAL_BUF_SIZE_HEADER*4 + 120)];
 #if ARDUINO_DEBUG ==1
-	unsigned char simulated_buf[(unsigned int)(X_TOTAL_BUF_SIZE_HEADER * 4)];
+	unsigned char simulated_buf[(unsigned int)(X_TOTAL_BUF_SIZE_HEADER*4 + 120)];
 #endif
 	unsigned int temp_checksum = 0;
 	unsigned int buffer_checksum = 0;
@@ -251,6 +251,9 @@ int ArduinoManager::SerialReadOut(int fd) {
 		   
 		   /* assign to analog_acq struct */
 		   this->analog_acq->val[0][N_CHANNELS_PHOTODIODE+N_CHANNELS_SIPM+ijk] = converted_temp_output; 
+
+		   /* debug */
+		   std::cout << "Therm " << ijk << " :" << converted_temp_output << std::endl;
 
 		 }
 	
