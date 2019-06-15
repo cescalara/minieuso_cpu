@@ -4,7 +4,7 @@
 // 0 REAL HW
 // 1 simulator
 // 2 use without Arduino connected (ie. automatically in night mode)
-#define ARDUINO_DEBUG 2
+#define ARDUINO_DEBUG 0
 
 //#define PRINT_DEBUG_INFO 1
 // COMMENT no debug
@@ -25,25 +25,29 @@
   #include "log.h"
 #endif
 
-#include "minieuso_data_format.h"
+#include "SynchronisedFile.h"
 #include "ConfigManager.h"
-
-// coming from the .h of arduino 
-
-#define X_HEADER_SIZE 4 // AA55AA55
-#define X_SIPM_BUF_SIZE 128 // 64 channels, two byte
-#define X_OTHER_SENSORS 8 // 4 channels, two byte
-#define X_TOTAL_BUF_SIZE (X_SIPM_BUF_SIZE+X_OTHER_SENSORS)
-#define X_TOTAL_BUF_SIZE_HEADER (X_HEADER_SIZE+X_SIPM_BUF_SIZE+X_OTHER_SENSORS+4+90+56+90+56) // packet number at begin and crc at end
-#define X_DELAY 100 // ms
-#define READ_ARDUINO_TIMEOUT  100 // it should be in ms now is in attempts to read the buffer
+#include "CpuTools.h"
+#include "minieuso_data_format.h"
 
 /* for use with arduino readout functions */
 #define DUINO "/dev/ttyACM0"
 #define BAUDRATE B9600
 #define BUF_SIZE 14
 #define FIFO_DEPTH 1
-#define CHANNELS (X_OTHER_SENSORS+X_SIPM_BUF_SIZE)
+#define CHANNELS (N_CHANNELS_PHOTODIODE+N_CHANNELS_SIPM+N_CHANNELS_THERM)
+
+// coming from the .h of arduino 
+#define X_HEADER_SIZE 4 // AA55AA55
+#define X_SIPM_BUF_SIZE 64 // 64 channels, two byte
+#define X_OTHER_SENSORS 4 // 4 channels, two byte
+#define X_TOTAL_BUF_SIZE (X_SIPM_BUF_SIZE+X_OTHER_SENSORS)
+// packet number at begin and crc at end
+#define X_TOTAL_BUF_SIZE_HEADER (X_HEADER_SIZE+X_SIPM_BUF_SIZE+X_OTHER_SENSORS+4+90+56+90+56) 
+//#define X_TOTAL_BUF_SIZE_HEADER (X_HEADER_SIZE+X_SIPM_BUF_SIZE+X_OTHER_SENSORS+4) 
+
+#define X_DELAY 100 // ms
+#define READ_ARDUINO_TIMEOUT  100 // it should be in ms now is in attempts to read the buffer
 
 /* for use with conditional variable */
 //#define WAIT_PERIOD 1 /* milliseconds */
@@ -54,6 +58,13 @@
 typedef struct {
   unsigned int val [FIFO_DEPTH][CHANNELS];
 } AnalogAcq;
+
+/**
+ * acquisition structure for temperature readout 
+ */
+typedef struct {
+  float val [N_CHANNELS_THERM];
+} TemperatureAcq;
 
 /**
  * struct to store light levels for polling 
@@ -71,10 +82,24 @@ typedef struct {
  */
 class ArduinoManager {
 public:
+  /*
+   * SynchronisedFile access
+   */
+  Access * RunAccess;
+  /*
+   * to wait for CPU file to be created by DataAcquisition::CreateCpuRun
+   */
+  std::condition_variable cond_var;
+  /*
+  * to notify that the CPU file is set by DataAcquisition::CreateCpuRun
+  */
+  bool cpu_file_is_set;
+
 
   ArduinoManager();
   std::shared_ptr<LightLevel> ReadLightLevel();
- /**
+ 
+  /**
    * enum to specify the current light level status of the instrument
    */
   enum LightLevelStatus : uint8_t {
@@ -89,8 +114,10 @@ public:
   LightLevelStatus CompareLightLevel(std::shared_ptr<Config> ConfigOut);
   int ProcessAnalogData(std::shared_ptr<Config> ConfigOut);  
   int GetLightLevel(std::shared_ptr<Config> ConfigOut);
+  int GetTemperature();
   int AnalogDataCollect();
-
+  int WriteThermPkt(); 
+  
   /* handle instrument mode switching */
   int Notify();
   int Reset();
@@ -105,6 +132,14 @@ private:
    * light level stored here and accessed only with mutex protection
    */
   std::shared_ptr<LightLevel> light_level;
+  /*
+   * for thread-safe access to the analog_acq
+   */
+  std::mutex m_temperature_acq;
+  /*
+   * temperature acq stored here and accessed only with mutex protection 
+   */
+  std::shared_ptr<TemperatureAcq> temperature_acq;
   /*
    * analog acquisition stored here
    */
@@ -126,7 +161,7 @@ private:
   
   int SetInterfaceAttribs(int fd, int speed);
   int SerialReadOut(int fd);
-  
+  float ConvertToTemp(char data[9]);
 };
 
 #endif

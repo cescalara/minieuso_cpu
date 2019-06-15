@@ -616,7 +616,7 @@ int RunInstrument::PollInstrument() {
   while (!signal_shutdown.load()) {
 
     switch(GetInstMode()) {
-printf("\n Pollinstrument ");
+      printf("\n Pollinstrument ");
     case NIGHT:
       sleep(ConfigOut->light_poll_time);
       /* check if the output of the analog acquisition is above day threshold */
@@ -626,9 +626,9 @@ printf("\n Pollinstrument ");
 	/* To notifie isDay to an external program for zip purpose*/
 	this->Daq.Notify();
 	this->SetInstMode(DAY);
-    this->isDay.open ("is_day.txt");
-    this->isDay<< "1";
-    this->isDay.close();
+	this->isDay.open ("is_day.txt");
+	this->isDay<< "1";
+	this->isDay.close();
       }
       break;
 
@@ -643,9 +643,9 @@ printf("\n Pollinstrument ");
 	/* To notifie isDay to an external program for zip purpose*/
 	this->Daq.Notify();
 	this->SetInstMode(DAY);
-    this->isDay.open ("is_day.txt");
-    this->isDay<< "0";
-    this->isDay.close();
+	this->isDay.open ("is_day.txt");
+	this->isDay<< "2";
+	this->isDay.close();
       }
       break;
 

@@ -19,14 +19,12 @@
 /* for use with conditional variable */
 #define WAIT_PERIOD 1 /* milliseconds */
 
-
 /**
  * acquisition structure for temperature readout 
  */
-typedef struct
-{
+typedef struct {
   float val [N_CHANNELS_THERM];
-} TemperatureAcq;
+} TempAcq;
 
 
 /**
@@ -50,8 +48,8 @@ public:
   ThermManager();
   void Init();
   int ProcessThermData();
-  TemperatureAcq * GetTemperature();
-  int WriteThermPkt(TemperatureAcq * temperature_results);
+  TempAcq * GetTemperature();
+  int WriteThermPkt(TempAcq * temperature_results);
   void PrintTemperature();
 
   /* handle instrument mode switching */
@@ -72,7 +70,7 @@ private:
    */
   std::condition_variable cv_mode_switch;
 
-  TemperatureAcq * ParseDigitempOutput(std::string input_string);
+  TempAcq * ParseDigitempOutput(std::string input_string);
   
 };
 

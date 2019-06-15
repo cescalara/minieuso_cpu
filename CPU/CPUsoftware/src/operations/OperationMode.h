@@ -25,7 +25,7 @@ public:
   std::shared_ptr<Config> ConfigOut;
 
   OperationMode();
-
+  
   /* operation control functions */
   virtual void Start();
   void Stop();
