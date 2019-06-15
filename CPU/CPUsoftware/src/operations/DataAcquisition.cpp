@@ -172,7 +172,7 @@ int DataAcquisition::CreateCpuRun(RunType run_type, std::shared_ptr<Config> Conf
   this->RunAccess->WriteToSynchFile<CpuFileHeader *>(cpu_file_header, SynchronisedFile::CONSTANT, ConfigOut);
   delete cpu_file_header;
   
-  /* notify the ArduinoManager */
+  /* notify the AnalogManager */
   /* will this only work the first time? */
   this->Analog->cpu_file_is_set = true;
   this->Analog->cond_var.notify_all();
@@ -1070,7 +1070,7 @@ int DataAcquisition::CollectData(ZynqManager * Zynq, std::shared_ptr<Config> Con
 
   
   /* add acquisition with the analog board */
-  std::thread analog(&ArduinoManager::ProcessAnalogData, this->Analog, ConfigOut);
+  std::thread analog(&AnalogManager::ProcessAnalogData, this->Analog, ConfigOut);
   
   /* wait for other acquisition threads to join */
   analog.join();

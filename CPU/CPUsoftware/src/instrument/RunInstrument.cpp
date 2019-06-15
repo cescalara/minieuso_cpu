@@ -278,7 +278,7 @@ RunInstrument::InstrumentMode RunInstrument::GetInstMode() {
 
 /**
  * initialise the instrument mode using the current light level status
- * light level is acquired using the ArduinoManager to run an acquisition
+ * light level is acquired using the AnalogManager to run an acquisition
  * from the photodiodes
  */
 int RunInstrument::InitInstMode() {
@@ -287,19 +287,19 @@ int RunInstrument::InitInstMode() {
   printf("info: setting the instrument mode \n");
   /* get the current light level */
   this->Daq.Analog->GetLightLevel(ConfigOut);
-  ArduinoManager::LightLevelStatus current_lightlevel_status = this->Daq.Analog->CompareLightLevel(ConfigOut);
+  AnalogManager::LightLevelStatus current_lightlevel_status = this->Daq.Analog->CompareLightLevel(ConfigOut);
 
   // /* make a decision */
   switch(current_lightlevel_status){
-  case ArduinoManager::LIGHT_ABOVE_DAY_THR:
+  case AnalogManager::LIGHT_ABOVE_DAY_THR:
     /* set to day mode */
     this->SetInstMode(RunInstrument::DAY);
     break;
-  case ArduinoManager::LIGHT_BELOW_NIGHT_THR:
+  case AnalogManager::LIGHT_BELOW_NIGHT_THR:
     /* set to night mode */
     this->SetInstMode(RunInstrument::NIGHT);
      break;
-  case ArduinoManager::LIGHT_UNDEF:
+  case AnalogManager::LIGHT_UNDEF:
     if (GetInstMode()==INST_UNDEF){
       /* set to day mode */
       this->SetInstMode(RunInstrument::DAY);
@@ -615,7 +615,7 @@ int RunInstrument::PollInstrument() {
     case NIGHT:
       sleep(ConfigOut->light_poll_time);
       /* check if the output of the analog acquisition is above day threshold */
-      if (this->Daq.Analog->CompareLightLevel(ConfigOut)==ArduinoManager::LIGHT_ABOVE_DAY_THR) {
+      if (this->Daq.Analog->CompareLightLevel(ConfigOut)==AnalogManager::LIGHT_ABOVE_DAY_THR) {
         /* switch mode to DAY */
 	printf("PollInst: from night to day\n");
 	/* To notifie isDay to an external program for zip purpose*/
@@ -630,7 +630,7 @@ int RunInstrument::PollInstrument() {
     case DAY:
       sleep(ConfigOut->light_poll_time);
       /* check the output of analog acquisition is below night threshold */
-      if (this->Daq.Analog->CompareLightLevel(ConfigOut)==ArduinoManager::LIGHT_BELOW_NIGHT_THR) {
+      if (this->Daq.Analog->CompareLightLevel(ConfigOut)==AnalogManager::LIGHT_BELOW_NIGHT_THR) {
 	/* switch mode to NIGHT */
 	printf("\nPollInst: from day to night\n");
 	this->Data.Notify();
