@@ -6,7 +6,7 @@
 #include "CamManager.h"
 #include "DataAcquisition.h"
 #include "DataReduction.h"
-#include "ArduinoManager.h"
+#include "AnalogManager.h"
 #include "ConfigManager.h"
 
 /* location of data files */
@@ -54,9 +54,9 @@ public:
   CamManager Cam;
   DataAcquisition Daq;
   DataReduction Data;
-  ArduinoManager Analog;
+  AnalogManager Analog;
 
-  ArduinoManager::LightLevelStatus current_lightlevel_status;
+  AnalogManager::LightLevelStatus current_lightlevel_status;
 
   RunInstrument(CmdLineInputs * CmdLine);
   void Start();

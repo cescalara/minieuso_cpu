@@ -8,7 +8,7 @@
 
 #include "log.h"
 #include "OperationMode.h"
-#include "ArduinoManager.h"
+#include "AnalogManager.h"
 #include "ThermManager.h"
 #include "ConfigManager.h"
 

@@ -1,9 +1,9 @@
-#include "ArduinoManager.h"
+#include "AnalogManager.h"
 
 /**
  * constructor 
  */
-ArduinoManager::ArduinoManager() {
+AnalogManager::AnalogManager() {
 
   this->light_level = std::make_shared<LightLevel>();
   this->analog_acq = std::make_shared<AnalogAcq>();
@@ -24,9 +24,9 @@ ArduinoManager::ArduinoManager() {
 /**
  * analog board read out
  * uses the Arduino to collect data on the analog ports, 
- * as defined in ArduinoManager.h
+ * as defined in AnalogManager.h
  */
-int ArduinoManager::AnalogDataCollect() {
+int AnalogManager::AnalogDataCollect() {
 #if ARDUINO_DEBUG ==1
 
   SerialReadOut(0x00);
@@ -64,7 +64,7 @@ int ArduinoManager::AnalogDataCollect() {
   /*baudrate 9600, 8 bits, no parity, 1 stop bit */
   SetInterfaceAttribs(fd, BAUDRATE);
   
-  clog << "info: " << logstream::info << "Will now run ArduinoManager::SerialReadOut()" << std::endl;
+  clog << "info: " << logstream::info << "Will now run AnalogManager::SerialReadOut()" << std::endl;
   SerialReadOut(fd);
 
 #endif
@@ -75,7 +75,7 @@ int ArduinoManager::AnalogDataCollect() {
  * Read serial output from a file descriptor.
  */
 // returns 0 if failed
-int ArduinoManager::SerialReadOut(int fd) {
+int AnalogManager::SerialReadOut(int fd) {
 
 	unsigned char a[] = { 0xAA, 0x55, 0xAA, 0x55 };
 	unsigned char buf[(unsigned int)(X_TOTAL_BUF_SIZE_HEADER*4)];
@@ -306,10 +306,10 @@ int ArduinoManager::SerialReadOut(int fd) {
 
 /**
  * get the current light level. 
- * preforms an analog acquisition using ArduinoManager::AnalogDataCollect()
+ * preforms an analog acquisition using AnalogManager::AnalogDataCollect()
  * and converts the output to the easily readable LightLevel format
  */
-int ArduinoManager::GetLightLevel(std::shared_ptr<Config> ConfigOut) 
+int AnalogManager::GetLightLevel(std::shared_ptr<Config> ConfigOut) 
 {
   int i, k;
   float ph[N_CHANNELS_PHOTODIODE];
@@ -411,7 +411,7 @@ int ArduinoManager::GetLightLevel(std::shared_ptr<Config> ConfigOut)
  * read the light_level from object in a thread-safe way, 
  * without making an acquisition 
  */
-std::shared_ptr<LightLevel> ArduinoManager::ReadLightLevel() {
+std::shared_ptr<LightLevel> AnalogManager::ReadLightLevel() {
   
   {
     std::unique_lock<std::mutex> lock(this->m_light_level);
@@ -428,7 +428,7 @@ std::shared_ptr<LightLevel> ArduinoManager::ReadLightLevel() {
  * LIGHT_THRESHOLD from configuration file config/dummy.conf or config/dummy_local.conf
  * @TODO check if more sophisticated tests needed in lab
  */
-ArduinoManager::LightLevelStatus ArduinoManager::CompareLightLevel(std::shared_ptr<Config> ConfigOut) {
+AnalogManager::LightLevelStatus AnalogManager::CompareLightLevel(std::shared_ptr<Config> ConfigOut) {
   
   LightLevelStatus current_lightlevel_status = LIGHT_UNDEF;
   float ph_avg = 0;
@@ -474,7 +474,7 @@ ArduinoManager::LightLevelStatus ArduinoManager::CompareLightLevel(std::shared_p
   /* compare the result to day and night thresholds */
   if (ph_avg >= ConfigOut->day_light_threshold) {
     //printf("\n CompareLightLevel: photodiode_data: %f , %d", this->light_level->photodiode_data[0], ConfigOut->day_light_threshold);
-    current_lightlevel_status = ArduinoManager::LIGHT_ABOVE_DAY_THR;
+    current_lightlevel_status = AnalogManager::LIGHT_ABOVE_DAY_THR;
 #if ARDUINO_DEBUG != 1
     clog << "info: " << logstream::info << "light level is ABOVE day_light_threshold" << std::endl;
 #else		
@@ -483,7 +483,7 @@ ArduinoManager::LightLevelStatus ArduinoManager::CompareLightLevel(std::shared_p
   }
   
   else if (ph_avg <= ConfigOut->night_light_threshold) {
-    current_lightlevel_status = ArduinoManager::LIGHT_BELOW_NIGHT_THR;
+    current_lightlevel_status = AnalogManager::LIGHT_BELOW_NIGHT_THR;
 #if ARDUINO_DEBUG != 1
     clog << "info: " << logstream::info << "light level is BELOW night_light_threshold" << std::endl;
 #else		
@@ -492,7 +492,7 @@ ArduinoManager::LightLevelStatus ArduinoManager::CompareLightLevel(std::shared_p
   }
   
   else if (ph_avg > ConfigOut->night_light_threshold && ph_avg < ConfigOut->day_light_threshold) {
-    current_lightlevel_status = ArduinoManager::LIGHT_UNDEF;
+    current_lightlevel_status = AnalogManager::LIGHT_UNDEF;
 #if ARDUINO_DEBUG != 1
     clog << "info: " << logstream::info << "light level is BETWEEN  night_light_threshold and day_light_threshold" << std::endl;
 #else		
@@ -507,7 +507,7 @@ ArduinoManager::LightLevelStatus ArduinoManager::CompareLightLevel(std::shared_p
 }
 
 
-int ArduinoManager::ProcessAnalogData(std::shared_ptr<Config> ConfigOut) {
+int AnalogManager::ProcessAnalogData(std::shared_ptr<Config> ConfigOut) {
 
   std::mutex m;
   
@@ -542,7 +542,7 @@ int ArduinoManager::ProcessAnalogData(std::shared_ptr<Config> ConfigOut) {
  * reset the mode switching after an instrument mode change
  * used by OperationMode::Reset() 
  */
-int ArduinoManager::Reset() {
+int AnalogManager::Reset() {
   
   {
     std::unique_lock<std::mutex> lock(this->m_mode_switch);   
@@ -559,7 +559,7 @@ int ArduinoManager::Reset() {
  * notify the object of an instrument mode switch 
  * used by OperationMode::Notify
  */
-int ArduinoManager::Notify() {
+int AnalogManager::Notify() {
 
   {
     std::unique_lock<std::mutex> lock(this->m_mode_switch);   
@@ -572,7 +572,7 @@ int ArduinoManager::Notify() {
 /**
  * Set up interface attributes for the interface with the Arduino device.
  */
-int ArduinoManager::SetInterfaceAttribs(int fd, int speed) {
+int AnalogManager::SetInterfaceAttribs(int fd, int speed) {
 #if ARDUINO_DEBUG ==0
   struct termios tty;
 
@@ -613,7 +613,7 @@ int ArduinoManager::SetInterfaceAttribs(int fd, int speed) {
  * be stored to an "int16_t" type, which is always 16 bits
  * even when compiled on a 32 bit processor.
  */
-float ArduinoManager::ConvertToTemp(char data[9]) {
+float AnalogManager::ConvertToTemp(char data[9]) {
   
  int16_t raw = (data[1] << 8) | data[0];
  char type_s = 1; /* to be fixed */
@@ -647,7 +647,7 @@ float ArduinoManager::ConvertToTemp(char data[9]) {
  * write the temperature packet to file 
  * @param temperature_results contains the parsed temperature data
  */
-int ArduinoManager::WriteThermPkt() {
+int AnalogManager::WriteThermPkt() {
 
   THERM_PACKET * therm_packet = new THERM_PACKET();
   static unsigned int pkt_counter = 0;
