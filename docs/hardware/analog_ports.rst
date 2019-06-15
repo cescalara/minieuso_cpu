@@ -1,7 +1,9 @@
 Analog ports
 ============
 
-An arduino is used in addition to the main CPU board to handle the analog acquisition. This documentation will be updated with more information once the readout is finalised.
+An arduino is used in addition to the main CPU board to handle the analog acquisition.
+
+Pin function:
 
 +----------+----------------+-----------+----------+----------------+-----------+
 | Pin      | Analog channel | Function  | Pin      | Analog channel | Function  | 
@@ -17,5 +19,4 @@ An arduino is used in addition to the main CPU board to handle the analog acquis
 | **9**    |                | AINSENSE  | **10**   |                | AGND      |
 +----------+----------------+-----------+----------+----------------+-----------+
 
-
-*NB: The software is currently set up to read out only SiPM 64.1 64 times (through multiplexer)*
+The software reads the output via a serial interface. Packets are identified and used to read out the photodiodes, SiPM and thermistors.
