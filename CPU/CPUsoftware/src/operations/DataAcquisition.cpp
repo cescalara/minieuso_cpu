@@ -172,7 +172,7 @@ int DataAcquisition::CreateCpuRun(RunType run_type, std::shared_ptr<Config> Conf
   this->RunAccess->WriteToSynchFile<CpuFileHeader *>(cpu_file_header, SynchronisedFile::CONSTANT, ConfigOut);
   delete cpu_file_header;
   
-  /* notify the ThermManager */
+  /* notify the ArduinoManager */
   /* will this only work the first time? */
   this->Analog->cpu_file_is_set = true;
   this->Analog->cond_var.notify_all();
