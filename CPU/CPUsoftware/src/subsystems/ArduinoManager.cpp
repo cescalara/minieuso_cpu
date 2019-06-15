@@ -41,9 +41,25 @@ int ArduinoManager::AnalogDataCollect() {
   } 
   
 #else
+	/* test implementation for now, just prints output to screen */
+	int fd;
 
-  /* do nothing */
-  
+	fd = open(DUINO, O_RDWR | O_NOCTTY | O_SYNC);
+
+	if (fd < 0) {
+		printf("Error opening %s: %s\n", DUINO, std::strerror(errno));
+		return -1;
+	}
+	else {
+		printf("Device has been opened and ready for operation! \n");
+	}
+
+	/*baudrate 9600, 8 bits, no parity, 1 stop bit */
+	SetInterfaceAttribs(fd, BAUDRATE);
+	printf("Will now run ArduinoManager::SerialReadOut() once...\n");
+
+	SerialReadOut(fd);
+
 #endif
   return 0;
 }
@@ -211,7 +227,8 @@ int ArduinoManager::SerialReadOut(int fd) {
 		 printf(" uno %d", this->analog_acq->val[0][1]);
 		 printf(" due %d", this->analog_acq->val[0][2]);
 		 printf(" tre %d", this->analog_acq->val[0][3]);
-		
+
+
 #ifdef PRINT_DEBUG_INFO
 		 printf(" packet number %d", (buf[n + 4] << 8) + buf[n + 5]);
 		 printf(" zero %d", this->analog_acq->val[0][0]);
@@ -301,6 +318,11 @@ int ArduinoManager::GetLightLevel(std::shared_ptr<Config> ConfigOut)
     }
 
     /* DEBUG */
+    printf(" zero %d", this->analog_acq->val[0][0]);
+    printf(" uno %d", this->analog_acq->val[0][1]);
+    printf(" due %d", this->analog_acq->val[0][2]);
+    printf(" tre %d", this->analog_acq->val[0][3]);
+    
     std::cout << "PH 1:" << "sum_ph[0]" << sum_ph[0] << std::endl;
     std::cout << "PH 2:" << "sum_ph[1]" << sum_ph[1] << std::endl;
     std::cout << "PH 3:" << "sum_ph[2]" << sum_ph[2] << std::endl;
