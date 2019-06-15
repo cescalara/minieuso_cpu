@@ -232,7 +232,7 @@ int ArduinoManager::SerialReadOut(int fd) {
 		 //printf("\n SerialReadout: randomizing %d", this->analog_acq->val[0][0]);
 		 for (ijk = 0; ijk < X_SIPM_BUF_SIZE; ijk++)
 		   {
-		     this->analog_acq->val[0][ijk + 4] = (buf[n + 14 + ijk] << 8) + buf[n + 15 + ijk];
+		     this->analog_acq->val[0][ijk + 4] = (buf[n + 14 + (2*ijk)] << 8) + buf[n + 15 + (2*ijk)];
 		   }
 		 // calculate checksum
 		 buffer_checksum = (buf[(n+X_TOTAL_BUF_SIZE + 6)] << 8) + buf[(n + X_TOTAL_BUF_SIZE + 7)];
