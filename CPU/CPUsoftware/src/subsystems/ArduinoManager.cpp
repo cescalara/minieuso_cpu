@@ -71,10 +71,10 @@ int ArduinoManager::AnalogDataCollect() {
 int ArduinoManager::SerialReadOut(int fd) {
 
 	unsigned char a[] = { 0xAA, 0x55, 0xAA, 0x55 };
-	unsigned char buf[(unsigned int)(X_TOTAL_BUF_SIZE_HEADER*8)];
-	unsigned char temp_buf[(unsigned int)(X_TOTAL_BUF_SIZE_HEADER * 8)];
+	unsigned char buf[(unsigned int)(X_TOTAL_BUF_SIZE_HEADER*4)];
+	unsigned char temp_buf[(unsigned int)(X_TOTAL_BUF_SIZE_HEADER * 4)];
 #if ARDUINO_DEBUG ==1
-	unsigned char simulated_buf[(unsigned int)(X_TOTAL_BUF_SIZE_HEADER * 8)];
+	unsigned char simulated_buf[(unsigned int)(X_TOTAL_BUF_SIZE_HEADER * 4)];
 #endif
 	unsigned int temp_checksum = 0;
 	unsigned int buffer_checksum = 0;
