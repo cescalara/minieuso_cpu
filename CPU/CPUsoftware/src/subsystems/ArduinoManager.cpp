@@ -7,6 +7,8 @@ ArduinoManager::ArduinoManager() {
 
   this->light_level = std::make_shared<LightLevel>();
   this->analog_acq = std::make_shared<AnalogAcq>();
+  this->temperature_acq = std::make_shared<TemperatureAcq>();
+  
   int i = 0, j = 0;
 
   for (i = 0; i < FIFO_DEPTH; i++) {
@@ -26,23 +28,9 @@ ArduinoManager::ArduinoManager() {
  */
 int ArduinoManager::AnalogDataCollect() {
 #if ARDUINO_DEBUG ==1
- /* test implementation for now, just prints output to screen */
- // int fd;
-  
- /* fd = open(DUINO, O_RDWR | O_NOCTTY | O_SYNC);
-  if (fd < 0) {
-    printf("Error opening %s: %s\n", DUINO, std::strerror(errno));
-    return -1;
-  }
-  else {
-    printf("Device has been opened and ready for operation! \n");
-  }
-  */
-  /*baudrate 9600, 8 bits, no parity, 1 stop bit */
-  //SetInterfaceAttribs(fd, BAUDRATE);
-  //printf("Will now run ArduinoManager::SerialReadOut() once...\n");
 
   SerialReadOut(0x00);
+
 #elif ARDUINO_DEBUG ==2
 
   int i, j;
@@ -55,24 +43,29 @@ int ArduinoManager::AnalogDataCollect() {
   } 
   
 #else
-	/* test implementation for now, just prints output to screen */
-	int fd;
 
-	fd = open(DUINO, O_RDWR | O_NOCTTY | O_SYNC);
+  /* run the actual analog readout from the Arduino  */
+  int fd;
 
-	if (fd < 0) {
-		printf("Error opening %s: %s\n", DUINO, std::strerror(errno));
-		return -1;
-	}
-	else {
-		printf("Device has been opened and ready for operation! \n");
-	}
+  fd = open(DUINO, O_RDWR | O_NOCTTY | O_SYNC);
 
-	/*baudrate 9600, 8 bits, no parity, 1 stop bit */
-	SetInterfaceAttribs(fd, BAUDRATE);
-	printf("Will now run ArduinoManager::SerialReadOut() once...\n");
+  if (fd < 0) {
 
-	SerialReadOut(fd);
+    clog << "error: " << logstream::error << "error opening Arduino " << DUINO << " " << std::strerror(errno) << std::endl;
+    return -1;
+    
+  }
+  else {
+
+    clog << "info: " << logstream::info << "Device " << DUINO << " has been opened and ready for operation" << std::endl;
+
+  }
+
+  /*baudrate 9600, 8 bits, no parity, 1 stop bit */
+  SetInterfaceAttribs(fd, BAUDRATE);
+  
+  clog << "info: " << logstream::info << "Will now run ArduinoManager::SerialReadOut()" << std::endl;
+  SerialReadOut(fd);
 
 #endif
   return 0;
@@ -86,9 +79,9 @@ int ArduinoManager::SerialReadOut(int fd) {
 
 	unsigned char a[] = { 0xAA, 0x55, 0xAA, 0x55 };
 	unsigned char buf[(unsigned int)(X_TOTAL_BUF_SIZE_HEADER*4)];
-	unsigned char temp_buf[(unsigned int)(X_TOTAL_BUF_SIZE_HEADER * 4)];
+	unsigned char temp_buf[(unsigned int)(X_TOTAL_BUF_SIZE_HEADER*4)];
 #if ARDUINO_DEBUG ==1
-	unsigned char simulated_buf[(unsigned int)(X_TOTAL_BUF_SIZE_HEADER * 4)];
+	unsigned char simulated_buf[(unsigned int)(X_TOTAL_BUF_SIZE_HEADER*4)];
 #endif
 	unsigned int temp_checksum = 0;
 	unsigned int buffer_checksum = 0;
@@ -234,6 +227,7 @@ int ArduinoManager::SerialReadOut(int fd) {
 		 this->analog_acq->val[0][1] = (buf[n + 8] << 8) + buf[n + 9];
 		 this->analog_acq->val[0][2] = (buf[n + 10] << 8) + buf[n + 11];
 		 this->analog_acq->val[0][3] = (buf[n + 12] << 8) + buf[n + 13];
+
 #ifdef PRINT_DEBUG_INFO
 		 printf(" packet number %d", (buf[n + 4] << 8) + buf[n + 5]);
 		 printf(" zero %d", this->analog_acq->val[0][0]);
@@ -241,12 +235,37 @@ int ArduinoManager::SerialReadOut(int fd) {
 		 printf(" due %d", this->analog_acq->val[0][2]);
 		 printf(" tre %d", this->analog_acq->val[0][3]);
 #endif
-		 this->analog_acq->val[0][0]=rand() % 150;
+		 //this->analog_acq->val[0][0]=rand() % 150;
 		 //printf("\n SerialReadout: randomizing %d", this->analog_acq->val[0][0]);
 		 for (ijk = 0; ijk < X_SIPM_BUF_SIZE; ijk++)
 		   {
-		     this->analog_acq->val[0][ijk + 4] = (buf[n + 14 + ijk] << 8) + buf[n + 15 + ijk];
+		     this->analog_acq->val[0][ijk + 4] = (buf[n + 14 + (2*ijk)] << 8) + buf[n + 15 + (2*ijk)];
 		   }
+
+		 for (ijk=0; ijk < N_CHANNELS_THERM; ijk++) {
+
+		   float converted_temp_output = 0;
+		   char raw_temp_output[9];
+		   int ijkl;
+		   
+		   /* get 9 byte temp info */
+		   for (ijkl = 0; ijkl < 9; ijkl++) {
+		     raw_temp_output[ijkl] =  buf[(n + X_TOTAL_BUF_SIZE + 8 + (ijk*9) + ijkl)];
+		   }
+		   
+		   /* convert to float */
+		   converted_temp_output = ConvertToTemp(raw_temp_output);
+		   
+		   /* assign to analog_acq struct */
+		   //this->analog_acq->val[0][N_CHANNELS_PHOTODIODE+N_CHANNELS_SIPM+ijk] = converted_temp_output; 
+		   //std::cout << "Therm " << ijk << " :" << converted_temp_output << std::endl;
+		   
+		   /* debug */
+		   /* For now, just assign known numbers while those in Rome continue the debugging */
+		   this->analog_acq->val[0][N_CHANNELS_PHOTODIODE+N_CHANNELS_SIPM+ijk] = 26; 
+		   
+		 }
+	
 		 // calculate checksum
 		 buffer_checksum = (buf[(n+X_TOTAL_BUF_SIZE + 6)] << 8) + buf[(n + X_TOTAL_BUF_SIZE + 7)];
 		 temp_checksum = 0;
@@ -278,8 +297,10 @@ int ArduinoManager::SerialReadOut(int fd) {
 	 
        } while (((checksum_passed == 0) && ((start_search + X_TOTAL_BUF_SIZE_HEADER) < total_lenght)) && (header_not_found==0));
    }
- if (checksum_passed == 1) return (1);
- else return (0); 
+	
+	if (checksum_passed == 1) return (1);
+	else return (0); 
+
  
 }
 
@@ -291,50 +312,76 @@ int ArduinoManager::SerialReadOut(int fd) {
 int ArduinoManager::GetLightLevel(std::shared_ptr<Config> ConfigOut) 
 {
   int i, k;
-  float sum_ph[N_CHANNELS_PHOTODIODE];
-  float sum_sipm[N_CHANNELS_SIPM];
+  float ph[N_CHANNELS_PHOTODIODE];
+  float sipm[N_CHANNELS_SIPM];
  
  
   /* interpret the analog acquisition struct */
+  
   /* initialise */
   for(k = 0; k < N_CHANNELS_PHOTODIODE; k++) {
-    sum_ph[k] = 0;
+    ph[k] = 0;
   }
   for (k = 0; k < N_CHANNELS_SIPM; k++) {
-	  sum_sipm[k] = 0;
+    sipm[k] = 0;
   }
-
   
-  /* read out multiplexed sipm 64 values and averages of sipm 1 and photodiodes */
-  for(i = 0; i<ConfigOut->average_depth; i++) 
-    {
-    /* read out the data */
-    AnalogDataCollect();
 
-    /* sum the four photodiode channels */
-    sum_ph[0] += (float)(this->analog_acq->val[0][0]); // fixed at 0
-    sum_ph[1] += (float)(this->analog_acq->val[0][1]);
-    sum_ph[2] += (float)(this->analog_acq->val[0][2]);
-    sum_ph[3] += (float)(this->analog_acq->val[0][3]);
-
-    /* sum the one channel SiPM values */
-    for (k = 0; k < N_CHANNELS_SIPM; k++) {
-      sum_sipm[k] += (float)(this->analog_acq->val[0][4+k]);
-    }
-    
-    /* read out the multiplexed 64 channel SiPM values */
-   // {
-   //std::unique_lock<std::mutex> lock(this->m_light_level);
-   //   this->light_level->sipm_data[i] = this->analog_acq->val[i][5];
-   // } /* release mutex */
+  /* read out the data */
+  AnalogDataCollect();
+  ph[0] = (float)(this->analog_acq->val[0][0]); // fixed at 0
+  ph[1] = (float)(this->analog_acq->val[0][1]);
+  ph[2] = (float)(this->analog_acq->val[0][2]);
+  ph[3] = (float)(this->analog_acq->val[0][3]);
+  
+  for (k = 0; k < N_CHANNELS_SIPM; k++) {
+    sipm[k] = (float)(this->analog_acq->val[0][4+k]);
   }
+  
+  /* DEBUG */
+  /*
+  std::cout << "PH 0:" << std::endl;
+  std::cout << "val[0][0]" << this->analog_acq->val[0][0] << std::endl;
+  std::cout << "ph[0]" << ph[0] << std::endl;
+  std::cout << std::endl;
+  
+  std::cout << "PH 1:" << std::endl;
+  std::cout << "val[0][1]" << this->analog_acq->val[0][1] << std::endl;
+  std::cout << "ph[1]" << ph[1] << std::endl;
+  std::cout << std::endl;
+
+  std::cout << "PH 2:" << std::endl;
+  std::cout << "val[0][2]" << this->analog_acq->val[0][2] << std::endl;
+  std::cout << "ph[2]" << ph[2] << std::endl;
+  std::cout << std::endl;
+  
+  std::cout << "PH 3:" << std::endl;
+  std::cout << "val[0][3]" << this->analog_acq->val[0][3] << std::endl;
+  std::cout << "ph[3]" << ph[3] << std::endl;
+  std::cout << std::endl;
+
+  std::cout << "SIPM 64 channels:" << std::endl;
+  for (k=0; k < N_CHANNELS_SIPM; k++) {
+    std::cout << this->analog_acq->val[0][k+4] << " ";
+    std::cout << sipm[k] << " ";
+    std::cout << "    ";
+  }
+  std::cout << std::endl;
+  */
+  
+  /* read out the multiplexed 64 channel SiPM values */
+  // {
+  //std::unique_lock<std::mutex> lock(this->m_light_level);
+  //   this->light_level->sipm_data[i] = this->analog_acq->val[i][5];
+  // } /* release mutex */
+  //}
 
   /* average the photodiode values */
   for (k = 0; k < N_CHANNELS_PHOTODIODE; k++) 
     {
       {
 	std::unique_lock<std::mutex> lock(this->m_light_level);
-	this->light_level->photodiode_data[k] = sum_ph[k] / ConfigOut->average_depth;
+	this->light_level->photodiode_data[k] = ph[k];
       } /* release mutex */
       
     }
@@ -344,9 +391,19 @@ int ArduinoManager::GetLightLevel(std::shared_ptr<Config> ConfigOut)
     {
       {
 	std::unique_lock<std::mutex> lock(this->m_light_level);
-	this->light_level->sipm_data[k] = sum_sipm[k] / ConfigOut->average_depth;
+	this->light_level->sipm_data[k] = sipm[k];
       } /* release mutex */
     }
+
+  /* read out the thermistors */
+  for (k = 0; k < N_CHANNELS_THERM; k++)
+    {
+      {
+	std::unique_lock<std::mutex> lock(this->m_temperature_acq);
+	this->temperature_acq->val[k] = (float)this->analog_acq->val[0][N_CHANNELS_PHOTODIODE+N_CHANNELS_SIPM+k];
+      }
+    }
+  
   return 0;
 }
 
@@ -452,12 +509,27 @@ ArduinoManager::LightLevelStatus ArduinoManager::CompareLightLevel(std::shared_p
 
 int ArduinoManager::ProcessAnalogData(std::shared_ptr<Config> ConfigOut) {
 
+  std::mutex m;
+  
   std::unique_lock<std::mutex> lock(this->m_mode_switch);
   /* enter loop while instrument mode switching not requested */
   while(!this->cv_mode_switch.wait_for(lock,
 				       std::chrono::milliseconds(ConfigOut->arduino_wait_period),
 				       [this] { return this->inst_mode_switch; })) { 
+
+    /* get the light level and read out thermistors  */
     this->GetLightLevel(ConfigOut);
+
+    /* from old ThermManager::ProcessThermData() */
+    /* wait for CPU file to be set by DataAcqManager::ProcessIncomingData() */
+    std::unique_lock<std::mutex> lock(m);
+    this->cond_var.wait(lock, [this]{return cpu_file_is_set == true;});
+
+    /* write to file */
+    if (this->temperature_acq != NULL) {
+      WriteThermPkt();
+    }
+    
     //#if ARDUINO_DEBUG == 0
     sleep(ConfigOut->light_acq_time);
     //#endif
@@ -478,7 +550,7 @@ int ArduinoManager::Reset() {
   } /* release mutex */
 
   /* update measurement */
-  //  this->GetLightLevel(ConfigOut);
+  //this->GetLightLevel(ConfigOut);
 
   return 0;
 }
@@ -535,7 +607,72 @@ int ArduinoManager::SetInterfaceAttribs(int fd, int speed) {
   return 0;
 }
 
+/**
+ * Convert the data to actual temperature
+ * because the result is a 16 bit signed integer, it should
+ * be stored to an "int16_t" type, which is always 16 bits
+ * even when compiled on a 32 bit processor.
+ */
+float ArduinoManager::ConvertToTemp(char data[9]) {
+  
+ int16_t raw = (data[1] << 8) | data[0];
+ char type_s = 1; /* to be fixed */
+ float celsius;
+ 
+ if (type_s) {
 
+   raw = raw << 3; // 9 bit resolution default
+   if (data[7] == 0x10) {
+     // "count remain" gives full 12 bit resolution
+     raw = (raw & 0xFFF0) + 12 - data[6];
+   }
+
+ }
+ else {
+
+   char cfg = (data[4] & 0x60);
+   // at lower res, the low bits are undefined, so let's zero them
+   if (cfg == 0x00) raw = raw & ~7;  // 9 bit resolution, 93.75 ms
+   else if (cfg == 0x20) raw = raw & ~3; // 10 bit res, 187.5 ms
+   else if (cfg == 0x40) raw = raw & ~1; // 11 bit res, 375 ms
+   //// default is 12 bit resolution, 750 ms conversion time
+
+ }
+ celsius = (float)raw / 16.0;
+
+ return celsius;
+}
+
+/*
+ * write the temperature packet to file 
+ * @param temperature_results contains the parsed temperature data
+ */
+int ArduinoManager::WriteThermPkt() {
+
+  THERM_PACKET * therm_packet = new THERM_PACKET();
+  static unsigned int pkt_counter = 0;
+  
+  clog << "info: " << logstream::info << "writing new therm packet to " << this->RunAccess->path << std::endl;
+  /* create the therm packet header */
+  therm_packet->therm_packet_header.header = CpuTools::BuildCpuHeader(THERM_PACKET_TYPE, THERM_PACKET_VER);
+  therm_packet->therm_packet_header.pkt_size = sizeof(*therm_packet);
+  therm_packet->therm_packet_header.pkt_num = pkt_counter; 
+  therm_packet->therm_time.cpu_time_stamp = CpuTools::BuildCpuTimeStamp();
+
+  if (this->temperature_acq != NULL) {
+    /* get the temperature data */
+    for (int i = 0; i < N_CHANNELS_THERM; i++) {
+      therm_packet->therm_data[i] = this->temperature_acq->val[i];
+    }
+  }
+  
+  /* write the therm packet */
+  this->RunAccess->WriteToSynchFile<THERM_PACKET *>(therm_packet, SynchronisedFile::CONSTANT);
+  delete therm_packet; 
+  pkt_counter++;
+
+  return 0;
+}
 
 
 

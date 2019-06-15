@@ -155,7 +155,7 @@ int DataAcquisition::CreateCpuRun(RunType run_type, std::shared_ptr<Config> Conf
   this->RunAccess = new Access(this->CpuFile);
 
   /* access for ThermManager */
-  this->Thermistors->RunAccess = new Access(this->CpuFile);
+  this->Analog->RunAccess = new Access(this->CpuFile);
     
   /* set up the cpu file structure */
   std::string run_info_string = BuildCpuFileInfo(ConfigOut, CmdLine);
@@ -172,10 +172,10 @@ int DataAcquisition::CreateCpuRun(RunType run_type, std::shared_ptr<Config> Conf
   this->RunAccess->WriteToSynchFile<CpuFileHeader *>(cpu_file_header, SynchronisedFile::CONSTANT, ConfigOut);
   delete cpu_file_header;
   
-  /* notify the ThermManager */
+  /* notify the ArduinoManager */
   /* will this only work the first time? */
-  this->Thermistors->cpu_file_is_set = true;
-  this->Thermistors->cond_var.notify_all();
+  this->Analog->cpu_file_is_set = true;
+  this->Analog->cond_var.notify_all();
   
   return 0;
 }
@@ -1071,15 +1071,6 @@ int DataAcquisition::CollectData(ZynqManager * Zynq, std::shared_ptr<Config> Con
   
   /* add acquisition with the analog board */
   std::thread analog(&ArduinoManager::ProcessAnalogData, this->Analog, ConfigOut);
-
-#if ARDUINO_DEBUG !=1  
-  /* add acquisition with thermistors if required */
-  if (CmdLine->therm_on) {
-    this->Thermistors->Init();
-    std::thread collect_therm_data (&ThermManager::ProcessThermData, this->Thermistors);
-    collect_therm_data.join();
-  }
-#endif
   
   /* wait for other acquisition threads to join */
   analog.join();

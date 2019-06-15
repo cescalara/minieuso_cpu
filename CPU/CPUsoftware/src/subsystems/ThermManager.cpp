@@ -24,7 +24,7 @@ void ThermManager::Init() {
 /**
  * get the temperature by running the digitemp command and parsing the output
  */
-TemperatureAcq * ThermManager::GetTemperature() {
+TempAcq * ThermManager::GetTemperature() {
  
   /* define command to read temperature from all thermistors on COM port 1 */
   const char * cmd = "digitemp -s /dev/ttyS0 -a";
@@ -32,7 +32,7 @@ TemperatureAcq * ThermManager::GetTemperature() {
   /* run the digitemp command */
   std::string output = CpuTools::CommandToStr(cmd);
   
-  TemperatureAcq * temperature_result;
+  TempAcq * temperature_result;
   size_t found = output.find("Error 10:");
   if (found != std::string::npos) {
     clog << "error: " << logstream::error << "cannot connect to temprature sensors, writing 0 to output." << std::endl;
@@ -70,16 +70,15 @@ void ThermManager::PrintTemperature() {
  
 }
 
-
 /**
  * parse the digitemp output 
  * @param input_string the string containing the output of the digitemp command
  */
-TemperatureAcq * ThermManager::ParseDigitempOutput(std::string input_string) {
+TempAcq * ThermManager::ParseDigitempOutput(std::string input_string) {
 
   std::regex num_with_two_dp("([0-9]+\\.[0-9]{2})");
   std::smatch match;
-  TemperatureAcq * temperature_result = new TemperatureAcq();
+  TempAcq * temperature_result = new TempAcq();
 
   /* check for null output */
   int k = 0;
@@ -114,7 +113,7 @@ TemperatureAcq * ThermManager::ParseDigitempOutput(std::string input_string) {
  * write the temperature packet to file 
  * @param temperature_results contains the parsed temperature data
  */
-int ThermManager::WriteThermPkt(TemperatureAcq * temperature_result) {
+int ThermManager::WriteThermPkt(TempAcq * temperature_result) {
 
   THERM_PACKET * therm_packet = new THERM_PACKET();
   static unsigned int pkt_counter = 0;
@@ -161,7 +160,7 @@ int ThermManager::ProcessThermData() {
   
     if ((time_diff > THERM_ACQ_SLEEP) || first_run) {
       /* collect data */
-      TemperatureAcq * temperature_result = GetTemperature();
+      TempAcq * temperature_result = GetTemperature();
       
       /* wait for CPU file to be set by DataAcqManager::ProcessIncomingData() */
       std::unique_lock<std::mutex> lock(m);
