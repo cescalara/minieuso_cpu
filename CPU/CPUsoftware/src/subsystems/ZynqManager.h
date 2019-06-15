@@ -141,6 +141,7 @@ public:
   int SetL2TrigParams(int n_bg, int low_thresh); 
   bool CheckScurve(int sockfd);
   static std::string GetZynqVer();
+  int InstrumentClean();
   
 private:
   

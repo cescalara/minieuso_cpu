@@ -804,7 +804,8 @@ int RunInstrument::Acquisition() {
   
   /* clear the FTP server */
   CpuTools::ClearFolder(DATA_DIR);
-
+  this->Zynq.InstrumentClean();
+  
   /* add acquisition with cameras if required */
   this->LaunchCam();
 
