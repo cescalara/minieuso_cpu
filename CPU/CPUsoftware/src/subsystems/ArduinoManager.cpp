@@ -656,6 +656,10 @@ int ArduinoManager::WriteThermPkt() {
     /* get the temperature data */
     for (int i = 0; i < N_CHANNELS_THERM; i++) {
       therm_packet->therm_data[i] = this->temperature_acq->val[i];
+
+      /* debug */
+      std::cout << "Therm channel " << i << " : " << therm_packet->therm_data[i] << std::endl;
+
     }
   }
   
