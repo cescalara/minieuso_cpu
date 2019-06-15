@@ -33,13 +33,13 @@ void DataReduction::Start() {
 
 /**
  * data reduction procedure 
- * @TODO currently just sleeps! add main procedure
+ * compresses data into .zip files
  */
 int DataReduction::RunDataReduction() {
 
-  {
-    std::unique_lock<std::mutex> lock(this->_m_switch);
-  }
+  std::string output;
+  const char * data_compression_cmd;
+  std::stringstream conv;
   
   std::unique_lock<std::mutex> lock(this->_m_switch); 
 
@@ -47,12 +47,19 @@ int DataReduction::RunDataReduction() {
   while(!this->_cv_switch.wait_for(lock,
 				   std::chrono::milliseconds(WAIT_PERIOD),
 				   [this] { return this->_switch; } )) {   
+
+    /* build command */
+    conv << "sh /home/software/data_reduction/ZipDemon.sh" << std::endl;
+
+    /* convert stringstream to char * */
+    data_compression_cmd = conv.str().c_str();
+  
+    /* run script to compress data */
+    /* should be something short (~10s of seconds max) which exits by itself so we can check for a mode switch */
+    /* should also add a timeout to be safe */
+    /* can read the output string to debug/do stuff */
+    output = CpuTools::CommandToStr(data_compression_cmd);
     
-    /* add data reduction procedure here */
-    std::cout << "daytime work..." << std::endl; 
-    
-    /* for now just sleep */
-    sleep(5);
   }
   
   return 0;
