@@ -343,10 +343,21 @@ int ZynqManager::HvpsTurnOn(int cv, int dv, std::string hvps_ec_string) {
   cmd = CpuTools::BuildStr("hvps cathode", " ", 3, N_EC);
   std::cout << "Set HVPS cathode to " << cv << ": "; 
   Telnet(cmd, sockfd, true);
-  
-  /* set the dynode voltage to 0 */
-  cmd = CpuTools::BuildStr("hvps setdac", " ", 0, N_EC);
-  std::cout << "Set HVPS DAC to " << 0 << ": "; 
+
+  /* start rampup at 700 V ~ 2500 DAC unless dv is lower */
+  int dac;
+  if (dv >= 2500) {
+    /* set the dynode voltage to 700 V ~ 2500 DAC */
+    dac = 2500;
+    cmd = CpuTools::BuildStr("hvps setdac", " ", dac, N_EC);
+    std::cout << "Set HVPS DAC to " << dac << ": ";    
+  }
+  else {
+    /* set the dynode voltage to 0 V */
+    dac = 0;
+    cmd = CpuTools::BuildStr("hvps setdac", " ", dac, N_EC);
+    std::cout << "Set HVPS DAC to " << dac << ": "; 
+  }
   Telnet(cmd, sockfd, true);
   
   /* turn on */
@@ -359,14 +370,20 @@ int ZynqManager::HvpsTurnOn(int cv, int dv, std::string hvps_ec_string) {
   /* ramp up in steps of 500 DAC */
   int ramp_dac[8];
   int ramp_step = 500;
-  int dac = 0;
+  int ramp = 0;
   int i = 0;
   for (i = 0; i < 8; i++) {
-    dac += ramp_step;
-    ramp_dac[i] = dac;
+      ramp += ramp_step;
+      ramp_dac[i] = ramp;
   }
-  
-  i = 0;
+
+  /* decide where to start the ramp */
+  if (dac == 2500) {
+    i = 5;
+  }
+  else {
+    i = 0;
+  }
   bool ramp_done = false;
   while (!ramp_done && i < 8) {  
     if (dv > ramp_dac[i]) {
