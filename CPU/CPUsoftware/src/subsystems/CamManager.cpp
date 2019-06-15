@@ -149,7 +149,7 @@ int CamManager::KillCamAcq() {
   if (this->launch_running) {
     /* kill the thread */
     /* justifiable as no locked resources */
-    pthread_cancel(this->cam_thread_handle);
+    //pthread_cancel(this->cam_thread_handle);
   }
   
   return 0;
