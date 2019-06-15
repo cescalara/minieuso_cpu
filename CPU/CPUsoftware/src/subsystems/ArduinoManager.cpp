@@ -327,8 +327,9 @@ int ArduinoManager::GetLightLevel(std::shared_ptr<Config> ConfigOut)
 
   std::cout << "SIPM 64 channels:" << std::endl;
   for (k=0; k < N_CHANNELS_SIPM; k++) {
-    std::cout << this->analog_acq->val[0][k+4];
-    std::cout << sipm[k]; 
+    std::cout << this->analog_acq->val[0][k+4] << " ";
+    std::cout << sipm[k] << " ";
+    std::cout << "    ";
   }
   std::cout << std::endl;
 
