@@ -19,12 +19,10 @@
 /* for use with conditional variable */
 #define WAIT_PERIOD 1 /* milliseconds */
 
-
 /**
  * acquisition structure for temperature readout 
  */
-typedef struct
-{
+typedef struct {
   float val [N_CHANNELS_THERM];
 } TemperatureAcq;
 

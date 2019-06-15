@@ -387,6 +387,16 @@ int ArduinoManager::GetLightLevel(std::shared_ptr<Config> ConfigOut)
 	this->light_level->sipm_data[k] = sipm[k];
       } /* release mutex */
     }
+
+  /* read out the thermistors */
+  for (k = 0; k < N_CHANNELS_THERM; k++)
+    {
+      {
+	std::unique_lock<std::mutex> lock(this->m_temperature_acq);
+	this->temperature_acq->val[k] = this->analog_acq->val[0][N_CHANNELS_PHOTODIODE+N_CHANNELS_SIPM+k];
+      }
+    }
+  
   return 0;
 }
 
@@ -492,12 +502,27 @@ ArduinoManager::LightLevelStatus ArduinoManager::CompareLightLevel(std::shared_p
 
 int ArduinoManager::ProcessAnalogData(std::shared_ptr<Config> ConfigOut) {
 
+  std::mutex m;
+  
   std::unique_lock<std::mutex> lock(this->m_mode_switch);
   /* enter loop while instrument mode switching not requested */
   while(!this->cv_mode_switch.wait_for(lock,
 				       std::chrono::milliseconds(ConfigOut->arduino_wait_period),
 				       [this] { return this->inst_mode_switch; })) { 
+
+    /* get the light level and read out thermistors  */
     this->GetLightLevel(ConfigOut);
+
+    /* from old ThermManager::ProcessThermData() */
+    /* wait for CPU file to be set by DataAcqManager::ProcessIncomingData() */
+    std::unique_lock<std::mutex> lock(m);
+    this->cond_var.wait(lock, [this]{return cpu_file_is_set == true;});
+
+    /* write to file */
+    if (this->temperature_acq != NULL) {
+      WriteThermPkt();
+    }
+    
     //#if ARDUINO_DEBUG == 0
     sleep(ConfigOut->light_acq_time);
     //#endif
@@ -611,6 +636,36 @@ float ArduinoManager::ConvertToTemp(char data[9]) {
  return celsius;
 }
 
+/*
+ * write the temperature packet to file 
+ * @param temperature_results contains the parsed temperature data
+ */
+int ArduinoManager::WriteThermPkt() {
+
+  THERM_PACKET * therm_packet = new THERM_PACKET();
+  static unsigned int pkt_counter = 0;
+  
+  clog << "info: " << logstream::info << "writing new therm packet to " << this->RunAccess->path << std::endl;
+  /* create the therm packet header */
+  therm_packet->therm_packet_header.header = CpuTools::BuildCpuHeader(THERM_PACKET_TYPE, THERM_PACKET_VER);
+  therm_packet->therm_packet_header.pkt_size = sizeof(*therm_packet);
+  therm_packet->therm_packet_header.pkt_num = pkt_counter; 
+  therm_packet->therm_time.cpu_time_stamp = CpuTools::BuildCpuTimeStamp();
+
+  if (this->temperature_acq != NULL) {
+    /* get the temperature data */
+    for (int i = 0; i < N_CHANNELS_THERM; i++) {
+      therm_packet->therm_data[i] = this->temperature_acq->val[i];
+    }
+  }
+  
+  /* write the therm packet */
+  this->RunAccess->WriteToSynchFile<THERM_PACKET *>(therm_packet, SynchronisedFile::CONSTANT);
+  delete therm_packet; 
+  pkt_counter++;
+
+  return 0;
+}
 
 
 

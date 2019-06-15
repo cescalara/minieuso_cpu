@@ -25,8 +25,10 @@
   #include "log.h"
 #endif
 
-#include "minieuso_data_format.h"
+#include "SynchronisedFile.h"
 #include "ConfigManager.h"
+#include "CpuTools.h"
+#include "minieuso_data_format.h"
 
 /* for use with arduino readout functions */
 #define DUINO "/dev/ttyACM0"
@@ -58,6 +60,13 @@ typedef struct {
 } AnalogAcq;
 
 /**
+ * acquisition structure for temperature readout 
+ */
+typedef struct {
+  float val [N_CHANNELS_THERM];
+} TemperatureAcq;
+
+/**
  * struct to store light levels for polling 
  */
 typedef struct {
@@ -73,10 +82,24 @@ typedef struct {
  */
 class ArduinoManager {
 public:
+  /*
+   * SynchronisedFile access
+   */
+  Access * RunAccess;
+  /*
+   * to wait for CPU file to be created by DataAcquisition::CreateCpuRun
+   */
+  std::condition_variable cond_var;
+  /*
+  * to notify that the CPU file is set by DataAcquisition::CreateCpuRun
+  */
+  bool cpu_file_is_set;
+
 
   ArduinoManager();
   std::shared_ptr<LightLevel> ReadLightLevel();
- /**
+ 
+  /**
    * enum to specify the current light level status of the instrument
    */
   enum LightLevelStatus : uint8_t {
@@ -91,8 +114,10 @@ public:
   LightLevelStatus CompareLightLevel(std::shared_ptr<Config> ConfigOut);
   int ProcessAnalogData(std::shared_ptr<Config> ConfigOut);  
   int GetLightLevel(std::shared_ptr<Config> ConfigOut);
+  int GetTemperature();
   int AnalogDataCollect();
-
+  int WriteThermPkt(); 
+  
   /* handle instrument mode switching */
   int Notify();
   int Reset();
@@ -107,6 +132,14 @@ private:
    * light level stored here and accessed only with mutex protection
    */
   std::shared_ptr<LightLevel> light_level;
+  /*
+   * for thread-safe access to the analog_acq
+   */
+  std::mutex m_temperature_acq;
+  /*
+   * temperature acq stored here and accessed only with mutex protection 
+   */
+  std::shared_ptr<TemperatureAcq> temperature_acq;
   /*
    * analog acquisition stored here
    */
