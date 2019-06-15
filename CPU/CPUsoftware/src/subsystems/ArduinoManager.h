@@ -33,7 +33,7 @@
 #define BAUDRATE B9600
 #define BUF_SIZE 14
 #define FIFO_DEPTH 1
-#define CHANNELS (X_OTHER_SENSORS+X_SIPM_BUF_SIZE)
+#define CHANNELS (N_CHANNELS_PHOTODIODE+N_CHANNELS_SIPM+N_CHANNELS_THERM)
 
 // coming from the .h of arduino 
 #define X_HEADER_SIZE 4 // AA55AA55
@@ -128,7 +128,7 @@ private:
   
   int SetInterfaceAttribs(int fd, int speed);
   int SerialReadOut(int fd);
-  
+  float ConvertToTemp(char data[9]);
 };
 
 #endif

@@ -70,7 +70,6 @@ void ThermManager::PrintTemperature() {
  
 }
 
-
 /**
  * parse the digitemp output 
  * @param input_string the string containing the output of the digitemp command

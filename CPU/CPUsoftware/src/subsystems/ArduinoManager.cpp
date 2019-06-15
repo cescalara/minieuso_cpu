@@ -234,6 +234,26 @@ int ArduinoManager::SerialReadOut(int fd) {
 		   {
 		     this->analog_acq->val[0][ijk + 4] = (buf[n + 14 + (2*ijk)] << 8) + buf[n + 15 + (2*ijk)];
 		   }
+
+		 for (ijk=0; ijk < N_CHANNELS_THERM; ijk++) {
+
+		   float converted_temp_output = 0;
+		   char raw_temp_output[9];
+		   int ijkl;
+		   
+		   /* get 9 byte temp info */
+		   for (ijkl = 0; ijkl < 9; ijkl++) {
+		     raw_temp_output[ijkl] =  buf[(n + X_TOTAL_BUF_SIZE + 8 + (ijk*9) + ijkl)];
+		   }
+		   
+		   /* convert to float */
+		   converted_temp_output = ConvertToTemp(raw_temp_output);
+		   
+		   /* assign to analog_acq struct */
+		   this->analog_acq->val[0][N_CHANNELS_PHOTODIODE+N_CHANNELS_SIPM+ijk] = converted_temp_output; 
+
+		 }
+	
 		 // calculate checksum
 		 buffer_checksum = (buf[(n+X_TOTAL_BUF_SIZE + 6)] << 8) + buf[(n + X_TOTAL_BUF_SIZE + 7)];
 		 temp_checksum = 0;
@@ -265,8 +285,10 @@ int ArduinoManager::SerialReadOut(int fd) {
 	 
        } while (((checksum_passed == 0) && ((start_search + X_TOTAL_BUF_SIZE_HEADER) < total_lenght)) && (header_not_found==0));
    }
- if (checksum_passed == 1) return (1);
- else return (0); 
+	
+	if (checksum_passed == 1) return (1);
+	else return (0); 
+
  
 }
 
@@ -547,6 +569,41 @@ int ArduinoManager::SetInterfaceAttribs(int fd, int speed) {
   return 0;
 }
 
+/**
+ * Convert the data to actual temperature
+ * because the result is a 16 bit signed integer, it should
+ * be stored to an "int16_t" type, which is always 16 bits
+ * even when compiled on a 32 bit processor.
+ */
+float ArduinoManager::ConvertToTemp(char data[9]) {
+  
+ int16_t raw = (data[1] << 8) | data[0];
+ char type_s = 1; /* to be fixed */
+ float celsius;
+ 
+ if (type_s) {
+
+   raw = raw << 3; // 9 bit resolution default
+   if (data[7] == 0x10) {
+     // "count remain" gives full 12 bit resolution
+     raw = (raw & 0xFFF0) + 12 - data[6];
+   }
+
+ }
+ else {
+
+   char cfg = (data[4] & 0x60);
+   // at lower res, the low bits are undefined, so let's zero them
+   if (cfg == 0x00) raw = raw & ~7;  // 9 bit resolution, 93.75 ms
+   else if (cfg == 0x20) raw = raw & ~3; // 10 bit res, 187.5 ms
+   else if (cfg == 0x40) raw = raw & ~1; // 11 bit res, 375 ms
+   //// default is 12 bit resolution, 750 ms conversion time
+
+ }
+ celsius = (float)raw / 16.0;
+
+ return celsius;
+}
 
 
 
