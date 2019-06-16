@@ -335,7 +335,7 @@ int ZynqManager::HvpsTurnOn(int cv, int dv, std::string hvps_ec_string) {
   
   /* set the cathode voltage */
   /* make the command string from config file values */
-  cmd = CpuTools::BuildStr("hvps cathode", " ", 3, N_EC);
+  cmd = CpuTools::BuildStr("hvps cathode", " ", cv, N_EC);
   std::cout << "Set HVPS cathode to " << cv << ": "; 
   Telnet(cmd, sockfd, true);
 
