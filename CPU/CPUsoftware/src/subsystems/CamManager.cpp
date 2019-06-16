@@ -143,15 +143,30 @@ int CamManager::CollectData() {
  */
 int CamManager::KillCamAcq() {
 
+  std::string output;
+  const char * ps_cmd;
+  std::stringstream conv;
+  
   clog << "info: " << logstream::info << "killing the camera acquisition, if possible" << std::endl;
 
   /* check camera launch successful, ie. thread runnning */
   if (this->launch_running) {
-    /* kill the thread */
-    /* justifiable as no locked resources */
-    pthread_cancel(this->cam_thread_handle);
+
+    /* look for multiplecam process */
+    conv << "ps | grep multiplecam" << std::endl;
+    ps_cmd = conv.str().c_str();
+    output = CpuTools::CommnadToStr(ps_cmd);
+
+    size_t found = output.find("multiplecam");
+    if (found != std::string::npos) {
+
+      /* kill the thread */
+      /* justifiable as no locked resources */
+      pthread_cancel(this->cam_thread_handle);      
+
+    }
   }
-  
+
   return 0;
 }
 
