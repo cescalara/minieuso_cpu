@@ -441,8 +441,8 @@ CmdLineInputs * InputParser::ParseCmdLineInputs() {
     else {
 
       /* convert V -> DAC */
-      std::vector dvr_values = CpuTools::DelimStrToVec(dynode_voltage_real, ',', N_EC, true);
-      std::for_each(dvr_values.begin(), dvr_values.end(),  [](int& d) { d = (int)((float)HV_CONV_FAC*d);})
+      std::vector<int> dvr_values = CpuTools::DelimStrToVec(dynode_voltage_real, ',', N_EC, true);
+      std::for_each(dvr_values.begin(), dvr_values.end(),  [](int& d) { d = (int)((float)HV_CONV_FAC*d);});
       this->CmdLine->hvps_dv_string = CpuTools::BuildStrFromVec("", ",", dvr_values);
     }
     

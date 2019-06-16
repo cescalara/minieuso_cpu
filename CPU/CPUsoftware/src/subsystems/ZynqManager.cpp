@@ -339,7 +339,7 @@ int ZynqManager::HvpsTurnOn(int cv, std::string hvps_dv_string, std::string hvps
   Telnet(cmd, sockfd, true);
 
   /* find max_dv to ramp to, assume small differences between EC units */
-  std::vector dv_values = CpuTools::DelimStrToVec(hvps_dv_string, ',', N_EC, true);
+  std::vector<int> dv_values = CpuTools::DelimStrToVec(hvps_dv_string, ',', N_EC, true);
   int max_dv = *max_element(dv_values.begin(), dv_values.end());
   
   /* start rampup at 700 V ~ 2500 DAC unless dv is lower */
@@ -397,7 +397,7 @@ int ZynqManager::HvpsTurnOn(int cv, std::string hvps_dv_string, std::string hvps
   }
       
   /* set the final DAC to individual EC unit values */
-  cmd = CpuTools::BuildStrFromVec("hvps setdac", " ", this->dv_values);
+  cmd = CpuTools::BuildStrFromVec("hvps setdac", " ", dv_values);
   std::cout << "Set HVPS DAC to " << hvps_dv_string << ": ";
   Telnet(cmd, sockfd, true);
   

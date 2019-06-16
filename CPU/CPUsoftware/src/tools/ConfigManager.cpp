@@ -11,7 +11,7 @@ ConfigManager::ConfigManager () {
   
   /* initialise struct members to -1 */
   this->ConfigOut->cathode_voltage = -1;
-  this->ConfigOut->dynode_voltage = -1;
+  this->ConfigOut->dynode_voltage_string = "";
   this->ConfigOut->scurve_start = -1;
   this->ConfigOut->scurve_step = -1;
   this->ConfigOut->scurve_stop = -1;
@@ -56,7 +56,7 @@ ConfigManager::ConfigManager (std::string cfl, std::string cf0, std::string cf1)
   
   /* initialise struct members to -1 */
   this->ConfigOut->cathode_voltage = -1;
-  this->ConfigOut->dynode_voltage = -1;
+  this->ConfigOut->dynode_voltage_string = "";
   this->ConfigOut->scurve_start = -1;
   this->ConfigOut->scurve_step = -1;
   this->ConfigOut->scurve_stop = -1;
@@ -144,7 +144,9 @@ void ConfigManager::Parse(std::string config_file_name){
 	in >> this->ConfigOut->cathode_voltage;
       }
       else if (type == "DYNODE_VOLTAGE") {
-	in >> this->ConfigOut->dynode_voltage;
+	int dv;
+	in >> dv;
+	this->ConfigOut->dynode_voltage_string = CpuTools::BuildStr("", ",", dv, N_EC); 
       }
       else if (type == "SCURVE_START") {
 	in >> this->ConfigOut->scurve_start;
@@ -288,7 +290,7 @@ void ConfigManager::Configure() {
 bool ConfigManager::IsParsed() {
 
   if (this->ConfigOut->cathode_voltage != -1 &&
-      this->ConfigOut->dynode_voltage != -1 &&
+      !this->ConfigOut->dynode_voltage_string.empty() &&
       this->ConfigOut->scurve_start != -1 &&
       this->ConfigOut->scurve_step != -1 &&
       this->ConfigOut->scurve_acc != -1 &&
