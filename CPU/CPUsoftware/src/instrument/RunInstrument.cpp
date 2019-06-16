@@ -156,7 +156,7 @@ int RunInstrument::DebugMode() {
   std::cout << std::endl;
   std::cout << "running checks of all subsystems..." <<std::endl;
   std::cout << std::endl;
-
+  /*
   std::cout << "USB" << std::endl;
   int num_usb_storage = this->Usb.LookupUsbStorage();
   std::cout << "there are " << num_usb_storage << " USB storage devices connected" << std::endl;
@@ -176,7 +176,8 @@ int RunInstrument::DebugMode() {
   this->Lvps.SwitchOn(LvpsManager::ZYNQ);
   sleep(1);
   std::cout << std::endl;
-
+  */
+  
   /*
   std::cout << "ANALOG" << std::endl;
   std::cout << "running an acquisition..." << std::endl;
@@ -195,7 +196,7 @@ int RunInstrument::DebugMode() {
   std::cout << "SIPM single channel: " << light_level->sipm_single << std::endl;
   std::cout << std::endl;
   */
-
+  /*
   this->Lvps.SwitchOn(LvpsManager::CAMERAS);
   std::cout << "CAMERAS" << std::endl;
   std::cout << "running an acquisition..." << std::endl;
@@ -238,7 +239,7 @@ int RunInstrument::DebugMode() {
 #endif 
   
   std::cout << "debug tests completed, exiting the program" << std::endl;
-
+  */
   return 0;
 }
 
