@@ -171,7 +171,7 @@ std::string CpuTools::BuildStr(std::string stem, std::string sep, int val, int r
     ss << stem;
   }
   for (i = 0; i < rep; i++) {
-    if (i = 0 && stem.empty()) {
+    if (i == 0 && stem.empty()) {
       ss << val;
     }
     else {
