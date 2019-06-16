@@ -520,14 +520,16 @@ int AnalogManager::ProcessAnalogData(std::shared_ptr<Config> ConfigOut) {
     /* get the light level and read out thermistors  */
     this->GetLightLevel(ConfigOut);
 
-    /* from old ThermManager::ProcessThermData() */
-    /* wait for CPU file to be set by DataAcqManager::ProcessIncomingData() */
-    std::unique_lock<std::mutex> lock(m);
-    this->cond_var.wait(lock, [this]{return cpu_file_is_set == true;});
+    /* write THERM_PACKET to file if night/data acquisition */
+    if (this->current_lightlevel_status == LIGHT_BELOW_NIGHT_THR) { 
+      /* from old ThermManager::ProcessThermData() */
+      /* wait for CPU file to be set by DataAcqManager::ProcessIncomingData() */
+      std::unique_lock<std::mutex> lock(m);
+      this->cond_var.wait(lock, [this]{return cpu_file_is_set == true;});
 
-    /* write to file */
-    if (this->temperature_acq != NULL) {
-      WriteThermPkt();
+      if (this->temperature_acq != NULL) {
+	WriteThermPkt();
+      }
     }
     
     //#if ARDUINO_DEBUG == 0
