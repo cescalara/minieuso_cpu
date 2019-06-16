@@ -417,10 +417,6 @@ CmdLineInputs * InputParser::ParseCmdLineInputs() {
     }
  
   }
-  else {
-    std::cout << "Error: for -dv option a single number or EC list (e.g. 3700,3700,3750,3750,3800,3700,3650,3700,3700) must be provided" << std::endl;
-    return NULL;
-  }
   
   const std::string &dynode_voltage_real = getCmdOption("-dvr");
   if (!dynode_voltage_real.empty()){
@@ -447,10 +443,7 @@ CmdLineInputs * InputParser::ParseCmdLineInputs() {
     }
     
   }
-  else {
-    std::cout << "Error: for -dvr option a single number or EC list (e.g. 1100,1100,1000,1000,1050,1100,1000,1050,1100) must be provided" << std::endl;
-    return NULL;
-  }
+
   
   /* high voltage dac */
   const std::string &asic_dac = getCmdOption("-asicdac");
