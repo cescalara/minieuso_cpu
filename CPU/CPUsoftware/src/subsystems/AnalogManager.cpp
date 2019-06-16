@@ -532,9 +532,8 @@ int AnalogManager::ProcessAnalogData(std::shared_ptr<Config> ConfigOut) {
       }
     }
     
-    //#if ARDUINO_DEBUG == 0
     sleep(ConfigOut->light_acq_time);
-    //#endif
+    
   }
   return 0;
 }
