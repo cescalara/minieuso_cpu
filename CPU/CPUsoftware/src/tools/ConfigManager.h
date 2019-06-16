@@ -28,7 +28,7 @@
 
 #else
 
-#define CONFIG_DIR "config_dir"
+#define CONFIG_DIR "config"
 #define CONFIG_FILE_USB0 "dummy_usb.conf"
 #define CONFIG_FILE_USB1 "dummy_usb.conf"
 #define CONFIG_FILE_LOCAL "dummy_local.conf"
