@@ -166,11 +166,18 @@ std::string CpuTools::BuildStr(std::string stem, std::string sep, int val, int r
   std::string output_string;
   std::stringstream ss;
   int i = 0;
-  
-  ss << stem;
+
+  if (!stem.empty()) {
+    ss << stem;
+  }
   for (i = 0; i < rep; i++) {
-    ss << sep;
-    ss << val;
+    if (i = 0 && stem.empty()) {
+      ss << val;
+    }
+    else {
+      ss << sep;
+      ss << val;
+    }
   }
   ss << "\n";
   output_string = ss.str();
