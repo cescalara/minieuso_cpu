@@ -910,7 +910,7 @@ void RunInstrument::Stop() {
   clog << "info: " << logstream::info << "stopping deatached threads..." << std::endl;
   std::cout << "stopping detached threads..." << std::endl;
   this->Cam.KillCamAcq();
-
+ 
   /* USB backup disabled for now, plan to work with 1 USB */
   //this->Usb.KillDataBackup();
 
