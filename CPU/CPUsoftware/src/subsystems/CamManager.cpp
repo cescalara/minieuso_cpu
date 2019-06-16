@@ -155,7 +155,7 @@ int CamManager::KillCamAcq() {
     /* look for multiplecam process */
     conv << "ps | grep multiplecam" << std::endl;
     ps_cmd = conv.str().c_str();
-    output = CpuTools::CommnadToStr(ps_cmd);
+    output = CpuTools::CommandToStr(ps_cmd);
 
     size_t found = output.find("multiplecam");
     if (found != std::string::npos) {
