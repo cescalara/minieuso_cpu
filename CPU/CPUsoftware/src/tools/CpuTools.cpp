@@ -179,7 +179,9 @@ std::string CpuTools::BuildStr(std::string stem, std::string sep, int val, int r
       ss << val;
     }
   }
-  ss << "\n";
+  if (!stem.empty()){
+    ss << "\n";
+  }
   output_string = ss.str();
   
   return output_string; 

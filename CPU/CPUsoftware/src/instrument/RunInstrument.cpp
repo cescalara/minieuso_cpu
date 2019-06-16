@@ -154,9 +154,27 @@ int RunInstrument::DebugMode() {
   std::cout << "-----------------------------" << std::endl;
   std::cout << "https://github.com/cescalara/minieuso_cpu" << std::endl;
   std::cout << std::endl;
+
+  std::cout << "dynode_voltage_string: " << this->ConfigOut->dynode_voltage_string << std::endl;
+
+  std::string hvps_dv_string = this->ConfigOut->dynode_voltage_string;
+  
+  /* find max_dv to ramp to, assume small differences between EC units */
+  std::vector<int> dv_values = CpuTools::DelimStrToVec(hvps_dv_string, ',', N_EC, false);
+  int max_dv = *max_element(dv_values.begin(), dv_values.end());
+
+  std::cout << "max_dv: " << max_dv << std::endl;
+
+  std::string cmd = CpuTools::BuildStrFromVec("hvps setdac", " ", dv_values);
+  std::cout << "cmd: " << cmd;
+
+  std::cout << "Set HVPS DAC to " << hvps_dv_string << ": " << std::endl;
+ 
+  
+  /*
   std::cout << "running checks of all subsystems..." <<std::endl;
   std::cout << std::endl;
-  /*
+ 
   std::cout << "USB" << std::endl;
   int num_usb_storage = this->Usb.LookupUsbStorage();
   std::cout << "there are " << num_usb_storage << " USB storage devices connected" << std::endl;
