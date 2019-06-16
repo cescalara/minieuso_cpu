@@ -838,7 +838,10 @@ int RunInstrument::Acquisition() {
   }
 
   /* reached for SCURVE acq and instrument mode switch or stop */
-
+  if (this->CmdLine->cam_on) {
+    this->Cam.KillCamAcq();
+  }
+  
   #endif
   return 0;
 }
