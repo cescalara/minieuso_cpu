@@ -200,12 +200,22 @@ std::string CpuTools::BuildStrFromVec(std::string stem, std::string sep, std::ve
   std::stringstream ss;
   uint8_t i = 0;
 
-  ss << stem;
-  for (i = 0; i < values.size(); i++) {
-    ss << sep;
-    ss << values[i];
+  if (!stem.empty()) {
+    ss << stem;
   }
-  ss << "\n";
+  for (i = 0; i < values.size(); i++) {
+    if (i == 0 && stem.empty()) {
+      ss << values[i];
+    }
+    else {
+      ss << sep;
+      ss << values[i];
+    }
+  }
+
+  if (!stem.empty()) {
+    ss << "\n";
+  }
   output_string = ss.str();
 
   return output_string; 
