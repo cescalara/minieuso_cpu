@@ -9,3 +9,11 @@ The software documentation can be found here: http://minieuso-software.readthedo
 
 Further information on the status of the Mini-EUSO integration and testing can be found on the Mini-EUSO wiki page: https://jemeuso.riken.jp/wiki/index.php?Mini-EUSO
 
+Acknowledgements
+----------------
+
+I would like to acknowledge the following contributions to the software:
+* S. Turriziani: `multiplecam` software for ancillary cameras
+* L. Marcelli: improving day/night thresholds and configuration file
+* G. Cambie & M. Casolino: Final `AnalogManager::SerialReadOut()` and testing
+* C. Giammanco: pixel masking
