@@ -42,7 +42,7 @@ struct CmdLineInputs {
   bool zynq_reboot;
   bool hide_pixel;
   /* command line arguments */
-  int dv;
+  std::string hvps_dv_string;
   int asic_dac;
   LvpsManager::Status lvps_status;
   LvpsManager::SubSystem lvps_subsystem;

@@ -23,7 +23,8 @@ The CPU controls the HV sent to the PMTs via the Zynq board.
   * ``mecontrol -hvswitch on -hv 0,0,0,0,0,0,0,0,1 -dv <X>`` switches on the HV for onlt one EC unit then exits the program, to allow for other tests
   * ``mecontrol -hv all -dv <X>`` starts an acquisition, turning the HV on and off automatically for all EC units 
   * ``mecontrol -hv 0,0,0,0,0,0,0,0,1 -dv <X>`` starts an acquisition, turning the HV on and off automatically for only one EC unit
-
+  * ``mecontrol -hv 0,0,0,0,0,0,0,0,1 -dv <X,X,X,X,X,X,X,X,X>`` can also be used to set individual dynode voltage values for each EC unit
+  
 * To switch off the HV, simply use
 
   * ``mecontrol -hvswitch off`` switches off the HV for all EC units

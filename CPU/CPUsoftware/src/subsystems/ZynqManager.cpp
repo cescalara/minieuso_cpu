@@ -1,4 +1,3 @@
-
 #include "ZynqManager.h"
 
 /**
@@ -319,15 +318,15 @@ int ZynqManager::GetHvpsStatus() {
  * turn on the HV.
  * ramps up the dynode voltage in steps of 500 HV DAC <=> ~140 V 
  * @param cv the cathode voltage (int from 1-3)
- * @param dv the dynode voltage (HV DAC from 0 to 4096).
- * @param hvps_ec_string string of 9 (each EC unit) comma-separated values, 1 <=> on, 0 <=> off
+ * @param hvps_dv_string string of N_EC dynode voltage values (HV DAC from 0 to 4096).
+ * @param hvps_ec_string string of N_EC (each EC unit) comma-separated values, 1 <=> on, 0 <=> off
  * to convert from HV DAC to voltage use (dv/4096 * 2.44 * 466)
  */
-int ZynqManager::HvpsTurnOn(int cv, int dv, std::string hvps_ec_string) {
+int ZynqManager::HvpsTurnOn(int cv, std::string hvps_dv_string, std::string hvps_ec_string) {
 
   int sockfd;
   std::string cmd;
- 
+  
   clog << "info: " << logstream::info << "turning on the HVPS" << std::endl;
 
   /* setup the telnet connection */
@@ -339,9 +338,13 @@ int ZynqManager::HvpsTurnOn(int cv, int dv, std::string hvps_ec_string) {
   std::cout << "Set HVPS cathode to " << cv << ": "; 
   Telnet(cmd, sockfd, true);
 
+  /* find max_dv to ramp to, assume small differences between EC units */
+  std::vector<int> dv_values = CpuTools::DelimStrToVec(hvps_dv_string, ',', N_EC, false);
+  int max_dv = *max_element(dv_values.begin(), dv_values.end());
+  
   /* start rampup at 700 V ~ 2500 DAC unless dv is lower */
   int dac;
-  if (dv >= 2500) {
+  if (max_dv >= 2500) {
     /* set the dynode voltage to 700 V ~ 2500 DAC */
     dac = 2500;
     cmd = CpuTools::BuildStr("hvps setdac", " ", dac, N_EC);
@@ -381,7 +384,7 @@ int ZynqManager::HvpsTurnOn(int cv, int dv, std::string hvps_ec_string) {
   }
   bool ramp_done = false;
   while (!ramp_done && i < 8) {  
-    if (dv > ramp_dac[i]) {
+    if (max_dv > ramp_dac[i]) {
       cmd = CpuTools::BuildStr("hvps setdac", " ", ramp_dac[i], N_EC);
       std::cout << "Set HVPS DAC to " << ramp_dac[i] << ": ";
       Telnet(cmd, sockfd, true);
@@ -393,9 +396,9 @@ int ZynqManager::HvpsTurnOn(int cv, int dv, std::string hvps_ec_string) {
     }
   }
       
-  /* set the final DAC */
-  cmd = CpuTools::BuildStr("hvps setdac", " ", dv, N_EC);
-  std::cout << "Set HVPS DAC to " << dv << ": ";
+  /* set the final DAC to individual EC unit values */
+  cmd = CpuTools::BuildStrFromVec("hvps setdac", " ", dv_values);
+  std::cout << "Set HVPS DAC to " << hvps_dv_string << ": ";
   Telnet(cmd, sockfd, true);
   
   /* check the status */

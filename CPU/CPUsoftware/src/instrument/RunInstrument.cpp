@@ -95,7 +95,7 @@ int RunInstrument::HvpsSwitch() {
     {
       std::unique_lock<std::mutex> lock(this->Zynq.m_zynq);
       this->Zynq.HvpsTurnOn(this->ConfigOut->cathode_voltage,
-			    this->ConfigOut->dynode_voltage,
+			    this->ConfigOut->dynode_voltage_string,
 			    this->CmdLine->hvps_ec_string);
     }
     break;
@@ -156,7 +156,7 @@ int RunInstrument::DebugMode() {
   std::cout << std::endl;
   std::cout << "running checks of all subsystems..." <<std::endl;
   std::cout << std::endl;
-
+ 
   std::cout << "USB" << std::endl;
   int num_usb_storage = this->Usb.LookupUsbStorage();
   std::cout << "there are " << num_usb_storage << " USB storage devices connected" << std::endl;
@@ -176,7 +176,7 @@ int RunInstrument::DebugMode() {
   this->Lvps.SwitchOn(LvpsManager::ZYNQ);
   sleep(1);
   std::cout << std::endl;
-
+  
   /*
   std::cout << "ANALOG" << std::endl;
   std::cout << "running an acquisition..." << std::endl;
@@ -195,7 +195,7 @@ int RunInstrument::DebugMode() {
   std::cout << "SIPM single channel: " << light_level->sipm_single << std::endl;
   std::cout << std::endl;
   */
-
+  
   this->Lvps.SwitchOn(LvpsManager::CAMERAS);
   std::cout << "CAMERAS" << std::endl;
   std::cout << "running an acquisition..." << std::endl;
@@ -238,7 +238,7 @@ int RunInstrument::DebugMode() {
 #endif 
   
   std::cout << "debug tests completed, exiting the program" << std::endl;
-
+  
   return 0;
 }
 
@@ -363,8 +363,8 @@ int RunInstrument::StartUp() {
   this->ConfigOut = CfManager.ConfigOut;
 
   /* check for command line override to config */
-  if (this->CmdLine->dv != -1) {
-    this->ConfigOut->dynode_voltage = this->CmdLine->dv;
+  if (!this->CmdLine->hvps_dv_string.empty()) {
+    this->ConfigOut->dynode_voltage_string = this->CmdLine->hvps_dv_string;
   }
   if (this->CmdLine->asic_dac != -1) {
     this->ConfigOut->dac_level = this->CmdLine->asic_dac;
@@ -391,7 +391,7 @@ int RunInstrument::StartUp() {
   /* print configuration parameters */
   printf("CONFIGURATION PARAMETERS\n");
   printf("CATHODE_VOLTAGE is %d\n", this->ConfigOut->cathode_voltage);
-  printf("DYNODE_VOLTAGE is %d\n", this->ConfigOut->dynode_voltage);
+  printf("DYNODE_VOLTAGE is %s\n", this->ConfigOut->dynode_voltage_string.c_str());
   printf("SCURVE_START is %d\n", this->ConfigOut->scurve_start);
   printf("SCURVE_STEP is %d\n", this->ConfigOut->scurve_step);
   printf("SCURVE_STOP is %d\n", this->ConfigOut->scurve_stop);

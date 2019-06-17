@@ -128,7 +128,7 @@ public:
   static int ConnectTelnet();
   int GetInstStatus();
   int GetHvpsStatus();
-  int HvpsTurnOn(int cv, int dv, std::string hvps_ec_string);
+  int HvpsTurnOn(int cv, std::string hvps_dv_string, std::string hvps_ec_string);
   int HvpsTurnOff();
   int HidePixels(); /*added by Giammanco*/
   int Scurve(int start, int step, int stop, int acc);

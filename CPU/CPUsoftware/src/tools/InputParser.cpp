@@ -28,7 +28,7 @@ InputParser::InputParser(int &argc, char **argv) {
   this->CmdLine->zynq_reboot = false;
   this->CmdLine->hide_pixel = false;
   
-  this->CmdLine->dv = -1;
+  this->CmdLine->hvps_dv_string = "";
   this->CmdLine->asic_dac = -1;
   this->CmdLine->lvps_status = LvpsManager::UNDEF;
   this->CmdLine->lvps_subsystem = LvpsManager::ZYNQ;
@@ -396,28 +396,54 @@ CmdLineInputs * InputParser::ParseCmdLineInputs() {
        return NULL;
      }
    }
-  
+   
   /* get the arguments */
   /* dynode voltage */
   const std::string &dynode_voltage = getCmdOption("-dv");
   if (!dynode_voltage.empty()){
-    this->CmdLine->dv = std::stoi(dynode_voltage);
-    if (this->CmdLine->dv < 0 || this->CmdLine->dv > 4096) {
-      std::cout << "Error: for -dv option must provide a dynode voltage between 0 and 4096" << std::endl;
-      return NULL;
+
+    /* if single number, make required string */
+    if (dynode_voltage.length() <= 4) {
+      int dv = std::stoi(dynode_voltage);
+      if (dv < 0 || dv > 4096) {
+	std::cout << "Error: for -dv option must provide a dynode voltage between 0 and 4096" << std::endl;
+	return NULL;
+      }
+      this->CmdLine->hvps_dv_string = CpuTools::BuildStr("", ",", dv, N_EC);
     }
-  }
-  const std::string &dynode_voltage_real = getCmdOption("-dvr");
-  if (!dynode_voltage_real.empty()){
-    int dvr = std::stoi(dynode_voltage_real);
-    if (dvr < 0 || dvr > 1100) {
-      std::cout << "Error: for -dvr option must provide a dynode voltage between 0 and 1100 V" << std::endl;
-      return NULL;
+    /* else, set string to CmdLine */
+    else {
+      this->CmdLine->hvps_dv_string = dynode_voltage;
     }
  
-    int converted_dv = (int)((float)HV_CONV_FAC * dvr);
-    this->CmdLine->dv = converted_dv;
   }
+  
+  const std::string &dynode_voltage_real = getCmdOption("-dvr");
+  if (!dynode_voltage_real.empty()){
+
+    /* if single number, make required string */
+    if (dynode_voltage_real.length() <= 4) {
+      int dvr = std::stoi(dynode_voltage_real);
+      if (dvr < 0 || dvr > 1100) {
+	std::cout << "Error: for -dvr option must provide a dynode voltage between 0 and 1100 V" << std::endl;
+	return NULL;
+      }
+
+      /* convert V -> DAC */
+      int converted_dv = (int)((float)HV_CONV_FAC * dvr);
+      this->CmdLine->hvps_dv_string = CpuTools::BuildStr("", ",", converted_dv, N_EC);
+    }
+    /* else, set string to CmdLine */
+    else {
+
+      /* convert V -> DAC */
+      std::vector<int> dvr_values = CpuTools::DelimStrToVec(dynode_voltage_real, ',', N_EC, false);
+      std::for_each(dvr_values.begin(), dvr_values.end(),  [](int& d) { d = (int)((float)HV_CONV_FAC*d);});
+      this->CmdLine->hvps_dv_string = CpuTools::BuildStrFromVec("", ",", dvr_values);
+    }
+    
+  }
+
   
   /* high voltage dac */
   const std::string &asic_dac = getCmdOption("-asicdac");
