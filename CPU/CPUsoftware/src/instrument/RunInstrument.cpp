@@ -154,24 +154,6 @@ int RunInstrument::DebugMode() {
   std::cout << "-----------------------------" << std::endl;
   std::cout << "https://github.com/cescalara/minieuso_cpu" << std::endl;
   std::cout << std::endl;
-
-  std::cout << "dynode_voltage_string: " << this->ConfigOut->dynode_voltage_string << std::endl;
-
-  std::string hvps_dv_string = this->ConfigOut->dynode_voltage_string;
-  
-  /* find max_dv to ramp to, assume small differences between EC units */
-  std::vector<int> dv_values = CpuTools::DelimStrToVec(hvps_dv_string, ',', N_EC, false);
-  int max_dv = *max_element(dv_values.begin(), dv_values.end());
-
-  std::cout << "max_dv: " << max_dv << std::endl;
-
-  std::string cmd = CpuTools::BuildStrFromVec("hvps setdac", " ", dv_values);
-  std::cout << "cmd: " << cmd;
-
-  std::cout << "Set HVPS DAC to " << hvps_dv_string << ": " << std::endl;
- 
-  
-  /*
   std::cout << "running checks of all subsystems..." <<std::endl;
   std::cout << std::endl;
  
@@ -194,7 +176,6 @@ int RunInstrument::DebugMode() {
   this->Lvps.SwitchOn(LvpsManager::ZYNQ);
   sleep(1);
   std::cout << std::endl;
-  */
   
   /*
   std::cout << "ANALOG" << std::endl;
@@ -214,7 +195,7 @@ int RunInstrument::DebugMode() {
   std::cout << "SIPM single channel: " << light_level->sipm_single << std::endl;
   std::cout << std::endl;
   */
-  /*
+  
   this->Lvps.SwitchOn(LvpsManager::CAMERAS);
   std::cout << "CAMERAS" << std::endl;
   std::cout << "running an acquisition..." << std::endl;
@@ -257,7 +238,7 @@ int RunInstrument::DebugMode() {
 #endif 
   
   std::cout << "debug tests completed, exiting the program" << std::endl;
-  */
+  
   return 0;
 }
 
