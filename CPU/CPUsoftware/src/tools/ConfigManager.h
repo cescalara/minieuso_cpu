@@ -10,6 +10,7 @@
 #include <memory>
 
 #include "log.h"
+#include "CpuTools.h"
 
 #ifndef __APPLE__
 
@@ -27,7 +28,7 @@
 
 #else
 
-#define CONFIG_DIR "config_dir"
+#define CONFIG_DIR "config"
 #define CONFIG_FILE_USB0 "dummy_usb.conf"
 #define CONFIG_FILE_USB1 "dummy_usb.conf"
 #define CONFIG_FILE_LOCAL "dummy_local.conf"
@@ -44,7 +45,7 @@ struct Config {
 
   /* set in configuration file */
   int cathode_voltage;
-  int dynode_voltage;
+  std::string dynode_voltage_string;
   int scurve_start;
   int scurve_step;
   int scurve_stop;

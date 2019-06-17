@@ -46,7 +46,7 @@ std::string DataAcquisition::CreateCpuRunName(RunType run_type, std::shared_ptr<
     /* check if HV switched on */
     if (ConfigOut->hv_on) {
       time_str = "/CPU_RUN_SC__%Y_%m_%d__%H_%M_%S__"
-	+ std::to_string(ConfigOut->dynode_voltage) 
+	+ ConfigOut->dynode_voltage_string 
 	+ CmdLine->comment_fn + ".dat";
     }
     else {
