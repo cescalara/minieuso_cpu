@@ -15,5 +15,5 @@ Acknowledgements
 I would like to acknowledge the following contributions to the software:
 * S. Turriziani: `multiplecam` software for ancillary cameras
 * L. Marcelli: improving day/night thresholds and configuration file
-* G. Cambie & M. Casolino: Final `AnalogManager::SerialReadOut()` and testing
+* G. Cambiè & M. Casolino: Final `AnalogManager::SerialReadOut()` and testing
 * C. Giammanco: pixel masking
