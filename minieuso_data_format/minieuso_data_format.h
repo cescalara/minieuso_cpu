@@ -19,8 +19,8 @@
  * software definitions
  */
 
-#define VERSION 7.9
-#define VERSION_DATE_STRING "24/05/2019"
+#define VERSION 8.0
+#define VERSION_DATE_STRING "17/06/2019"
 
 /*
  * instrument definitions 
