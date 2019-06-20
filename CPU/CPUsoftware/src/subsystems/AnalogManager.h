@@ -6,7 +6,7 @@
 // 2 use without Arduino connected (ie. automatically in night mode)
 #define ARDUINO_DEBUG 0
 
-//#define PRINT_DEBUG_INFO 1
+#define PRINT_DEBUG_INFO 1
 // COMMENT no debug
 // ANY NUMBER print all
 
@@ -47,7 +47,7 @@
 //#define X_TOTAL_BUF_SIZE_HEADER (X_HEADER_SIZE+X_SIPM_BUF_SIZE+X_OTHER_SENSORS+4) 
 
 #define X_DELAY 100 // ms
-#define READ_ARDUINO_TIMEOUT  100 // it should be in ms now is in attempts to read the buffer
+#define READ_ARDUINO_TIMEOUT  1000 // it should be in ms now is in attempts to read the buffer
 
 /* for use with conditional variable */
 //#define WAIT_PERIOD 1 /* milliseconds */
