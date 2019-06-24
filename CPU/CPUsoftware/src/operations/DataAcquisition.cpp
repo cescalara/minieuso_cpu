@@ -603,10 +603,9 @@ void DataAcquisition::FtpPoll(bool monitor) {
   clog << "info: " << logstream::info << "starting FTP server polling" << std::endl;
   
   /* build the command */
-  conv2 << "lftp -u minieusouser,minieusopass -e "
-       << "\"set ftp:passive-mode off;mirror --parallel=1 --verbose --Remove-source-files --ignore-time . /home/minieusouser/DATA;quit\""
-       << " 192.168.7.10" << "> /dev/null 2>&1" << std::endl;
-      
+  conv2 << "wget ftp://192.168.7.10/* --no-passive-ftp --timeout=3 "
+	<< "> /dev/null 2>&1" << std::endl;
+  
   /* convert stringstream to char * */
   ftp_cmd_str = conv2.str();
   ftp_cmd = ftp_cmd_str.c_str();
