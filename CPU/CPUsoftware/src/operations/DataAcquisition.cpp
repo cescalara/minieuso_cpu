@@ -603,7 +603,7 @@ void DataAcquisition::FtpPoll(bool monitor) {
   clog << "info: " << logstream::info << "starting FTP server polling" << std::endl;
   
   /* build the command */
-  conv2 << "wget ftp://192.168.7.10/* --no-passive-ftp --timeout=3 "
+  conv2 << "wget ftp://192.168.7.10/* -P /home/minieusouser/DATA --no-passive-ftp --timeout=3 "
 	<< "> /dev/null 2>&1" << std::endl;
   
   /* convert stringstream to char * */
