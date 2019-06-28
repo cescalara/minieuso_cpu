@@ -626,7 +626,7 @@ void DataAcquisition::FtpPoll(bool monitor) {
 
     output = CpuTools::CommandToStr(ftp_cmd);
     
-  }
+  } 
   
 }
 
