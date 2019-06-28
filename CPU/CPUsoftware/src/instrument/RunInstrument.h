@@ -14,6 +14,9 @@
 #define DONE_DIR "/home/minieusouser/DONE"
 #define DATA_DIR "/home/minieusouser/DATA"
 
+/* signal to not set the dac_level */
+#define NO_DAC_SET -99
+
 /* wait time between status checks in seconds */
 //#define STATUS_PERIOD 30
 

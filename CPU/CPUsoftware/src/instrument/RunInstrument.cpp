@@ -396,7 +396,12 @@ int RunInstrument::StartUp() {
   printf("SCURVE_STEP is %d\n", this->ConfigOut->scurve_step);
   printf("SCURVE_STOP is %d\n", this->ConfigOut->scurve_stop);
   printf("SCURVE_ACC is %d\n", this->ConfigOut->scurve_acc);
-  printf("DAC_LEVEL is %d\n", this->ConfigOut->dac_level);
+  if (this->ConfigOut->dac_level == NO_DAC_SET) {
+   printf("DAC_LEVEL will not be set by the software");
+  }
+  else {
+    printf("DAC_LEVEL is %d\n", this->ConfigOut->dac_level);
+  }
   printf("N1 is %d\n", this->ConfigOut->N1);
   printf("N2 is %d\n", this->ConfigOut->N2);
   printf("L2_N_BG is %d\n", this->ConfigOut->L2_N_BG);
@@ -811,10 +816,13 @@ int RunInstrument::Acquisition() {
 
 
   /* set the ASIC DAC */
-  {
-    std::unique_lock<std::mutex> lock(this->Zynq.m_zynq);
-    this->Zynq.SetDac(this->ConfigOut->dac_level);
+  if (this->ConfigOut->dac_level != NO_DAC_SET) {
+    {
+      std::unique_lock<std::mutex> lock(this->Zynq.m_zynq);
+      this->Zynq.SetDac(this->ConfigOut->dac_level);
+    }
   }
+  
   /* select SCURVE or STANDARD acquisition */
   if (this->Zynq.telnet_connected) {
     SelectAcqOption();
