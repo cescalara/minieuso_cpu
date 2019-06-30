@@ -154,7 +154,7 @@ int DataAcquisition::CreateCpuRun(RunType run_type, std::shared_ptr<Config> Conf
   }
   this->RunAccess = new Access(this->CpuFile);
 
-  /* access for ThermManager */
+  /* access for AnalogManager */
   this->Analog->RunAccess = new Access(this->CpuFile);
     
   /* set up the cpu file structure */
@@ -173,7 +173,7 @@ int DataAcquisition::CreateCpuRun(RunType run_type, std::shared_ptr<Config> Conf
   delete cpu_file_header;
   
   /* notify the AnalogManager */
-  /* will this only work the first time? */
+  /* is reset in CloseCpuRun() */
   this->Analog->cpu_file_is_set = true;
   this->Analog->cond_var.notify_all();
   
@@ -208,6 +208,9 @@ int DataAcquisition::CloseCpuRun(RunType run_type) {
     std::unique_lock<std::mutex> lock(this->m_nfiles);     
     this->n_files_written++;
   }
+
+  /* reset for AnalogManager */
+  this->Analog->cpu_file_is_set = false;
   
   return 0;
 }
@@ -603,10 +606,9 @@ void DataAcquisition::FtpPoll(bool monitor) {
   clog << "info: " << logstream::info << "starting FTP server polling" << std::endl;
   
   /* build the command */
-  conv2 << "lftp -u minieusouser,minieusopass -e "
-       << "\"set ftp:passive-mode off;mirror --parallel=1 --verbose --Remove-source-files --ignore-time . /home/minieusouser/DATA;quit\""
-       << " 192.168.7.10" << "> /dev/null 2>&1" << std::endl;
-      
+  conv2 << "wget ftp://192.168.7.10/* -P /home/minieusouser/DATA --no-passive-ftp --timeout=3 "
+	<< "> /dev/null 2>&1" << std::endl;
+  
   /* convert stringstream to char * */
   ftp_cmd_str = conv2.str();
   ftp_cmd = ftp_cmd_str.c_str();
@@ -627,7 +629,7 @@ void DataAcquisition::FtpPoll(bool monitor) {
 
     output = CpuTools::CommandToStr(ftp_cmd);
     
-  }
+  } 
   
 }
 
@@ -801,7 +803,7 @@ int DataAcquisition::ProcessIncomingData(std::shared_ptr<Config> ConfigOut, CmdL
 	    } /* end of FRM packets */
 	    
 	  
-	  
+ 
 	    /* S-curve packets */
 	    else if ( (event_name.compare(0, 2, "sc") == 0) &&
 		      (event_name.compare(event_name.length() - 3, event_name.length(), "dat") == 0) ) {
@@ -866,21 +868,16 @@ int DataAcquisition::ProcessIncomingData(std::shared_ptr<Config> ConfigOut, CmdL
 	    
 	      hv_file_name = data_str + "/" + event->name;
 
-	      /* Change so that you just pop HV packet inside existing CPU file  */
-	      /* For now, do nothing to test */
-	      //CreateCpuRun(HV, ConfigOut, CmdLine);
+	      /* NB: Changed from old readout so that you just pop HV packet inside existing CPU file  */
 	    
 	      /* generate hv packet to append to the file */
 	      HV_PACKET * hv_packet = HvPktReadOut(hv_file_name, ConfigOut);
 	      WriteHvPkt(hv_packet, ConfigOut);
 	    
-	      //CloseCpuRun(HV);
-	    
 	      /* delete upon completion */
 	      std::remove(hv_file_name.c_str());
 
 	      /* print update to screen */
-	      //printf("PACKET COUNTER = %i\n", packet_counter);
 	      printf("The HV packet %s was read out\n", hv_file_name.c_str());
 	      
 	    } /* end of HV packets */
@@ -889,8 +886,7 @@ int DataAcquisition::ProcessIncomingData(std::shared_ptr<Config> ConfigOut, CmdL
 	    /* packet doesn't match any description */
 	    else {
 	    
-	      /* do nothing and exit */
-	      return 0;
+	      /* do nothing and keep looking */
 	    
 	    } /* end no matching packets */
 	  
@@ -1038,7 +1034,6 @@ int DataAcquisition::CollectData(ZynqManager * Zynq, std::shared_ptr<Config> Con
 
   long unsigned int main_thread = pthread_self();
 
- #if ARDUINO_DEBUG !=1 
   /* FTP polling */
   std::thread ftp_poll (&DataAcquisition::FtpPoll, this, true);
   
@@ -1066,16 +1061,12 @@ int DataAcquisition::CollectData(ZynqManager * Zynq, std::shared_ptr<Config> Con
     std::unique_lock<std::mutex> lock(Zynq->m_zynq);  
     Zynq->SetZynqMode();
   }
-#endif
-
   
   /* add acquisition with the analog board */
   std::thread analog(&AnalogManager::ProcessAnalogData, this->Analog, ConfigOut);
   
   /* wait for other acquisition threads to join */
   analog.join();
-
-#if ARDUINO_DEBUG !=1
   collect_main_data.join();
   ftp_poll.join();
   
@@ -1092,8 +1083,6 @@ int DataAcquisition::CollectData(ZynqManager * Zynq, std::shared_ptr<Config> Con
   
   /* read out HV file */
   GetHvInfo(ConfigOut, CmdLine);
-
-#endif
   
 #endif /* __APPLE__ */
   return 0;

@@ -16,7 +16,9 @@ AnalogManager::AnalogManager() {
       this->analog_acq->val[i][j] = 0;
     }
   }
-  this->inst_mode_switch = false;
+  
+  this->inst_mode_switch = false;  
+  this->cpu_file_is_set = false;
 
 }
 
@@ -57,14 +59,14 @@ int AnalogManager::AnalogDataCollect() {
   }
   else {
 
-    clog << "info: " << logstream::info << "Device " << DUINO << " has been opened and ready for operation" << std::endl;
+    clog << "info: " << logstream::info << "device " << DUINO << " has been opened and ready for operation" << std::endl;
 
   }
 
   /*baudrate 9600, 8 bits, no parity, 1 stop bit */
   SetInterfaceAttribs(fd, BAUDRATE);
   
-  clog << "info: " << logstream::info << "Will now run AnalogManager::SerialReadOut()" << std::endl;
+  clog << "info: " << logstream::info << "now running AnalogManager::SerialReadOut()" << std::endl;
   SerialReadOut(fd);
 
 #endif
@@ -73,34 +75,38 @@ int AnalogManager::AnalogDataCollect() {
 
 /**
  * Read serial output from a file descriptor.
+ * returns -1 if failed. 
+ * @param fd file descriptor
  */
-// returns 0 if failed
 int AnalogManager::SerialReadOut(int fd) {
 
 	unsigned char a[] = { 0xAA, 0x55, 0xAA, 0x55 };
-	unsigned char buf[(unsigned int)(X_TOTAL_BUF_SIZE_HEADER*4)];
-	unsigned char temp_buf[(unsigned int)(X_TOTAL_BUF_SIZE_HEADER*4)];
-#if ARDUINO_DEBUG ==1
-	unsigned char simulated_buf[(unsigned int)(X_TOTAL_BUF_SIZE_HEADER*4)];
+	unsigned char buf[(unsigned int)(X_TOTAL_BUF_SIZE_HEADER*6)];
+	unsigned char temp_buf[(unsigned int)(X_TOTAL_BUF_SIZE_HEADER*6)];
+
+#if ARDUINO_DEBUG == 1
+	unsigned char simulated_buf[(unsigned int)(X_TOTAL_BUF_SIZE_HEADER*6)];
 #endif
+	
 	unsigned int temp_checksum = 0;
 	unsigned int buffer_checksum = 0;
 	int checksum_passed = -1;
 
 	std::string needle(a, a + 4);
   
-	//	char buf[40*BUF_SIZE];
-	unsigned int total_lenght = 0;
-	unsigned   int len=50;
-	//   char * p;
-	//   char * err;
-	unsigned  int i;
-	unsigned   int ijk;
-	//   double val;
+	//char buf[40*BUF_SIZE];
+	//char * p;
+	//char * err;
+	//double val;
+
+	unsigned int total_length = 0;
+	unsigned int len = 50;
+	unsigned int i, ijk;
 	unsigned int start_search = 0; // ofsset to look of 0xaa55aa55
 	unsigned int header_not_found = 0;
 	
-#if ARDUINO_DEBUG ==1
+#if ARDUINO_DEBUG == 1
+	/* make a simulated buffer for testing */
 	simulated_buf[0] = 0xAA;
 	simulated_buf[1] = 0x55;
 	simulated_buf[2] = 0xAA;
@@ -115,7 +121,7 @@ int AnalogManager::SerialReadOut(int fd) {
 	simulated_buf[13] = 0x55;
 	
  
-	// calculate checksum
+	/* calculate checksum */
 	temp_checksum = 0;
 	for (ijk = 0; ijk < (X_TOTAL_BUF_SIZE / 2); ijk++)
 	  {
@@ -130,178 +136,157 @@ int AnalogManager::SerialReadOut(int fd) {
 	temp_checksum = 0;
 #endif
 	
-	/* repeat read to get full message */
-	//for (i = 0; i < FIFO_DEPTH + 1; i++) 
-	
 	unsigned int Time_Elapsed = 0; // should be in ms, now is in attempts
 	
-	/* repeat until full data has arrived. at least two buffer size */
-	/* should get time to put timeout */
-	unsigned int MAX_Lenght = (X_TOTAL_BUF_SIZE_HEADER+ X_TOTAL_BUF_SIZE_HEADER);
+	/* repeat until full data has arrived, at least twice the buffer size */
+	/* @TODO should get time to put timeout */
+	unsigned int MAX_Length = ((X_TOTAL_BUF_SIZE_HEADER)*4);
 #ifdef PRINT_DEBUG_INFO
-	printf("\n sizeof(temp_buf) %d, sizeof(buf) %d \n", int(sizeof(temp_buf)), int(sizeof(buf)));
+//	printf("\n sizeof(temp_buf) %d, sizeof(buf) %d \n", int(sizeof(temp_buf)), int(sizeof(buf)));
 #endif
-	while ((total_lenght < MAX_Lenght) && (Time_Elapsed < READ_ARDUINO_TIMEOUT) )
-	  {
-	    // clean temp_buf
-	    for (ijk = 0; ijk < sizeof(temp_buf); ijk++)
-	      {
-		temp_buf[ijk] = 0;
-	      }
+	while ((total_length < MAX_Length) && (Time_Elapsed < READ_ARDUINO_TIMEOUT) ) {
+
+	  /* clean temp_buf */
+	  for (ijk = 0; ijk < sizeof(temp_buf); ijk++) {
+	    temp_buf[ijk] = 0;
+	  }
 	    
-	    /* get number of bytes read */
 #ifdef PRINT_DEBUG_INFO
-	    printf("X_TOTAL_BUF_SIZE_HEADER %d (2 * X_TOTAL_BUF_SIZE_HEADER)  %d Time_Elapsed %d len %d total_lenght %d ", X_TOTAL_BUF_SIZE_HEADER, (MAX_Lenght), Time_Elapsed,len, total_lenght);
+//	    printf("X_TOTAL_BUF_SIZE_HEADER %d (2 * X_TOTAL_BUF_SIZE_HEADER)  %d Time_Elapsed %d len %d total_length %d ", X_TOTAL_BUF_SIZE_HEADER, (MAX_Length), Time_Elapsed,len, total_length);
 #endif
 	    
 #if ARDUINO_DEBUG ==1
-	    for (ijk = 0; ijk < 50; ijk++)
-	      {
-		temp_buf[ijk] = simulated_buf[ijk+ total_lenght];
-	      }
-	    len = 50;
-#else
-	    len = read(fd, &temp_buf, sizeof(temp_buf)); // -1);
-#endif
-	    Time_Elapsed++;
-	    for (ijk = 0; ijk<len; ijk++)
-	      {
-		buf[ijk + total_lenght] = temp_buf[ijk];
-	      }
-     total_lenght += len;
-     
+
+	  for (ijk = 0; ijk < 50; ijk++) {
+	    temp_buf[ijk] = simulated_buf[ijk+ total_length];
 	  }
+	  len = 50;
+#else
+	  len = read(fd, &temp_buf, sizeof(temp_buf)); 
+#endif
+	  Time_Elapsed++;
+	  for (ijk = 0; ijk<len; ijk++) {
+	    buf[ijk + total_length] = temp_buf[ijk];
+	  }
+	  total_length += len;
+	  
+	}
+	
 #ifdef PRINT_DEBUG_INFO
-	printf("totallenght %d lenght %d", total_lenght, len);
+	printf("\n total length %d length %d \n", total_length, len);
 #endif
 	
-	if (total_lenght < 0)
-	  {
-	    printf("Error from read: %d: %s\n", len, std::strerror(errno));
-     return(0);
-	  }
-	else
-   {
+	if (total_length < 0) {
+	  printf("\n Error from read: %d: %s\n", len, std::strerror(errno));
+	  return(-1);
+	}
+	else {
 #ifdef PRINT_DEBUG_INFO
-     /* print the serial output (debug) */
-     printf("\n Begin Arduino Data Dump\n");
+	  /* print the serial output (debug) */
+	  printf("\n Begin Arduino Data Dump\n");
      
-     for (ijk = 0; ijk < total_lenght; ijk++)
-       {
-	 printf(" %02x ", buf[ijk]);
-       }
+	  for (ijk = 0; ijk < total_length; ijk++) {
+	    printf(" %02x ", buf[ijk]);
+	  }
      
 #endif
      
-     /* get number of bytes read */
-     //  len = read(fd, &buf, sizeof(buf)); // -1);
-     //buf[BUF_SIZE-1] = '\0';
      start_search = 0;
-     do
-       {
+     do {
 	 
 	 /* some bytes read */
-	 //len = 250;
-	 if (total_lenght > 0)
-	   {
+	 if (total_length > 0) {
 	     
-	     // Look for AA55AA55
-	     std::string haystack(buf, buf + sizeof(buf));  // or "+ sizeof Buffer"
-	     std::size_t n = haystack.find(needle, start_search);
+	   /* Look for AA55AA55 */
+	   std::string haystack(buf, buf + sizeof(buf));  // or "+ sizeof Buffer"
+	   std::size_t n = haystack.find(needle, start_search);
 	     
-	     if (n == std::string::npos)
-	       {
+	   if ((n == std::string::npos) || ( (sizeof(buf)-n)<(4+2+8+128+2+90+56+10) ) ) {
 #ifdef PRINT_DEBUG_INFO
-		 printf("\n HEADER NOT FOUND");
+	     printf("\n HEADER NOT FOUND");
 #endif
-		 header_not_found = 1; 
-	       }
-	     else
-	       {
-		 
-		 //		  std::cout << "Position is  = " << n << std::endl;
-#ifdef PRINT_DEBUG_INFO
-		 printf("Position is %d ", (unsigned int)n); // position is n
-#endif
-		 this->analog_acq->val[0][0] = (buf[n + 6] << 8) + buf[n + 7];
-		 this->analog_acq->val[0][1] = (buf[n + 8] << 8) + buf[n + 9];
-		 this->analog_acq->val[0][2] = (buf[n + 10] << 8) + buf[n + 11];
-		 this->analog_acq->val[0][3] = (buf[n + 12] << 8) + buf[n + 13];
-
-#ifdef PRINT_DEBUG_INFO
-		 printf(" packet number %d", (buf[n + 4] << 8) + buf[n + 5]);
-		 printf(" zero %d", this->analog_acq->val[0][0]);
-		 printf(" uno %d", this->analog_acq->val[0][1]);
-		 printf(" due %d", this->analog_acq->val[0][2]);
-		 printf(" tre %d", this->analog_acq->val[0][3]);
-#endif
-		 //this->analog_acq->val[0][0]=rand() % 150;
-		 //printf("\n SerialReadout: randomizing %d", this->analog_acq->val[0][0]);
-		 for (ijk = 0; ijk < X_SIPM_BUF_SIZE; ijk++)
-		   {
-		     this->analog_acq->val[0][ijk + 4] = (buf[n + 14 + (2*ijk)] << 8) + buf[n + 15 + (2*ijk)];
-		   }
-
-		 for (ijk=0; ijk < N_CHANNELS_THERM; ijk++) {
-
-		   float converted_temp_output = 0;
-		   char raw_temp_output[9];
-		   int ijkl;
-		   
-		   /* get 9 byte temp info */
-		   for (ijkl = 0; ijkl < 9; ijkl++) {
-		     raw_temp_output[ijkl] =  buf[(n + X_TOTAL_BUF_SIZE + 8 + (ijk*9) + ijkl)];
-		   }
-		   
-		   /* convert to float */
-		   converted_temp_output = ConvertToTemp(raw_temp_output);
-		   
-		   /* assign to analog_acq struct */
-		   //this->analog_acq->val[0][N_CHANNELS_PHOTODIODE+N_CHANNELS_SIPM+ijk] = converted_temp_output; 
-		   //std::cout << "Therm " << ijk << " :" << converted_temp_output << std::endl;
-		   
-		   /* debug */
-		   /* For now, just assign known numbers while those in Rome continue the debugging */
-		   this->analog_acq->val[0][N_CHANNELS_PHOTODIODE+N_CHANNELS_SIPM+ijk] = 26; 
-		   
-		 }
-	
-		 // calculate checksum
-		 buffer_checksum = (buf[(n+X_TOTAL_BUF_SIZE + 6)] << 8) + buf[(n + X_TOTAL_BUF_SIZE + 7)];
-		 temp_checksum = 0;
-		 for (ijk = 0; ijk < (X_TOTAL_BUF_SIZE / 2); ijk++)
-		   {
-		     temp_checksum += (buf[n + ijk * 2 + 6] << 8) + buf[n + ijk * 2 + 6 + 1];
-		   }
-		 temp_checksum = temp_checksum & 0xFFFF;
-		 if (temp_checksum == buffer_checksum)
-		   {
-#ifdef PRINT_DEBUG_INFO
-		     printf("\n  checksum passed calc %x buffer %x stat_search %d \n ", temp_checksum, buffer_checksum, start_search);
-#endif
-		     checksum_passed = 1;
-		   }
-		 else
-		   {
-#ifdef PRINT_DEBUG_INFO
-		     printf("\n  checksum FAILED calc %x buffer %x stat_search %d \n ", temp_checksum, buffer_checksum, start_search);
-#endif
-		     checksum_passed = 0;
-		     start_search = n + 4;
-#ifdef PRINT_DEBUG_INFO
-		     printf("incremented star search %d", start_search);
-#endif
-		   }
-	       }
+	     header_not_found = 1; 
 	   }
-	 
-       } while (((checksum_passed == 0) && ((start_search + X_TOTAL_BUF_SIZE_HEADER) < total_lenght)) && (header_not_found==0));
-   }
-	
-	if (checksum_passed == 1) return (1);
-	else return (0); 
+	   else {
+		 
+#ifdef PRINT_DEBUG_INFO
+	     printf("Position is %d ", (unsigned int)n); // position is n
+#endif
+	     /* read out the photodiode values */
+	     this->analog_acq->val[0][0] = (buf[n + 6] << 8) + buf[n + 7];
+	     this->analog_acq->val[0][1] = (buf[n + 8] << 8) + buf[n + 9];
+	     this->analog_acq->val[0][2] = (buf[n + 10] << 8) + buf[n + 11];
+	     this->analog_acq->val[0][3] = (buf[n + 12] << 8) + buf[n + 13];
 
- 
+#ifdef PRINT_DEBUG_INFO
+	     printf(" packet number %d", (buf[n + 4] << 8) + buf[n + 5]);
+	     printf(" zero %d", this->analog_acq->val[0][0]);
+	     printf(" uno %d", this->analog_acq->val[0][1]);
+	     printf(" due %d", this->analog_acq->val[0][2]);
+	     printf(" tre %d", this->analog_acq->val[0][3]);
+#endif
+	     /* read out the SiPM values */
+	     for (ijk = 0; ijk < X_SIPM_BUF_SIZE; ijk++) {
+	       this->analog_acq->val[0][ijk + 4] = (buf[n + 14 + (2*ijk)] << 8) + buf[n + 15 + (2*ijk)];
+	     }
+
+	     /* read out the thermistors */
+	     for (ijk=0; ijk < N_CHANNELS_THERM; ijk++) {
+
+	       float converted_temp_output = 0;
+	       char raw_temp_output[9];
+	       int k;
+		   
+	       /* get 9 byte temp info */
+	       for (k = 0; k < 9; k++) {
+		 raw_temp_output[k] =  buf[(n + X_TOTAL_BUF_SIZE*2 + 8 + (ijk*9) + k)];
+	       }
+		   
+	       /* convert to float */
+	       converted_temp_output = ConvertToTemp(raw_temp_output);
+		   
+	       /* assign to analog_acq struct */
+	       this->analog_acq->val[0][N_CHANNELS_PHOTODIODE+N_CHANNELS_SIPM+ijk] = converted_temp_output; 
+	       /* debug */
+	       //std::cout << "Therm " << ijk << " :" << converted_temp_output << std::endl;
+	        
+	     }
+	
+	     /* calculate checksum */
+	     buffer_checksum = (buf[(n+(X_TOTAL_BUF_SIZE)*2 + 6)] << 8) + buf[(n + (X_TOTAL_BUF_SIZE)*2 + 7)];
+	     temp_checksum = 0;
+	     for (ijk = 0; ijk < (X_TOTAL_BUF_SIZE ); ijk++) {
+	       temp_checksum += (buf[n + ijk * 2 + 6] << 8) + buf[n + ijk * 2 + 6 + 1];
+	     }
+	     temp_checksum = temp_checksum & 0xFFFF;
+	     if (temp_checksum == buffer_checksum) {
+#ifdef PRINT_DEBUG_INFO
+	       printf("\n  checksum passed calc %x buffer %x stat_search %d \n ", temp_checksum, buffer_checksum, start_search);
+#endif
+	       checksum_passed = 1;
+	     }
+	     else {
+#ifdef PRINT_DEBUG_INFO
+	       printf("\n  checksum FAILED calc %x buffer %x stat_search %d \n ", temp_checksum, buffer_checksum, start_search);
+#endif
+	       checksum_passed = 0;
+	       start_search = n + 4;
+#ifdef PRINT_DEBUG_INFO
+	       printf("incremented start search %d", start_search);
+#endif
+	     }
+	   }
+	 } /* if (total_length > 0) */
+	 
+     } while (((checksum_passed == 0) &&
+	       ((start_search + X_TOTAL_BUF_SIZE_HEADER) < total_length)) &&
+	      (header_not_found==0));
+
+	}
+	
+	if (checksum_passed == 1) return (0);
+	else return (-1); 
+
 }
 
 /**
@@ -311,10 +296,9 @@ int AnalogManager::SerialReadOut(int fd) {
  */
 int AnalogManager::GetLightLevel(std::shared_ptr<Config> ConfigOut) 
 {
-  int i, k;
+  int k;
   float ph[N_CHANNELS_PHOTODIODE];
   float sipm[N_CHANNELS_SIPM];
- 
  
   /* interpret the analog acquisition struct */
   
@@ -326,83 +310,41 @@ int AnalogManager::GetLightLevel(std::shared_ptr<Config> ConfigOut)
     sipm[k] = 0;
   }
   
-
   /* read out the data */
   AnalogDataCollect();
-  ph[0] = (float)(this->analog_acq->val[0][0]); // fixed at 0
+  ph[0] = (float)(this->analog_acq->val[0][0]); 
   ph[1] = (float)(this->analog_acq->val[0][1]);
   ph[2] = (float)(this->analog_acq->val[0][2]);
   ph[3] = (float)(this->analog_acq->val[0][3]);
   
   for (k = 0; k < N_CHANNELS_SIPM; k++) {
-    sipm[k] = (float)(this->analog_acq->val[0][4+k]);
+    sipm[k] = (float)(this->analog_acq->val[0][N_CHANNELS_PHOTODIODE+k]);
   }
   
-  /* DEBUG */
-  /*
-  std::cout << "PH 0:" << std::endl;
-  std::cout << "val[0][0]" << this->analog_acq->val[0][0] << std::endl;
-  std::cout << "ph[0]" << ph[0] << std::endl;
-  std::cout << std::endl;
-  
-  std::cout << "PH 1:" << std::endl;
-  std::cout << "val[0][1]" << this->analog_acq->val[0][1] << std::endl;
-  std::cout << "ph[1]" << ph[1] << std::endl;
-  std::cout << std::endl;
-
-  std::cout << "PH 2:" << std::endl;
-  std::cout << "val[0][2]" << this->analog_acq->val[0][2] << std::endl;
-  std::cout << "ph[2]" << ph[2] << std::endl;
-  std::cout << std::endl;
-  
-  std::cout << "PH 3:" << std::endl;
-  std::cout << "val[0][3]" << this->analog_acq->val[0][3] << std::endl;
-  std::cout << "ph[3]" << ph[3] << std::endl;
-  std::cout << std::endl;
-
-  std::cout << "SIPM 64 channels:" << std::endl;
-  for (k=0; k < N_CHANNELS_SIPM; k++) {
-    std::cout << this->analog_acq->val[0][k+4] << " ";
-    std::cout << sipm[k] << " ";
-    std::cout << "    ";
-  }
-  std::cout << std::endl;
-  */
-  
-  /* read out the multiplexed 64 channel SiPM values */
-  // {
-  //std::unique_lock<std::mutex> lock(this->m_light_level);
-  //   this->light_level->sipm_data[i] = this->analog_acq->val[i][5];
-  // } /* release mutex */
-  //}
-
-  /* average the photodiode values */
-  for (k = 0; k < N_CHANNELS_PHOTODIODE; k++) 
+  /* assign the photodiode values to the light level */
+  for (k = 0; k < N_CHANNELS_PHOTODIODE; k++) {
     {
-      {
-	std::unique_lock<std::mutex> lock(this->m_light_level);
-	this->light_level->photodiode_data[k] = ph[k];
-      } /* release mutex */
+      std::unique_lock<std::mutex> lock(this->m_light_level);
+      this->light_level->photodiode_data[k] = ph[k];
+    } /* release mutex */
       
-    }
-  //printf("\n GetLightLevel: photodiode_data: %f", this->light_level->photodiode_data[0]);
-  /* average the one channel SiPM values */
-  for (k = 0; k < N_CHANNELS_SIPM; k++)
+  }
+  
+  /* assign the SiPM values to the light level */
+  for (k = 0; k < N_CHANNELS_SIPM; k++) {
     {
-      {
-	std::unique_lock<std::mutex> lock(this->m_light_level);
-	this->light_level->sipm_data[k] = sipm[k];
-      } /* release mutex */
-    }
+      std::unique_lock<std::mutex> lock(this->m_light_level);
+      this->light_level->sipm_data[k] = sipm[k];
+    } /* release mutex */
+  }
 
-  /* read out the thermistors */
-  for (k = 0; k < N_CHANNELS_THERM; k++)
+  /* assign thermistor values to the temperature_acq struct */
+  for (k = 0; k < N_CHANNELS_THERM; k++) {
     {
-      {
-	std::unique_lock<std::mutex> lock(this->m_temperature_acq);
-	this->temperature_acq->val[k] = (float)this->analog_acq->val[0][N_CHANNELS_PHOTODIODE+N_CHANNELS_SIPM+k];
-      }
+      std::unique_lock<std::mutex> lock(this->m_temperature_acq);
+      this->temperature_acq->val[k] = (float)this->analog_acq->val[0][N_CHANNELS_PHOTODIODE+N_CHANNELS_SIPM+k];
     }
+  }
   
   return 0;
 }
@@ -425,7 +367,7 @@ std::shared_ptr<LightLevel> AnalogManager::ReadLightLevel() {
 
 /**
  * compare light level to threshold value
- * LIGHT_THRESHOLD from configuration file config/dummy.conf or config/dummy_local.conf
+ * LIGHT_THRESHOLD from configuration file
  * @TODO check if more sophisticated tests needed in lab
  */
 AnalogManager::LightLevelStatus AnalogManager::CompareLightLevel(std::shared_ptr<Config> ConfigOut) {
@@ -434,38 +376,22 @@ AnalogManager::LightLevelStatus AnalogManager::CompareLightLevel(std::shared_ptr
   float ph_avg = 0;
   int i;
   
-#if ARDUINO_DEBUG != 1 
   clog << "info: " << logstream::info << "comparing light level to day and night thresholds" << std::endl;
-#else
-  printf("comparing light level to day and night thresholds \n"); 
-#endif   
 
-  //  printf("CompareLightLevel: light level before GetLightLevel %f \n", this->light_level->photodiode_data[0]);
   this->GetLightLevel(ConfigOut);
-  //printf("CompareLightLevel: light level after GetLightLevel %f \n", this->light_level->photodiode_data[0]);
   {
     std::unique_lock<std::mutex> lock(this->m_light_level);
     auto light_level = this->light_level;
   } /* release mutex */
-  
-  
-  /* read the light level */
-  /* average the 4 photodiode values */
-  // {
-  //   std::unique_lock<std::mutex> lock(this->m_light_level);
-  //   for (i = 0; i < N_CHANNELS_PHOTODIODE; i++) {
-  //     ph_avg += light_level->photodiode_data[i];
-  //   }
-  // } /* release mutex */
-  // ph_avg = ph_avg / (float)N_CHANNELS_PHOTODIODE;
 
+  /* for now, look at one specific sensor to debug */  
   {
     std::unique_lock<std::mutex> lock(this->m_light_level);
     ph_avg = light_level->photodiode_data[ConfigOut->ana_sensor_num];
   }
   
   /* debug */
- #if ARDUINO_DEBUG != 1
+#if ARDUINO_DEBUG != 1
   clog << "info: " << logstream::info << "average photodiode reading is: " << ph_avg << std::endl;
 #else
   printf("light photodiode reading is: %f \n", light_level->photodiode_data[ConfigOut->ana_sensor_num]);
@@ -473,7 +399,6 @@ AnalogManager::LightLevelStatus AnalogManager::CompareLightLevel(std::shared_ptr
   
   /* compare the result to day and night thresholds */
   if (ph_avg >= ConfigOut->day_light_threshold) {
-    //printf("\n CompareLightLevel: photodiode_data: %f , %d", this->light_level->photodiode_data[0], ConfigOut->day_light_threshold);
     current_lightlevel_status = AnalogManager::LIGHT_ABOVE_DAY_THR;
 #if ARDUINO_DEBUG != 1
     clog << "info: " << logstream::info << "light level is ABOVE day_light_threshold" << std::endl;
@@ -500,13 +425,12 @@ AnalogManager::LightLevelStatus AnalogManager::CompareLightLevel(std::shared_ptr
 #endif	 
   }
   
-  /* set the config to allow info to be passed around */
-  // this->ConfigOut->lightlevel_status = current_lightlevel_status;
-  
   return current_lightlevel_status;
 }
 
-
+/*
+ * Perform analog data acquisition whilst waiting for a mode switch.
+ */
 int AnalogManager::ProcessAnalogData(std::shared_ptr<Config> ConfigOut) {
 
   std::mutex m;
@@ -517,8 +441,7 @@ int AnalogManager::ProcessAnalogData(std::shared_ptr<Config> ConfigOut) {
 				       std::chrono::milliseconds(ConfigOut->arduino_wait_period),
 				       [this] { return this->inst_mode_switch; })) { 
 
-    /* get the light level and read out thermistors  */
-    this->GetLightLevel(ConfigOut);
+    /* Actual readout of sensors is done by RunInstrument::PollInstrument() */
 
     /* write THERM_PACKET to file if night/data acquisition */
     if (this->current_lightlevel_status == LIGHT_BELOW_NIGHT_THR) { 
@@ -533,7 +456,7 @@ int AnalogManager::ProcessAnalogData(std::shared_ptr<Config> ConfigOut) {
     }
     
     sleep(ConfigOut->light_acq_time);
-    
+
   }
   return 0;
 }
@@ -549,9 +472,6 @@ int AnalogManager::Reset() {
     std::unique_lock<std::mutex> lock(this->m_mode_switch);   
     this->inst_mode_switch = false;
   } /* release mutex */
-
-  /* update measurement */
-  //this->GetLightLevel(ConfigOut);
 
   return 0;
 }
@@ -574,7 +494,7 @@ int AnalogManager::Notify() {
  * Set up interface attributes for the interface with the Arduino device.
  */
 int AnalogManager::SetInterfaceAttribs(int fd, int speed) {
-#if ARDUINO_DEBUG ==0
+#if ARDUINO_DEBUG == 0
   struct termios tty;
 
   if (tcgetattr(fd, &tty) < 0) {
@@ -646,14 +566,14 @@ float AnalogManager::ConvertToTemp(char data[9]) {
 
 /*
  * write the temperature packet to file 
- * @param temperature_results contains the parsed temperature data
  */
 int AnalogManager::WriteThermPkt() {
 
   THERM_PACKET * therm_packet = new THERM_PACKET();
   static unsigned int pkt_counter = 0;
-  
+
   clog << "info: " << logstream::info << "writing new therm packet to " << this->RunAccess->path << std::endl;
+
   /* create the therm packet header */
   therm_packet->therm_packet_header.header = CpuTools::BuildCpuHeader(THERM_PACKET_TYPE, THERM_PACKET_VER);
   therm_packet->therm_packet_header.pkt_size = sizeof(*therm_packet);
@@ -663,7 +583,10 @@ int AnalogManager::WriteThermPkt() {
   if (this->temperature_acq != NULL) {
     /* get the temperature data */
     for (int i = 0; i < N_CHANNELS_THERM; i++) {
-      therm_packet->therm_data[i] = this->temperature_acq->val[i];
+      {
+	std::unique_lock<std::mutex> lock(this->m_temperature_acq);
+	therm_packet->therm_data[i] = this->temperature_acq->val[i];
+      } /* release mutex */ 
     }
   }
   

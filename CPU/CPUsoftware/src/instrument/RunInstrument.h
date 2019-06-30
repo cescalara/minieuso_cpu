@@ -14,11 +14,8 @@
 #define DONE_DIR "/home/minieusouser/DONE"
 #define DATA_DIR "/home/minieusouser/DATA"
 
-/* wait time between status checks in seconds */
-//#define STATUS_PERIOD 30
-
-/* wait between switching on HV and Zynq in seconds */
-//#define PWR_ON_DELAY 2
+/* signal to not set the dac_level */
+#define NO_DAC_SET -99
 
 /**
  * class to handle different instrument operational modes
@@ -54,7 +51,6 @@ public:
   CamManager Cam;
   DataAcquisition Daq;
   DataReduction Data;
-  AnalogManager Analog;
 
   AnalogManager::LightLevelStatus current_lightlevel_status;
 
