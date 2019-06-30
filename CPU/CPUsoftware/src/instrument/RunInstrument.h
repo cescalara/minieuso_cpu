@@ -17,12 +17,6 @@
 /* signal to not set the dac_level */
 #define NO_DAC_SET -99
 
-/* wait time between status checks in seconds */
-//#define STATUS_PERIOD 30
-
-/* wait between switching on HV and Zynq in seconds */
-//#define PWR_ON_DELAY 2
-
 /**
  * class to handle different instrument operational modes
  */

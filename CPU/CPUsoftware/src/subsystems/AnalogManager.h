@@ -49,9 +49,6 @@
 #define X_DELAY 100 // ms
 #define READ_ARDUINO_TIMEOUT  1000 // it should be in ms now is in attempts to read the buffer
 
-/* for use with conditional variable */
-//#define WAIT_PERIOD 1 /* milliseconds */
-
 /**
  * acquisition structure to store analog readout 
  */

@@ -29,11 +29,6 @@ public:
   DataReduction();
   void Start();
 
-  /**
-  * output of the configuration parsing is stored here
-  */
-  std::shared_ptr<Config> ConfigOut;
-
 
 private:
 

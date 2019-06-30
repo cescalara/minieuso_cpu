@@ -10,13 +10,11 @@ DataReduction::DataReduction() {
 /**
  * launch thread to do data reduction 
  */
-void DataReduction::Start() {
+void DataReduction::Start(std::shared_ptr<Config> ConfigOut) {
 
   clog << "info: " << logstream::info << "starting data reduction" << std::endl;
   std::cout << "starting data reduction" << std::endl;
 
-  this->ConfigOut = std::make_shared<Config>();
-  
   /* launch thread */
   std::thread data_reduction (&DataReduction::RunDataReduction, this);
 
