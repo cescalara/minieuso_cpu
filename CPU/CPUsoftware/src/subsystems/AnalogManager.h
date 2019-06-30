@@ -109,7 +109,6 @@ public:
   };
 
   LightLevelStatus current_lightlevel_status;
-  std::shared_ptr<Config> ConfigOut;
 
   LightLevelStatus CompareLightLevel(std::shared_ptr<Config> ConfigOut);
   int ProcessAnalogData(std::shared_ptr<Config> ConfigOut);  

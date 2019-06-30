@@ -294,10 +294,9 @@ int AnalogManager::SerialReadOut(int fd) {
  */
 int AnalogManager::GetLightLevel(std::shared_ptr<Config> ConfigOut) 
 {
-  int i, k;
+  int k;
   float ph[N_CHANNELS_PHOTODIODE];
   float sipm[N_CHANNELS_SIPM];
- 
  
   /* interpret the analog acquisition struct */
   
@@ -309,83 +308,41 @@ int AnalogManager::GetLightLevel(std::shared_ptr<Config> ConfigOut)
     sipm[k] = 0;
   }
   
-
   /* read out the data */
   AnalogDataCollect();
-  ph[0] = (float)(this->analog_acq->val[0][0]); // fixed at 0
+  ph[0] = (float)(this->analog_acq->val[0][0]); 
   ph[1] = (float)(this->analog_acq->val[0][1]);
   ph[2] = (float)(this->analog_acq->val[0][2]);
   ph[3] = (float)(this->analog_acq->val[0][3]);
   
   for (k = 0; k < N_CHANNELS_SIPM; k++) {
-    sipm[k] = (float)(this->analog_acq->val[0][4+k]);
+    sipm[k] = (float)(this->analog_acq->val[0][N_CHANNELS_PHOTODIODE+k]);
   }
   
-  /* DEBUG */
-  /*
-  std::cout << "PH 0:" << std::endl;
-  std::cout << "val[0][0]" << this->analog_acq->val[0][0] << std::endl;
-  std::cout << "ph[0]" << ph[0] << std::endl;
-  std::cout << std::endl;
-  
-  std::cout << "PH 1:" << std::endl;
-  std::cout << "val[0][1]" << this->analog_acq->val[0][1] << std::endl;
-  std::cout << "ph[1]" << ph[1] << std::endl;
-  std::cout << std::endl;
-
-  std::cout << "PH 2:" << std::endl;
-  std::cout << "val[0][2]" << this->analog_acq->val[0][2] << std::endl;
-  std::cout << "ph[2]" << ph[2] << std::endl;
-  std::cout << std::endl;
-  
-  std::cout << "PH 3:" << std::endl;
-  std::cout << "val[0][3]" << this->analog_acq->val[0][3] << std::endl;
-  std::cout << "ph[3]" << ph[3] << std::endl;
-  std::cout << std::endl;
-
-  std::cout << "SIPM 64 channels:" << std::endl;
-  for (k=0; k < N_CHANNELS_SIPM; k++) {
-    std::cout << this->analog_acq->val[0][k+4] << " ";
-    std::cout << sipm[k] << " ";
-    std::cout << "    ";
-  }
-  std::cout << std::endl;
-  */
-  
-  /* read out the multiplexed 64 channel SiPM values */
-  // {
-  //std::unique_lock<std::mutex> lock(this->m_light_level);
-  //   this->light_level->sipm_data[i] = this->analog_acq->val[i][5];
-  // } /* release mutex */
-  //}
-
-  /* average the photodiode values */
-  for (k = 0; k < N_CHANNELS_PHOTODIODE; k++) 
+  /* assign the photodiode values to the light level */
+  for (k = 0; k < N_CHANNELS_PHOTODIODE; k++) {
     {
-      {
-	std::unique_lock<std::mutex> lock(this->m_light_level);
-	this->light_level->photodiode_data[k] = ph[k];
-      } /* release mutex */
+      std::unique_lock<std::mutex> lock(this->m_light_level);
+      this->light_level->photodiode_data[k] = ph[k];
+    } /* release mutex */
       
-    }
-  //printf("\n GetLightLevel: photodiode_data: %f", this->light_level->photodiode_data[0]);
-  /* average the one channel SiPM values */
-  for (k = 0; k < N_CHANNELS_SIPM; k++)
+  }
+  
+  /* assign the SiPM values to the light level */
+  for (k = 0; k < N_CHANNELS_SIPM; k++) {
     {
-      {
-	std::unique_lock<std::mutex> lock(this->m_light_level);
-	this->light_level->sipm_data[k] = sipm[k];
-      } /* release mutex */
-    }
+      std::unique_lock<std::mutex> lock(this->m_light_level);
+      this->light_level->sipm_data[k] = sipm[k];
+    } /* release mutex */
+  }
 
-  /* read out the thermistors */
-  for (k = 0; k < N_CHANNELS_THERM; k++)
+  /* assign thermistor values to the temperature_acq struct */
+  for (k = 0; k < N_CHANNELS_THERM; k++) {
     {
-      {
-	std::unique_lock<std::mutex> lock(this->m_temperature_acq);
-	this->temperature_acq->val[k] = (float)this->analog_acq->val[0][N_CHANNELS_PHOTODIODE+N_CHANNELS_SIPM+k];
-      }
+      std::unique_lock<std::mutex> lock(this->m_temperature_acq);
+      this->temperature_acq->val[k] = (float)this->analog_acq->val[0][N_CHANNELS_PHOTODIODE+N_CHANNELS_SIPM+k];
     }
+  }
   
   return 0;
 }
@@ -408,7 +365,7 @@ std::shared_ptr<LightLevel> AnalogManager::ReadLightLevel() {
 
 /**
  * compare light level to threshold value
- * LIGHT_THRESHOLD from configuration file config/dummy.conf or config/dummy_local.conf
+ * LIGHT_THRESHOLD from configuration file
  * @TODO check if more sophisticated tests needed in lab
  */
 AnalogManager::LightLevelStatus AnalogManager::CompareLightLevel(std::shared_ptr<Config> ConfigOut) {
@@ -417,38 +374,22 @@ AnalogManager::LightLevelStatus AnalogManager::CompareLightLevel(std::shared_ptr
   float ph_avg = 0;
   int i;
   
-#if ARDUINO_DEBUG != 1 
   clog << "info: " << logstream::info << "comparing light level to day and night thresholds" << std::endl;
-#else
-  printf("comparing light level to day and night thresholds \n"); 
-#endif   
 
-  //  printf("CompareLightLevel: light level before GetLightLevel %f \n", this->light_level->photodiode_data[0]);
   this->GetLightLevel(ConfigOut);
-  //printf("CompareLightLevel: light level after GetLightLevel %f \n", this->light_level->photodiode_data[0]);
   {
     std::unique_lock<std::mutex> lock(this->m_light_level);
     auto light_level = this->light_level;
   } /* release mutex */
-  
-  
-  /* read the light level */
-  /* average the 4 photodiode values */
-  // {
-  //   std::unique_lock<std::mutex> lock(this->m_light_level);
-  //   for (i = 0; i < N_CHANNELS_PHOTODIODE; i++) {
-  //     ph_avg += light_level->photodiode_data[i];
-  //   }
-  // } /* release mutex */
-  // ph_avg = ph_avg / (float)N_CHANNELS_PHOTODIODE;
 
+  /* for now, look at one specific sensor to debug */  
   {
     std::unique_lock<std::mutex> lock(this->m_light_level);
     ph_avg = light_level->photodiode_data[ConfigOut->ana_sensor_num];
   }
   
   /* debug */
- #if ARDUINO_DEBUG != 1
+#if ARDUINO_DEBUG != 1
   clog << "info: " << logstream::info << "average photodiode reading is: " << ph_avg << std::endl;
 #else
   printf("light photodiode reading is: %f \n", light_level->photodiode_data[ConfigOut->ana_sensor_num]);
@@ -456,7 +397,6 @@ AnalogManager::LightLevelStatus AnalogManager::CompareLightLevel(std::shared_ptr
   
   /* compare the result to day and night thresholds */
   if (ph_avg >= ConfigOut->day_light_threshold) {
-    //printf("\n CompareLightLevel: photodiode_data: %f , %d", this->light_level->photodiode_data[0], ConfigOut->day_light_threshold);
     current_lightlevel_status = AnalogManager::LIGHT_ABOVE_DAY_THR;
 #if ARDUINO_DEBUG != 1
     clog << "info: " << logstream::info << "light level is ABOVE day_light_threshold" << std::endl;
@@ -483,14 +423,11 @@ AnalogManager::LightLevelStatus AnalogManager::CompareLightLevel(std::shared_ptr
 #endif	 
   }
   
-  /* set the config to allow info to be passed around */
-  // this->ConfigOut->lightlevel_status = current_lightlevel_status;
-  
   return current_lightlevel_status;
 }
 
 /*
- *
+ * Perform analog data acquisition whilst waiting for a mode switch.
  */
 int AnalogManager::ProcessAnalogData(std::shared_ptr<Config> ConfigOut) {
 
@@ -507,6 +444,8 @@ int AnalogManager::ProcessAnalogData(std::shared_ptr<Config> ConfigOut) {
 
     /* from old ThermManager::ProcessThermData() */
     /* wait for CPU file to be set by DataAcqManager::ProcessIncomingData() */
+
+    /* should only wait in the night? */
     std::unique_lock<std::mutex> lock(m);
     this->cond_var.wait(lock, [this]{return cpu_file_is_set == true;});
 
@@ -557,7 +496,7 @@ int AnalogManager::Notify() {
  * Set up interface attributes for the interface with the Arduino device.
  */
 int AnalogManager::SetInterfaceAttribs(int fd, int speed) {
-#if ARDUINO_DEBUG ==0
+#if ARDUINO_DEBUG == 0
   struct termios tty;
 
   if (tcgetattr(fd, &tty) < 0) {
@@ -634,8 +573,10 @@ int AnalogManager::WriteThermPkt() {
 
   THERM_PACKET * therm_packet = new THERM_PACKET();
   static unsigned int pkt_counter = 0;
-  
+
+  /* think this path causes the segfault */
   clog << "info: " << logstream::info << "writing new therm packet to " << this->RunAccess->path << std::endl;
+
   /* create the therm packet header */
   therm_packet->therm_packet_header.header = CpuTools::BuildCpuHeader(THERM_PACKET_TYPE, THERM_PACKET_VER);
   therm_packet->therm_packet_header.pkt_size = sizeof(*therm_packet);

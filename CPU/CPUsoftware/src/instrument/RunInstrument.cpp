@@ -285,29 +285,32 @@ int RunInstrument::InitInstMode() {
 
   clog << "info: " << logstream::info << "setting the instrument mode" << std::endl;
   printf("info: setting the instrument mode \n");
-  /* get the current light level */
-  this->Daq.Analog->GetLightLevel(ConfigOut);
-  AnalogManager::LightLevelStatus current_lightlevel_status = this->Daq.Analog->CompareLightLevel(ConfigOut);
 
-  // /* make a decision */
+  /* get the current light level */
+  AnalogManager::LightLevelStatus current_lightlevel_status = this->Daq.Analog->CompareLightLevel(this->ConfigOut);
+
+  /* make a decision */
   switch(current_lightlevel_status){
+
   case AnalogManager::LIGHT_ABOVE_DAY_THR:
+
     /* set to day mode */
     this->SetInstMode(RunInstrument::DAY);
     break;
+
   case AnalogManager::LIGHT_BELOW_NIGHT_THR:
+
     /* set to night mode */
     this->SetInstMode(RunInstrument::NIGHT);
      break;
+
   case AnalogManager::LIGHT_UNDEF:
+
     if (GetInstMode()==INST_UNDEF){
-      /* set to day mode */
+      /* set to day mode to be safe */
       this->SetInstMode(RunInstrument::DAY);
     }
-    //else if (GetInstMode()==NIGHT){
-      /* set to night mode */
-      //this->SetInstMode(RunInstrument::NIGHT);
-    //}
+
     break;
   }
 
@@ -458,7 +461,7 @@ int RunInstrument::CheckSystems() {
     this->Lvps.SwitchOn(LvpsManager::CAMERAS);
   }
   this->Lvps.SwitchOn(LvpsManager::HK);
-  sleep(ConfigOut->pwr_on_delay);
+  sleep(this->ConfigOut->pwr_on_delay);
   this->Lvps.SwitchOn(LvpsManager::ZYNQ);
 
   /* wait for boot */
@@ -616,48 +619,59 @@ int RunInstrument::PollInstrument() {
   while (!signal_shutdown.load()) {
 
     switch(GetInstMode()) {
-      printf("\n Pollinstrument ");
+
     case NIGHT:
-      sleep(ConfigOut->light_poll_time);
+
+      sleep(this->ConfigOut->light_poll_time);
+
       /* check if the output of the analog acquisition is above day threshold */
-      if (this->Daq.Analog->CompareLightLevel(ConfigOut)==AnalogManager::LIGHT_ABOVE_DAY_THR) {
-        /* switch mode to DAY */
+      if (this->Daq.Analog->CompareLightLevel(this->ConfigOut) == AnalogManager::LIGHT_ABOVE_DAY_THR) {
+
+	/* switch mode to DAY */
 	printf("PollInst: from night to day\n");
-	/* To notifie isDay to an external program for zip purpose*/
+	/* To notify isDay to an external program for zip purpose */
 	this->Daq.Notify();
 	this->SetInstMode(DAY);
 	this->isDay.open ("is_day.txt");
 	this->isDay<< "1";
 	this->isDay.close();
+
       }
       break;
 
     case DAY:
-      sleep(ConfigOut->light_poll_time);
+      
+      sleep(this->ConfigOut->light_poll_time);
+
       /* check the output of analog acquisition is below night threshold */
-      if (this->Daq.Analog->CompareLightLevel(ConfigOut)==AnalogManager::LIGHT_BELOW_NIGHT_THR) {
+      if (this->Daq.Analog->CompareLightLevel(this->ConfigOut) == AnalogManager::LIGHT_BELOW_NIGHT_THR) {
+
 	/* switch mode to NIGHT */
 	printf("\nPollInst: from day to night\n");
 	this->Data.Notify();
 	this->SetInstMode(NIGHT);
-	/* To notifie isDay to an external program for zip purpose*/
+	/* To notify isDay to an external program for zip purpose */
 	this->Daq.Notify();
 	this->SetInstMode(DAY);
 	this->isDay.open ("is_day.txt");
 	this->isDay<< "2";
 	this->isDay.close();
+
       }
       break;
 
     case INST_UNDEF:
+
       std::cout << "ERROR: instrument mode is undefined" << std::endl;
-      /* To notifie isDay to an external program for zip purpose*/
-     this->Daq.Notify();
-	 this->SetInstMode(DAY);
-     this->isDay.open ("is_day.txt");
-     this->isDay<< "3";
-     this->isDay.close();
-    break;
+
+      /* To notify isDay to an external program for zip purpose */
+      this->Daq.Notify();
+      this->SetInstMode(DAY);
+      this->isDay.open ("is_day.txt");
+      this->isDay<< "3";
+      this->isDay.close();
+
+      break;
     }
 
   } /* end loop when stop signal sent */
