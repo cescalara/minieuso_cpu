@@ -575,7 +575,6 @@ int AnalogManager::WriteThermPkt() {
   THERM_PACKET * therm_packet = new THERM_PACKET();
   static unsigned int pkt_counter = 0;
 
-  /* think this path causes the segfault */
   clog << "info: " << logstream::info << "writing new therm packet to " << this->RunAccess->path << std::endl;
 
   /* create the therm packet header */
@@ -587,7 +586,10 @@ int AnalogManager::WriteThermPkt() {
   if (this->temperature_acq != NULL) {
     /* get the temperature data */
     for (int i = 0; i < N_CHANNELS_THERM; i++) {
-      therm_packet->therm_data[i] = this->temperature_acq->val[i];
+      {
+	std::unique_lock<std::mutex> lock(this->m_temperature_acq);
+	therm_packet->therm_data[i] = this->temperature_acq->val[i];
+      } /* release mutex */ 
     }
   }
   
