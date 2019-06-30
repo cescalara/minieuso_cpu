@@ -57,7 +57,6 @@ public:
   CamManager Cam;
   DataAcquisition Daq;
   DataReduction Data;
-  AnalogManager Analog;
 
   AnalogManager::LightLevelStatus current_lightlevel_status;
 

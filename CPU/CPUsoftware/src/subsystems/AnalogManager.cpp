@@ -16,7 +16,9 @@ AnalogManager::AnalogManager() {
       this->analog_acq->val[i][j] = 0;
     }
   }
-  this->inst_mode_switch = false;
+  
+  this->inst_mode_switch = false;  
+  this->cpu_file_is_set = false;
 
 }
 
@@ -440,7 +442,7 @@ int AnalogManager::ProcessAnalogData(std::shared_ptr<Config> ConfigOut) {
 				       [this] { return this->inst_mode_switch; })) { 
 
     /* get the light level and read out thermistors  */
-    this->GetLightLevel(ConfigOut);
+    //this->GetLightLevel(ConfigOut);
 
     /* from old ThermManager::ProcessThermData() */
     /* wait for CPU file to be set by DataAcqManager::ProcessIncomingData() */

@@ -154,7 +154,7 @@ int DataAcquisition::CreateCpuRun(RunType run_type, std::shared_ptr<Config> Conf
   }
   this->RunAccess = new Access(this->CpuFile);
 
-  /* access for ThermManager */
+  /* access for AnalogManager */
   this->Analog->RunAccess = new Access(this->CpuFile);
     
   /* set up the cpu file structure */
@@ -173,7 +173,7 @@ int DataAcquisition::CreateCpuRun(RunType run_type, std::shared_ptr<Config> Conf
   delete cpu_file_header;
   
   /* notify the AnalogManager */
-  /* will this only work the first time? */
+  /* is reset in CloseCpuRun() */
   this->Analog->cpu_file_is_set = true;
   this->Analog->cond_var.notify_all();
   
@@ -208,6 +208,9 @@ int DataAcquisition::CloseCpuRun(RunType run_type) {
     std::unique_lock<std::mutex> lock(this->m_nfiles);     
     this->n_files_written++;
   }
+
+  /* reset for AnalogManager */
+  this->Analog->cpu_file_is_set = false;
   
   return 0;
 }
@@ -1031,7 +1034,6 @@ int DataAcquisition::CollectData(ZynqManager * Zynq, std::shared_ptr<Config> Con
 
   long unsigned int main_thread = pthread_self();
 
- #if ARDUINO_DEBUG !=1 
   /* FTP polling */
   std::thread ftp_poll (&DataAcquisition::FtpPoll, this, true);
   
@@ -1059,16 +1061,12 @@ int DataAcquisition::CollectData(ZynqManager * Zynq, std::shared_ptr<Config> Con
     std::unique_lock<std::mutex> lock(Zynq->m_zynq);  
     Zynq->SetZynqMode();
   }
-#endif
-
   
   /* add acquisition with the analog board */
   std::thread analog(&AnalogManager::ProcessAnalogData, this->Analog, ConfigOut);
   
   /* wait for other acquisition threads to join */
   analog.join();
-
-#if ARDUINO_DEBUG !=1
   collect_main_data.join();
   ftp_poll.join();
   
@@ -1085,8 +1083,6 @@ int DataAcquisition::CollectData(ZynqManager * Zynq, std::shared_ptr<Config> Con
   
   /* read out HV file */
   GetHvInfo(ConfigOut, CmdLine);
-
-#endif
   
 #endif /* __APPLE__ */
   return 0;
