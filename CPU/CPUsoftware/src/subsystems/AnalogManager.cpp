@@ -473,9 +473,6 @@ int AnalogManager::Reset() {
     this->inst_mode_switch = false;
   } /* release mutex */
 
-  /* update measurement */
-  //this->GetLightLevel(ConfigOut);
-
   return 0;
 }
 

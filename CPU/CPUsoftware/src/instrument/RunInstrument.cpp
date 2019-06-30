@@ -629,11 +629,12 @@ int RunInstrument::PollInstrument() {
 
 	/* switch mode to DAY */
 	printf("PollInst: from night to day\n");
-	/* To notify isDay to an external program for zip purpose */
 	this->Daq.Notify();
 	this->SetInstMode(DAY);
+	
+	/* To notify isDay to an external program for zip purpose */
 	this->isDay.open ("is_day.txt");
-	this->isDay<< "1";
+	this->isDay <<  "1";
 	this->isDay.close();
 
       }
@@ -650,9 +651,8 @@ int RunInstrument::PollInstrument() {
 	printf("\nPollInst: from day to night\n");
 	this->Data.Notify();
 	this->SetInstMode(NIGHT);
+
 	/* To notify isDay to an external program for zip purpose */
-	this->Daq.Notify();
-	this->SetInstMode(DAY);
 	this->isDay.open ("is_day.txt");
 	this->isDay<< "2";
 	this->isDay.close();
@@ -664,9 +664,10 @@ int RunInstrument::PollInstrument() {
 
       std::cout << "ERROR: instrument mode is undefined" << std::endl;
 
-      /* To notify isDay to an external program for zip purpose */
       this->Daq.Notify();
       this->SetInstMode(DAY);
+      
+      /* To notify isDay to an external program for zip purpose */
       this->isDay.open ("is_day.txt");
       this->isDay<< "3";
       this->isDay.close();
