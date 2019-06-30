@@ -23,6 +23,7 @@ Contents
    update
    ssh_connection
    usage
+   configuration_file
    automated_acquisition
    data_format
    data_visualisation
