@@ -10,17 +10,13 @@ DataReduction::DataReduction() {
 /**
  * launch thread to do data reduction 
  */
-void DataReduction::Start(std::shared_ptr<Config> ConfigOut) {
+void DataReduction::Start() {
 
   clog << "info: " << logstream::info << "starting data reduction" << std::endl;
   std::cout << "starting data reduction" << std::endl;
 
   /* launch thread */
   std::thread data_reduction (&DataReduction::RunDataReduction, this);
-
-  /* launch the analog acquisition */
-  std::thread analog(&AnalogManager::ProcessAnalogData, this->Analog, ConfigOut); 
-  analog.join();
   
   /* wait for thread to exit, when instrument mode switches */
   data_reduction.join();
