@@ -57,14 +57,14 @@ int AnalogManager::AnalogDataCollect() {
   }
   else {
 
-    clog << "info: " << logstream::info << "Device " << DUINO << " has been opened and ready for operation" << std::endl;
+    clog << "info: " << logstream::info << "device " << DUINO << " has been opened and ready for operation" << std::endl;
 
   }
 
   /*baudrate 9600, 8 bits, no parity, 1 stop bit */
   SetInterfaceAttribs(fd, BAUDRATE);
   
-  clog << "info: " << logstream::info << "Will now run AnalogManager::SerialReadOut()" << std::endl;
+  clog << "info: " << logstream::info << "now running AnalogManager::SerialReadOut()" << std::endl;
   SerialReadOut(fd);
 
 #endif
@@ -73,34 +73,38 @@ int AnalogManager::AnalogDataCollect() {
 
 /**
  * Read serial output from a file descriptor.
+ * returns -1 if failed. 
+ * @param fd file descriptor
  */
-// returns 0 if failed
 int AnalogManager::SerialReadOut(int fd) {
 
 	unsigned char a[] = { 0xAA, 0x55, 0xAA, 0x55 };
 	unsigned char buf[(unsigned int)(X_TOTAL_BUF_SIZE_HEADER*6)];
 	unsigned char temp_buf[(unsigned int)(X_TOTAL_BUF_SIZE_HEADER*6)];
-#if ARDUINO_DEBUG ==1
+
+#if ARDUINO_DEBUG == 1
 	unsigned char simulated_buf[(unsigned int)(X_TOTAL_BUF_SIZE_HEADER*6)];
 #endif
+	
 	unsigned int temp_checksum = 0;
 	unsigned int buffer_checksum = 0;
 	int checksum_passed = -1;
 
 	std::string needle(a, a + 4);
   
-	//	char buf[40*BUF_SIZE];
-	unsigned int total_lenght = 0;
-	unsigned   int len=50;
-	//   char * p;
-	//   char * err;
-	unsigned  int i;
-	unsigned   int ijk;
-	//   double val;
+	//char buf[40*BUF_SIZE];
+	//char * p;
+	//char * err;
+	//double val;
+
+	unsigned int total_length = 0;
+	unsigned int len = 50;
+	unsigned int i, ijk;
 	unsigned int start_search = 0; // ofsset to look of 0xaa55aa55
 	unsigned int header_not_found = 0;
 	
-#if ARDUINO_DEBUG ==1
+#if ARDUINO_DEBUG == 1
+	/* make a simulated buffer for testing */
 	simulated_buf[0] = 0xAA;
 	simulated_buf[1] = 0x55;
 	simulated_buf[2] = 0xAA;
@@ -115,7 +119,7 @@ int AnalogManager::SerialReadOut(int fd) {
 	simulated_buf[13] = 0x55;
 	
  
-	// calculate checksum
+	/* calculate checksum */
 	temp_checksum = 0;
 	for (ijk = 0; ijk < (X_TOTAL_BUF_SIZE / 2); ijk++)
 	  {
@@ -130,178 +134,157 @@ int AnalogManager::SerialReadOut(int fd) {
 	temp_checksum = 0;
 #endif
 	
-	/* repeat read to get full message */
-	//for (i = 0; i < FIFO_DEPTH + 1; i++) 
-	
 	unsigned int Time_Elapsed = 0; // should be in ms, now is in attempts
 	
-	/* repeat until full data has arrived. at least two buffer size */
-	/* should get time to put timeout */
-	unsigned int MAX_Lenght = ((X_TOTAL_BUF_SIZE_HEADER)*4);
+	/* repeat until full data has arrived, at least twice the buffer size */
+	/* @TODO should get time to put timeout */
+	unsigned int MAX_Length = ((X_TOTAL_BUF_SIZE_HEADER)*4);
 #ifdef PRINT_DEBUG_INFO
 //	printf("\n sizeof(temp_buf) %d, sizeof(buf) %d \n", int(sizeof(temp_buf)), int(sizeof(buf)));
 #endif
-	while ((total_lenght < MAX_Lenght) && (Time_Elapsed < READ_ARDUINO_TIMEOUT) )
-	{
-	    // clean temp_buf
-	    for (ijk = 0; ijk < sizeof(temp_buf); ijk++)
-	      {
-		temp_buf[ijk] = 0;
-	      }
+	while ((total_length < MAX_Length) && (Time_Elapsed < READ_ARDUINO_TIMEOUT) ) {
+
+	  /* clean temp_buf */
+	  for (ijk = 0; ijk < sizeof(temp_buf); ijk++) {
+	    temp_buf[ijk] = 0;
+	  }
 	    
-	    /* get number of bytes read */
 #ifdef PRINT_DEBUG_INFO
-//	    printf("X_TOTAL_BUF_SIZE_HEADER %d (2 * X_TOTAL_BUF_SIZE_HEADER)  %d Time_Elapsed %d len %d total_lenght %d ", X_TOTAL_BUF_SIZE_HEADER, (MAX_Lenght), Time_Elapsed,len, total_lenght);
+//	    printf("X_TOTAL_BUF_SIZE_HEADER %d (2 * X_TOTAL_BUF_SIZE_HEADER)  %d Time_Elapsed %d len %d total_length %d ", X_TOTAL_BUF_SIZE_HEADER, (MAX_Length), Time_Elapsed,len, total_length);
 #endif
 	    
 #if ARDUINO_DEBUG ==1
-	    for (ijk = 0; ijk < 50; ijk++)
-	      {
-		temp_buf[ijk] = simulated_buf[ijk+ total_lenght];
-	      }
-	    len = 50;
+
+	  for (ijk = 0; ijk < 50; ijk++) {
+	    temp_buf[ijk] = simulated_buf[ijk+ total_length];
+	  }
+	  len = 50;
 #else
-	    len = read(fd, &temp_buf, sizeof(temp_buf)); // -1);
+	  len = read(fd, &temp_buf, sizeof(temp_buf)); 
 #endif
-	    Time_Elapsed++;
-	    for (ijk = 0; ijk<len; ijk++)
-	    {
-		buf[ijk + total_lenght] = temp_buf[ijk];
-	    }
-            total_lenght += len;
-     
-	 }
+	  Time_Elapsed++;
+	  for (ijk = 0; ijk<len; ijk++) {
+	    buf[ijk + total_length] = temp_buf[ijk];
+	  }
+	  total_length += len;
+	  
+	}
+	
 #ifdef PRINT_DEBUG_INFO
-	printf("\n totallenght %d lenght %d \n", total_lenght, len);
+	printf("\n total length %d length %d \n", total_length, len);
 #endif
 	
-	if (total_lenght < 0)
-	  {
-	    printf("\n Error from read: %d: %s\n", len, std::strerror(errno));
-     return(0);
-	  }
-	else
-   {
+	if (total_length < 0) {
+	  printf("\n Error from read: %d: %s\n", len, std::strerror(errno));
+	  return(-1);
+	}
+	else {
 #ifdef PRINT_DEBUG_INFO
-     /* print the serial output (debug) */
-     printf("\n Begin Arduino Data Dump\n");
+	  /* print the serial output (debug) */
+	  printf("\n Begin Arduino Data Dump\n");
      
-     for (ijk = 0; ijk < total_lenght; ijk++)
-       {
-	 printf(" %02x ", buf[ijk]);
-       }
+	  for (ijk = 0; ijk < total_length; ijk++) {
+	    printf(" %02x ", buf[ijk]);
+	  }
      
 #endif
      
-     /* get number of bytes read */
-     //  len = read(fd, &buf, sizeof(buf)); // -1);
-     //buf[BUF_SIZE-1] = '\0';
      start_search = 0;
-     do
-       {
+     do {
 	 
 	 /* some bytes read */
-	 //len = 250;
-	 if (total_lenght > 0)
-	   {
+	 if (total_length > 0) {
 	     
-	     // Look for AA55AA55
-	     std::string haystack(buf, buf + sizeof(buf));  // or "+ sizeof Buffer"
-	     std::size_t n = haystack.find(needle, start_search);
+	   /* Look for AA55AA55 */
+	   std::string haystack(buf, buf + sizeof(buf));  // or "+ sizeof Buffer"
+	   std::size_t n = haystack.find(needle, start_search);
 	     
-	     if ((n == std::string::npos)|| ( (sizeof(buf)-n)<(4+2+8+128+2+90+56+10) ) )
-	       {
+	   if ((n == std::string::npos) || ( (sizeof(buf)-n)<(4+2+8+128+2+90+56+10) ) ) {
 #ifdef PRINT_DEBUG_INFO
-		 printf("\n HEADER NOT FOUND");
+	     printf("\n HEADER NOT FOUND");
 #endif
-		 header_not_found = 1; 
-	       }
-	     else
-	       {
-		 
-		 //		  std::cout << "Position is  = " << n << std::endl;
-#ifdef PRINT_DEBUG_INFO
-		 printf("Position is %d ", (unsigned int)n); // position is n
-#endif
-		 this->analog_acq->val[0][0] = (buf[n + 6] << 8) + buf[n + 7];
-		 this->analog_acq->val[0][1] = (buf[n + 8] << 8) + buf[n + 9];
-		 this->analog_acq->val[0][2] = (buf[n + 10] << 8) + buf[n + 11];
-		 this->analog_acq->val[0][3] = (buf[n + 12] << 8) + buf[n + 13];
-
-#ifdef PRINT_DEBUG_INFO
-		 printf(" packet number %d", (buf[n + 4] << 8) + buf[n + 5]);
-		 printf(" zero %d", this->analog_acq->val[0][0]);
-		 printf(" uno %d", this->analog_acq->val[0][1]);
-		 printf(" due %d", this->analog_acq->val[0][2]);
-		 printf(" tre %d", this->analog_acq->val[0][3]);
-#endif
-		 //this->analog_acq->val[0][0]=rand() % 150;
-		 //printf("\n SerialReadout: randomizing %d", this->analog_acq->val[0][0]);
-		 for (ijk = 0; ijk < X_SIPM_BUF_SIZE; ijk++)
-		   {
-		     this->analog_acq->val[0][ijk + 4] = (buf[n + 14 + (2*ijk)] << 8) + buf[n + 15 + (2*ijk)];
-		   }
-
-		 for (ijk=0; ijk < N_CHANNELS_THERM; ijk++) {
-
-		   float converted_temp_output = 0;
-		   char raw_temp_output[9];
-		   int ijkl;
-		   
-		   /* get 9 byte temp info */
-		   for (ijkl = 0; ijkl < 9; ijkl++) {
-		     raw_temp_output[ijkl] =  buf[(n + X_TOTAL_BUF_SIZE*2 + 8 + (ijk*9) + ijkl)];
-		   }
-		   
-		   /* convert to float */
-		   converted_temp_output = ConvertToTemp(raw_temp_output);
-		   
-		   /* assign to analog_acq struct */
-		   this->analog_acq->val[0][N_CHANNELS_PHOTODIODE+N_CHANNELS_SIPM+ijk] = converted_temp_output; 
-		   std::cout << "Therm " << ijk << " :" << converted_temp_output << std::endl;
-		  
-		   /* debug */
-		   /* For now, just assign known numbers while those in Rome continue the debugging */
-		   //this->analog_acq->val[0][N_CHANNELS_PHOTODIODE+N_CHANNELS_SIPM+ijk] = 26; 
-		   
-		 }
-	
-		 // calculate checksum
-		 buffer_checksum = (buf[(n+(X_TOTAL_BUF_SIZE)*2 + 6)] << 8) + buf[(n + (X_TOTAL_BUF_SIZE)*2 + 7)];
-		 temp_checksum = 0;
-		 for (ijk = 0; ijk < (X_TOTAL_BUF_SIZE ); ijk++)
-		   {
-		     temp_checksum += (buf[n + ijk * 2 + 6] << 8) + buf[n + ijk * 2 + 6 + 1];
-		   }
-		 temp_checksum = temp_checksum & 0xFFFF;
-		 if (temp_checksum == buffer_checksum)
-		   {
-#ifdef PRINT_DEBUG_INFO
-		     printf("\n  checksum passed calc %x buffer %x stat_search %d \n ", temp_checksum, buffer_checksum, start_search);
-#endif
-		     checksum_passed = 1;
-		   }
-		 else
-		   {
-#ifdef PRINT_DEBUG_INFO
-		     printf("\n  checksum FAILED calc %x buffer %x stat_search %d \n ", temp_checksum, buffer_checksum, start_search);
-#endif
-		     checksum_passed = 0;
-		     start_search = n + 4;
-#ifdef PRINT_DEBUG_INFO
-		     printf("incremented star search %d", start_search);
-#endif
-		   }
-	       }
+	     header_not_found = 1; 
 	   }
-	 
-       } while (((checksum_passed == 0) && ((start_search + X_TOTAL_BUF_SIZE_HEADER) < total_lenght)) && (header_not_found==0));
-   }
-	
-	if (checksum_passed == 1) return (1);
-	else return (0); 
+	   else {
+		 
+#ifdef PRINT_DEBUG_INFO
+	     printf("Position is %d ", (unsigned int)n); // position is n
+#endif
+	     /* read out the photodiode values */
+	     this->analog_acq->val[0][0] = (buf[n + 6] << 8) + buf[n + 7];
+	     this->analog_acq->val[0][1] = (buf[n + 8] << 8) + buf[n + 9];
+	     this->analog_acq->val[0][2] = (buf[n + 10] << 8) + buf[n + 11];
+	     this->analog_acq->val[0][3] = (buf[n + 12] << 8) + buf[n + 13];
 
- 
+#ifdef PRINT_DEBUG_INFO
+	     printf(" packet number %d", (buf[n + 4] << 8) + buf[n + 5]);
+	     printf(" zero %d", this->analog_acq->val[0][0]);
+	     printf(" uno %d", this->analog_acq->val[0][1]);
+	     printf(" due %d", this->analog_acq->val[0][2]);
+	     printf(" tre %d", this->analog_acq->val[0][3]);
+#endif
+	     /* read out the SiPM values */
+	     for (ijk = 0; ijk < X_SIPM_BUF_SIZE; ijk++) {
+	       this->analog_acq->val[0][ijk + 4] = (buf[n + 14 + (2*ijk)] << 8) + buf[n + 15 + (2*ijk)];
+	     }
+
+	     /* read out the thermistors */
+	     for (ijk=0; ijk < N_CHANNELS_THERM; ijk++) {
+
+	       float converted_temp_output = 0;
+	       char raw_temp_output[9];
+	       int k;
+		   
+	       /* get 9 byte temp info */
+	       for (k = 0; k < 9; k++) {
+		 raw_temp_output[k] =  buf[(n + X_TOTAL_BUF_SIZE*2 + 8 + (ijk*9) + k)];
+	       }
+		   
+	       /* convert to float */
+	       converted_temp_output = ConvertToTemp(raw_temp_output);
+		   
+	       /* assign to analog_acq struct */
+	       this->analog_acq->val[0][N_CHANNELS_PHOTODIODE+N_CHANNELS_SIPM+ijk] = converted_temp_output; 
+	       /* debug */
+	       //std::cout << "Therm " << ijk << " :" << converted_temp_output << std::endl;
+	        
+	     }
+	
+	     /* calculate checksum */
+	     buffer_checksum = (buf[(n+(X_TOTAL_BUF_SIZE)*2 + 6)] << 8) + buf[(n + (X_TOTAL_BUF_SIZE)*2 + 7)];
+	     temp_checksum = 0;
+	     for (ijk = 0; ijk < (X_TOTAL_BUF_SIZE ); ijk++) {
+	       temp_checksum += (buf[n + ijk * 2 + 6] << 8) + buf[n + ijk * 2 + 6 + 1];
+	     }
+	     temp_checksum = temp_checksum & 0xFFFF;
+	     if (temp_checksum == buffer_checksum) {
+#ifdef PRINT_DEBUG_INFO
+	       printf("\n  checksum passed calc %x buffer %x stat_search %d \n ", temp_checksum, buffer_checksum, start_search);
+#endif
+	       checksum_passed = 1;
+	     }
+	     else {
+#ifdef PRINT_DEBUG_INFO
+	       printf("\n  checksum FAILED calc %x buffer %x stat_search %d \n ", temp_checksum, buffer_checksum, start_search);
+#endif
+	       checksum_passed = 0;
+	       start_search = n + 4;
+#ifdef PRINT_DEBUG_INFO
+	       printf("incremented start search %d", start_search);
+#endif
+	     }
+	   }
+	 } /* if (total_length > 0) */
+	 
+     } while (((checksum_passed == 0) &&
+	       ((start_search + X_TOTAL_BUF_SIZE_HEADER) < total_length)) &&
+	      (header_not_found==0));
+
+	}
+	
+	if (checksum_passed == 1) return (0);
+	else return (-1); 
+
 }
 
 /**
@@ -506,7 +489,9 @@ AnalogManager::LightLevelStatus AnalogManager::CompareLightLevel(std::shared_ptr
   return current_lightlevel_status;
 }
 
-
+/*
+ *
+ */
 int AnalogManager::ProcessAnalogData(std::shared_ptr<Config> ConfigOut) {
 
   std::mutex m;
@@ -530,9 +515,8 @@ int AnalogManager::ProcessAnalogData(std::shared_ptr<Config> ConfigOut) {
       WriteThermPkt();
     }
     
-    //#if ARDUINO_DEBUG == 0
     sleep(ConfigOut->light_acq_time);
-    //#endif
+
   }
   return 0;
 }
@@ -645,7 +629,6 @@ float AnalogManager::ConvertToTemp(char data[9]) {
 
 /*
  * write the temperature packet to file 
- * @param temperature_results contains the parsed temperature data
  */
 int AnalogManager::WriteThermPkt() {
 
