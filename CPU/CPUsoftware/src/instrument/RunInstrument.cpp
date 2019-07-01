@@ -156,7 +156,7 @@ int RunInstrument::DebugMode() {
   std::cout << std::endl;
   std::cout << "running checks of all subsystems..." <<std::endl;
   std::cout << std::endl;
- 
+
   std::cout << "USB" << std::endl;
   int num_usb_storage = this->Usb.LookupUsbStorage();
   std::cout << "there are " << num_usb_storage << " USB storage devices connected" << std::endl;
@@ -176,7 +176,7 @@ int RunInstrument::DebugMode() {
   this->Lvps.SwitchOn(LvpsManager::ZYNQ);
   sleep(1);
   std::cout << std::endl;
-  
+
   /*
   std::cout << "ANALOG" << std::endl;
   std::cout << "running an acquisition..." << std::endl;
@@ -195,7 +195,7 @@ int RunInstrument::DebugMode() {
   std::cout << "SIPM single channel: " << light_level->sipm_single << std::endl;
   std::cout << std::endl;
   */
-  
+
   this->Lvps.SwitchOn(LvpsManager::CAMERAS);
   std::cout << "CAMERAS" << std::endl;
   std::cout << "running an acquisition..." << std::endl;
@@ -235,10 +235,10 @@ int RunInstrument::DebugMode() {
   this->Lvps.SwitchOff(LvpsManager::ZYNQ);
   std::cout << "done!" << std::endl;
 
-#endif 
-  
+#endif
+
   std::cout << "debug tests completed, exiting the program" << std::endl;
-  
+
   return 0;
 }
 
@@ -295,20 +295,35 @@ int RunInstrument::InitInstMode() {
   case AnalogManager::LIGHT_ABOVE_DAY_THR:
 
     /* set to day mode */
+    /* To notify isDay to an external program for zip purpose */
+        this->isDay.open ("/media/usb0/is_day.txt");
+        this->isDay <<  "1";
+        this->isDay.close();
+
     this->SetInstMode(RunInstrument::DAY);
     break;
 
   case AnalogManager::LIGHT_BELOW_NIGHT_THR:
 
     /* set to night mode */
-    this->SetInstMode(RunInstrument::NIGHT);
+        /* To notify isDay to an external program for zip purpose */
+        this->isDay.open ("/media/usb0/is_day.txt");
+        this->isDay <<  "2";
+        this->isDay.close();
+
+     this->SetInstMode(RunInstrument::NIGHT);
      break;
 
   case AnalogManager::LIGHT_UNDEF:
 
     if (GetInstMode() == INST_UNDEF){
       /* set to day mode to be safe */
-      this->SetInstMode(RunInstrument::DAY);
+        /* To notify isDay to an external program for zip purpose */
+        this->isDay.open ("/media/usb0/is_day.txt");
+        this->isDay <<  "3";
+        this->isDay.close();
+
+        this->SetInstMode(RunInstrument::DAY);
     }
 
     break;
@@ -629,19 +644,20 @@ int RunInstrument::PollInstrument() {
 
 	/* switch mode to DAY */
 	printf("PollInst: from night to day\n");
-	this->SetInstMode(RunInstrument::DAY);
-	this->Daq.Notify();
-	
 	/* To notify isDay to an external program for zip purpose */
-	this->isDay.open ("is_day.txt");
+	this->isDay.open ("/media/usb0/is_day.txt");
 	this->isDay <<  "1";
 	this->isDay.close();
+	this->SetInstMode(RunInstrument::DAY);
+	this->Daq.Notify();
+
+
 
       }
       break;
 
     case RunInstrument::DAY:
-      
+
       sleep(this->ConfigOut->light_poll_time);
 
       /* check the output of analog acquisition is below night threshold */
@@ -649,13 +665,14 @@ int RunInstrument::PollInstrument() {
 
 	/* switch mode to NIGHT */
 	printf("\nPollInst: from day to night\n");
+    /* To notify isDay to an external program for zip purpose */
+	this->isDay.open ("/media/usb0/is_day.txt");
+	this->isDay<< "2";
+	this->isDay.close();
+
 	this->SetInstMode(RunInstrument::NIGHT);
 	this->Data.Notify();
 
-	/* To notify isDay to an external program for zip purpose */
-	this->isDay.open ("is_day.txt");
-	this->isDay<< "2";
-	this->isDay.close();
 
       }
       break;
@@ -663,14 +680,15 @@ int RunInstrument::PollInstrument() {
     case RunInstrument::INST_UNDEF:
 
       std::cout << "ERROR: instrument mode is undefined" << std::endl;
+    /* To notify isDay to an external program for zip purpose */
+      this->isDay.open ("/media/usb0/is_day.txt");
+      this->isDay<< "3";
+      this->isDay.close();
 
       this->SetInstMode(RunInstrument::DAY);
       this->Daq.Notify();
-      
-      /* To notify isDay to an external program for zip purpose */
-      this->isDay.open ("is_day.txt");
-      this->isDay<< "3";
-      this->isDay.close();
+
+
 
       break;
     }
@@ -821,11 +839,11 @@ int RunInstrument::Acquisition() {
   clog << "info: " << logstream::info << "starting acquisition run" << std::endl;
 
 #if ARDUINO_DEBUG !=1
-  
+
   /* clear the FTP server */
   CpuTools::ClearFolder(DATA_DIR);
   this->Zynq.InstrumentClean();
-  
+
   /* add acquisition with cameras if required */
   this->LaunchCam();
 
@@ -837,7 +855,7 @@ int RunInstrument::Acquisition() {
       this->Zynq.SetDac(this->ConfigOut->dac_level);
     }
   }
-  
+
   /* select SCURVE or STANDARD acquisition */
   if (this->Zynq.telnet_connected) {
     SelectAcqOption();
@@ -864,7 +882,7 @@ int RunInstrument::Acquisition() {
   if (this->CmdLine->cam_on) {
     this->Cam.KillCamAcq();
   }
-  
+
   #endif
   return 0;
 }
@@ -880,7 +898,7 @@ int RunInstrument::NightOperations() {
   if (this->Daq.IsScurveDone()) {
     return 0;
   }
-  
+
   clog << "info: " << logstream::info << "entering NIGHT mode" << std::endl;
   std::cout << "entering NIGHT mode..." << std::endl;
 
@@ -936,7 +954,7 @@ void RunInstrument::Stop() {
   clog << "info: " << logstream::info << "stopping detached threads..." << std::endl;
   std::cout << "stopping detached threads..." << std::endl;
   this->Cam.KillCamAcq();
- 
+
   /* USB backup disabled for now, plan to work with 1 USB */
   //this->Usb.KillDataBackup();
 
@@ -975,7 +993,7 @@ void RunInstrument::Start() {
     return;
   }
 
-  
+
 #if ARDUINO_DEBUG !=1
 
   /* check for execute-and-exit commands which require config */
