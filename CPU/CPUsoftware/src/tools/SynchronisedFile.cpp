@@ -26,6 +26,25 @@ SynchronisedFile::~SynchronisedFile() {
 
   /* close the file */
   fclose(this->_ptr_to_file);
+  this->_ptr_to_file = nullptr;
+
+}
+
+/**
+ * Check if the SynchronisedFile is open.
+ */
+bool SynchronisedFile::IsOpen() {
+
+  bool is_open;
+
+  if (this->_ptr_to_file) {
+    is_open = true;
+  }
+  else {
+    is_open = false;
+  }
+  
+  return is_open;
 }
 
 /**

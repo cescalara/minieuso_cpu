@@ -14,6 +14,7 @@
 #ifndef PRIVATE_BUFFER_SIZE
 #define PRIVATE_BUFFER_SIZE  1024
 #endif
+
 /* global objects */
 std::streamsize const buffer_size = PRIVATE_BUFFER_SIZE;
 
@@ -43,6 +44,8 @@ public:
 
   uint32_t Checksum();
   void Close();
+  bool IsOpen();
+  
   /**
    * template to allow different objects to be passed for writing
    */
@@ -134,7 +137,7 @@ private:
   /**
    * pointer to the SynchronisedFile
    */
-  FILE * _ptr_to_file;
+  FILE * _ptr_to_file = nullptr;
 };
 
 /**

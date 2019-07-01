@@ -1072,9 +1072,11 @@ int DataAcquisition::CollectData(ZynqManager * Zynq, std::shared_ptr<Config> Con
   
   /* only reached for instrument mode change */
 
-  /* close the CPU file */
-  CloseCpuRun(CPU);
-
+  /* close the CPU file, if it has been opened */
+  if (this->CpuFile->IsOpen()) {
+    CloseCpuRun(CPU);
+  }
+  
   /* stop Zynq acquisition */
   {
     std::unique_lock<std::mutex> lock(Zynq->m_zynq);  
