@@ -296,9 +296,9 @@ int RunInstrument::InitInstMode() {
 
     /* set to day mode */
     /* To notify isDay to an external program for zip purpose */
-        this->isDay.open ("/media/usb0/is_day.txt");
-        this->isDay <<  "1";
-        this->isDay.close();
+    this->isDay.open("/media/usb0/is_day.txt");
+    this->isDay <<  "1";
+    this->isDay.close();
 
     this->SetInstMode(RunInstrument::DAY);
     break;
@@ -306,13 +306,13 @@ int RunInstrument::InitInstMode() {
   case AnalogManager::LIGHT_BELOW_NIGHT_THR:
 
     /* set to night mode */
-        /* To notify isDay to an external program for zip purpose */
-        this->isDay.open ("/media/usb0/is_day.txt");
-        this->isDay <<  "2";
-        this->isDay.close();
+    /* To notify isDay to an external program for zip purpose */
+    this->isDay.open ("/media/usb0/is_day.txt");
+    this->isDay <<  "2";
+    this->isDay.close();
 
-     this->SetInstMode(RunInstrument::NIGHT);
-     break;
+    this->SetInstMode(RunInstrument::NIGHT);
+    break;
 
   case AnalogManager::LIGHT_UNDEF:
 
@@ -644,14 +644,14 @@ int RunInstrument::PollInstrument() {
 
 	/* switch mode to DAY */
 	printf("PollInst: from night to day\n");
+
 	/* To notify isDay to an external program for zip purpose */
 	this->isDay.open ("/media/usb0/is_day.txt");
 	this->isDay <<  "1";
 	this->isDay.close();
+
 	this->SetInstMode(RunInstrument::DAY);
 	this->Daq.Notify();
-
-
 
       }
       break;
@@ -665,14 +665,14 @@ int RunInstrument::PollInstrument() {
 
 	/* switch mode to NIGHT */
 	printf("\nPollInst: from day to night\n");
-    /* To notify isDay to an external program for zip purpose */
+
+	/* To notify isDay to an external program for zip purpose */
 	this->isDay.open ("/media/usb0/is_day.txt");
 	this->isDay<< "2";
 	this->isDay.close();
 
 	this->SetInstMode(RunInstrument::NIGHT);
 	this->Data.Notify();
-
 
       }
       break;
@@ -687,8 +687,6 @@ int RunInstrument::PollInstrument() {
 
       this->SetInstMode(RunInstrument::DAY);
       this->Daq.Notify();
-
-
 
       break;
     }
