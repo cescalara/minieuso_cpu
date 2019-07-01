@@ -3,8 +3,6 @@
 
 #include <thread>
 #include <unistd.h>
-#include <mutex>
-#include <condition_variable>
 
 #include "log.h"
 #include "OperationMode.h"
