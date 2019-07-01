@@ -81,7 +81,7 @@ public:
    */
   int n_relaunch_attempt;
   /*
-   * set to true when launch failes
+   * set to true when launch fails
    */
   std::promise<bool> launch_failed;
   /*

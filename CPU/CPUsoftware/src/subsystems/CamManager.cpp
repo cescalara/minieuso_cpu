@@ -130,6 +130,10 @@ int CamManager::CollectData() {
     this->launch_running = true;
     this->cam_thread_handle = collect_cam_data.native_handle(); 
     collect_cam_data.detach();
+
+    /* clear the promise */
+    this->launch_failed = std::promise<bool>();
+    
   }
   
   
