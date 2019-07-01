@@ -306,7 +306,7 @@ int RunInstrument::InitInstMode() {
 
   case AnalogManager::LIGHT_UNDEF:
 
-    if (GetInstMode()==INST_UNDEF){
+    if (GetInstMode() == INST_UNDEF){
       /* set to day mode to be safe */
       this->SetInstMode(RunInstrument::DAY);
     }
@@ -620,7 +620,7 @@ int RunInstrument::PollInstrument() {
 
     switch(GetInstMode()) {
 
-    case NIGHT:
+    case RunInstrument::NIGHT:
 
       sleep(this->ConfigOut->light_poll_time);
 
@@ -629,8 +629,8 @@ int RunInstrument::PollInstrument() {
 
 	/* switch mode to DAY */
 	printf("PollInst: from night to day\n");
+	this->SetInstMode(RunInstrument::DAY);
 	this->Daq.Notify();
-	this->SetInstMode(DAY);
 	
 	/* To notify isDay to an external program for zip purpose */
 	this->isDay.open ("is_day.txt");
@@ -640,7 +640,7 @@ int RunInstrument::PollInstrument() {
       }
       break;
 
-    case DAY:
+    case RunInstrument::DAY:
       
       sleep(this->ConfigOut->light_poll_time);
 
@@ -649,8 +649,8 @@ int RunInstrument::PollInstrument() {
 
 	/* switch mode to NIGHT */
 	printf("\nPollInst: from day to night\n");
+	this->SetInstMode(RunInstrument::NIGHT);
 	this->Data.Notify();
-	this->SetInstMode(NIGHT);
 
 	/* To notify isDay to an external program for zip purpose */
 	this->isDay.open ("is_day.txt");
@@ -660,12 +660,12 @@ int RunInstrument::PollInstrument() {
       }
       break;
 
-    case INST_UNDEF:
+    case RunInstrument::INST_UNDEF:
 
       std::cout << "ERROR: instrument mode is undefined" << std::endl;
 
+      this->SetInstMode(RunInstrument::DAY);
       this->Daq.Notify();
-      this->SetInstMode(DAY);
       
       /* To notify isDay to an external program for zip purpose */
       this->isDay.open ("is_day.txt");
