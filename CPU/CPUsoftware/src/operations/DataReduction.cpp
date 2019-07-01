@@ -33,6 +33,7 @@ int DataReduction::RunDataReduction() {
   std::string output;
   const char * data_compression_cmd;
   std::stringstream conv;
+  std::string conv_string;
   
   std::unique_lock<std::mutex> lock(this->_m_switch); 
 
@@ -42,16 +43,19 @@ int DataReduction::RunDataReduction() {
 				   [this] { return this->_switch; } )) {   
 
     /* build command */
-    conv << "sh /home/software/data_reduction/ZipDemon.sh" << std::endl;
+    //conv << "sh /home/software/data_reduction/ZipDemon.sh" << std::endl;
 
     /* convert stringstream to char * */
-    data_compression_cmd = conv.str().c_str();
+    //conv_string = conv.str();
+    //data_compression_cmd = conv.string.c_str();
   
     /* run script to compress data */
     /* should be something short (~10s of seconds max) which exits by itself so we can check for a mode switch */
     /* should also add a timeout to be safe */
     /* can read the output string to debug/do stuff */
-    output = CpuTools::CommandToStr(data_compression_cmd);
+    //output = CpuTools::CommandToStr(data_compression_cmd);
+
+    sleep(1);
     
   }
   
