@@ -56,7 +56,10 @@ uint32_t SynchronisedFile::Checksum() {
   std::lock_guard<std::mutex> lock(_accessMutex);
 
   /* close the file */
-  fclose(this->_ptr_to_file);
+  if (this->_ptr_to_file) {
+    fclose(this->_ptr_to_file);
+    this->_ptr_to_file = nullptr;
+  }
   
   /* calculate the CRC */
   boost::crc_32_type crc_result;
@@ -93,6 +96,8 @@ void SynchronisedFile::Close() {
 
   /* close the file */
   fclose(this->_ptr_to_file);
+  this->_ptr_to_file = nullptr;
+  
 }
 
 /**
