@@ -55,6 +55,7 @@ int DataReduction::RunDataReduction() {
     /* can read the output string to debug/do stuff */
     //output = CpuTools::CommandToStr(data_compression_cmd);
 
+    std::cout << "running data reduction loop..." << std::endl;
     sleep(1);
     
   }
