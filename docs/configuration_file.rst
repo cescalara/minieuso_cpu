@@ -1,4 +1,4 @@
-Configuration File
+Configuration file
 ==================
 
 In order to allow for flexible use during flight, a number of parameters can be set in the configuration file, some examples of which are stored `here <https://github.com/cescalara/minieuso_cpu/tree/master/CPU/CPUsoftware/config>`_. The software looks for files on an external USB pen, but if it is not found a local file is used with the nominal settings. Once found, the file is parsed using :cpp:class:`ConfigManager` and the parameters are passed around the software using the :cpp:class:`Config` data structure. Key parameters are also strored in the :cpp:class:`CpuFileHeader` for easy reference.
@@ -20,7 +20,7 @@ The following parameters can be set in the configuration file:
 * ``L2_N_BG``: Level 2 trigger - number of times above background level to set threshold (an integer between 2 and max value if unsigned int)
 * ``L2_LOW_THRESH``: Level 2 trigger - lower bound to threshold considered (an integer between 0 and max value of unsigned int)
 * ``ARDUINO_WAIT_PERIOD``: The wait period in *milliseconds* used to check between instrument mode switching (an integer between 1 and 1000)
-* ``ANA_SENSOR_NUM``: Index of the analog sensor used to determin mode switching (an integer between 0 and 3)
+* ``ANA_SENSOR_NUM``: Index of the analog sensor used to determine mode switching (an integer between 0 and 3)
 * ``AVERAGE_DEPTH``: Depth of analog acquisitions to calculate an average over (an integer between 1 and 3)
 * ``DAY_LIGHT_THRESHOLD``: Minimum light threshold for day mode 
 * ``NIGHT_LIGHT_THRESHOLD``: Maximum light threshold for night mode 
