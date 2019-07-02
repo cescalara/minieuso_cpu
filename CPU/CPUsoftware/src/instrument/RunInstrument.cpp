@@ -163,7 +163,6 @@ int RunInstrument::DebugMode() {
   this->Cam.usb_num_storage_dev = num_usb_storage;
   std::cout << std::endl;
 
-#if ARDUINO_DEBUG !=1
   std::cout << "LVPS" << std::endl;
   std::cout << "switching on all subsystems... " << std::endl;
   std::cout << "cameras ON " << std::endl;
@@ -176,8 +175,7 @@ int RunInstrument::DebugMode() {
   this->Lvps.SwitchOn(LvpsManager::ZYNQ);
   sleep(1);
   std::cout << std::endl;
-
-  /*
+  
   std::cout << "ANALOG" << std::endl;
   std::cout << "running an acquisition..." << std::endl;
   this->Daq.Analog->GetLightLevel();
@@ -194,7 +192,6 @@ int RunInstrument::DebugMode() {
   std::cout << "SIPM 64 channel average: " << avg_sipm << std::endl;
   std::cout << "SIPM single channel: " << light_level->sipm_single << std::endl;
   std::cout << std::endl;
-  */
 
   this->Lvps.SwitchOn(LvpsManager::CAMERAS);
   std::cout << "CAMERAS" << std::endl;
@@ -234,8 +231,6 @@ int RunInstrument::DebugMode() {
   std::cout << "Zynq OFF " << std::endl;
   this->Lvps.SwitchOff(LvpsManager::ZYNQ);
   std::cout << "done!" << std::endl;
-
-#endif
 
   std::cout << "debug tests completed, exiting the program" << std::endl;
 
@@ -433,6 +428,7 @@ int RunInstrument::StartUp() {
   printf("LIGHT_ACQ_TIME is %d\n", this->ConfigOut->light_acq_time);
   printf("STATUS_PERIOD is %d\n", this->ConfigOut->status_period);
   printf("POWER_ON_DELAY is %d\n", this->ConfigOut->pwr_on_delay);
+  printf("CAMERA_ON is %d\n", this->ConfigOut->camera_on);
 
   std::cout << std::endl;
 

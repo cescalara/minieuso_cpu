@@ -35,8 +35,6 @@
 
 #endif /* __APPLE__ */
 
-//#define DIR_USB0 "/home/minieuso_cpu/CPU/CPUsoftware/config"
-//#define DIR_USB1 "/home/minieuso_cpu/CPU/CPUsoftware/config"
 
 /**
  * struct for output of the configuration file 
