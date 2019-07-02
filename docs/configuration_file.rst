@@ -28,3 +28,4 @@ The following parameters can be set in the configuration file:
 * ``LIGHT_ACQ_TIME``: Period in *seconds* for reading out a :cpp:class:`THERM_PACKET` 
 * ``STATUS_PERIOD``: Period in *seconds* for printing a general status check to the screen and logs
 * ``PWR_ON_DELAY``: Delay in *seconds* between switching on the Zynq and the high voltage
+* ``CAMERA_ON``: Select which camera to launch acquisition with (11 <=> both, 10 <=> NIR only, 01 <=> VIS only) 

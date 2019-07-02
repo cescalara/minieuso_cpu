@@ -537,10 +537,12 @@ int RunInstrument::LaunchCam() {
     this->Cam.SetCamStatus(CamManager::ON, CamManager::ON);
   }
   else if (this->ConfigOut->camera_on == 10) {
+    /* NIR only */
     this->Cam.SetCamStatus(CamManager::ON, CamManager::OFF);
   }
   else if (this->ConfigOut->camera_on == 1) {
-   this->Cam.SetCamStatus(CamManager::OFF, CamManager::ON);
+    /* VIS only */
+    this->Cam.SetCamStatus(CamManager::OFF, CamManager::ON);
   }
   else {
     /* if not set correctly, put both on */
