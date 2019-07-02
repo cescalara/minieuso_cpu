@@ -30,6 +30,7 @@ ConfigManager::ConfigManager () {
   this->ConfigOut->light_acq_time = -1;
   this->ConfigOut->status_period = -1;
   this->ConfigOut->pwr_on_delay =-1;
+  this->ConfigOut->camera_on =-1;
   
   /* initialise HV switch to be set by InputParser */
   /* stored here to be easily passed around the DataAcquisition */
@@ -75,6 +76,7 @@ ConfigManager::ConfigManager (std::string cfl, std::string cf0, std::string cf1)
   this->ConfigOut->light_acq_time = -1;
   this->ConfigOut->status_period = -1;
   this->ConfigOut->pwr_on_delay =-1;
+  this->ConfigOut->camera_on =-1;
   
   /* initialise HV switch to be set by InputParser */
   /* stored here to be easily passed around the DataAcquisition */
@@ -123,13 +125,8 @@ bool ConfigManager::CopyFile(const char * SRC, const char * DEST) {
  */
 void ConfigManager::Parse(std::string config_file_name){
 
-  std::string line;
-  //std::string config_file_name;
-  
+  std::string line;  
   std::ifstream cfg_file;
-  //std::stringstream cf;
-  //cf << this->config_file_local;
-  //config_file_name = cf.str();
 
   cfg_file.open(config_file_name.c_str());
 
@@ -202,16 +199,14 @@ void ConfigManager::Parse(std::string config_file_name){
       else if (type == "PWR_ON_DELAY") {
 	in >> this->ConfigOut->pwr_on_delay;
       }
+      else if (type == "CAMERA_ON") {
+	in >> this->ConfigOut->camera_on;
+      }
       
     }
     cfg_file.close();
     	
   }
-    //else {
-    //clog << "error: " << logstream::error << "unable to open configuration file" << std::endl;   
-    //std::cout << "ERROR: unable to open configuration file" << std::endl;
-    //std::cout << "configuration is not set" << std::endl;
-    //}
   printf("\n");
      
 }
@@ -307,7 +302,8 @@ bool ConfigManager::IsParsed() {
       this->ConfigOut->light_poll_time != -1 &&
       this->ConfigOut->light_acq_time != -1 &&
       this->ConfigOut->status_period != -1 &&
-      this->ConfigOut->pwr_on_delay != -1) {
+      this->ConfigOut->pwr_on_delay != -1 &&
+      this->ConfigOut->camera_on != -1) {
     
     return true;
   }

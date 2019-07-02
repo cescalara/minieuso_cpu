@@ -33,9 +33,6 @@ int CamManager::StartAcquisition() {
   std::string output;
   const char * cam_cmd;
   
-  /* start with both cameras set to ON */
-  this->SetCamStatus(ON, ON);
-
   /* define the launch command */
   cam_cmd = this->DefineLaunchCmd();
 

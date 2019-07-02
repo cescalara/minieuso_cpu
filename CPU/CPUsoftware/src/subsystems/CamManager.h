@@ -88,18 +88,17 @@ public:
    * set to true when launch succeeds
    */
   bool launch_running;
-  
-  
+
   CamManager();
   int SetVerbose();
   int KillCamAcq();
   int CollectData();
+  void SetCamStatus(CamStatus nir_status, CamStatus vis_status);
   
 private:
   bool verbose = false;
   int StartAcquisition();
   const char * DefineLaunchCmd();
-  void SetCamStatus(CamStatus nir_status, CamStatus vis_status);
   void ParseSerialNumbers();
   
 };

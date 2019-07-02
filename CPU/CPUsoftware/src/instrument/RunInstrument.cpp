@@ -536,6 +536,21 @@ int RunInstrument::LaunchCam() {
 
   this->Cam.n_relaunch_attempt = 0;
 
+  /* set which cameras should be switched on */
+  if (this->ConfigOut->camera_on == 11) {
+    this->Cam.SetCamStatus(CamManager::ON, CamManager::ON);
+  }
+  else if (this->ConfigOut->camera_on == 10) {
+    this->Cam.SetCamStatus(CamManager::ON, CamManager::OFF);
+  }
+  else if (this->ConfigOut->camera_on == 1) {
+   this->Cam.SetCamStatus(CamManager::OFF, CamManager::ON);
+  }
+  else {
+    /* if not set correctly, put both on */
+    this->Cam.SetCamStatus(CamManager::ON, CamManager::ON);
+  }
+   
   /* launch cameras, if required */
   if (this->CmdLine->cam_on) {
 

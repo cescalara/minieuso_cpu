@@ -64,6 +64,7 @@ struct Config {
   int light_acq_time;
   int status_period;
   int pwr_on_delay;
+  int camera_on;
 
   /* set by RunInstrument and InputParser at runtime */
   bool hv_on;
