@@ -178,7 +178,7 @@ int RunInstrument::DebugMode() {
   
   std::cout << "ANALOG" << std::endl;
   std::cout << "running an acquisition..." << std::endl;
-  this->Daq.Analog->GetLightLevel();
+  this->Daq.Analog->GetLightLevel(this->ConfigOut);
   auto light_level = this->Daq.Analog->ReadLightLevel();
   int i = 0;
   for (i = 0; i < N_CHANNELS_PHOTODIODE; i++) {
