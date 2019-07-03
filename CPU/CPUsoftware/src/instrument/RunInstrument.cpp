@@ -313,12 +313,12 @@ int RunInstrument::InitInstMode() {
 
     if (GetInstMode() == INST_UNDEF){
       /* set to day mode to be safe */
-        /* To notify isDay to an external program for zip purpose */
-        this->isDay.open ("/media/usb0/is_day.txt");
-        this->isDay <<  "3";
-        this->isDay.close();
-
-        this->SetInstMode(RunInstrument::DAY);
+      /* To notify isDay to an external program for zip purpose */
+      this->isDay.open ("/media/usb0/is_day.txt");
+      this->isDay <<  "3";
+      this->isDay.close();
+      
+      this->SetInstMode(RunInstrument::DAY);
     }
 
     break;
@@ -458,7 +458,7 @@ int RunInstrument::CheckSystems() {
 
 
   std::cout << "STARTING INSTRUMENT" << std::endl;
-#if ARDUINO_DEBUG !=1
+
   /* first power off all systems, for a clean start */
   this->Lvps.SwitchOff(LvpsManager::CAMERAS);
   this->Lvps.SwitchOff(LvpsManager::HK);
@@ -477,17 +477,12 @@ int RunInstrument::CheckSystems() {
 
   /* wait for boot */
   std::cout << "waiting for boot..." << std::endl;
-
-
   this->CheckStatus();
-#endif
 
   /* check the number storage Usbs connected */
   std::cout << "there are " << (int)this->Usb.LookupUsbStorage() << " USB storage devices connected " << std::endl;
   this->Daq.usb_num_storage_dev = this->Usb.num_storage_dev;
   this->Cam.usb_num_storage_dev = this->Usb.num_storage_dev;
-
-
 
   /* initialise the instrument mode */
   InitInstMode();
@@ -693,7 +688,7 @@ int RunInstrument::PollInstrument() {
     case RunInstrument::INST_UNDEF:
 
       std::cout << "ERROR: instrument mode is undefined" << std::endl;
-    /* To notify isDay to an external program for zip purpose */
+      /* To notify isDay to an external program for zip purpose */
       this->isDay.open ("/media/usb0/is_day.txt");
       this->isDay<< "3";
       this->isDay.close();

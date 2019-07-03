@@ -9,7 +9,7 @@
 #include <iomanip>
 
 #ifndef __APPLE__
-#define LOG_DIR "/home/software/CPU/CPUsoftware/log"
+#define LOG_DIR "/media/usb0/log"
 #else
 #define LOG_DIR "log"
 #endif
