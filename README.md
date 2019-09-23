@@ -1,6 +1,7 @@
 Mini-EUSO Software
 ===================
-[![Build Status](https://travis-ci.org/cescalara/minieuso_cpu.svg?branch=master)](https://travis-ci.org/cescalara/minieuso_cpu) [![Documentation Status](https://readthedocs.org/projects/minieuso-software/badge/?version=latest)](http://minieuso-software.readthedocs.io/en/latest/?badge=latest) [![DOI](https://zenodo.org/badge/72226620.svg)](https://zenodo.org/badge/latestdoi/72226620)
+[![Build Status](https://travis-ci.org/cescalara/minieuso_cpu.svg?branch=master)](https://travis-ci.org/cescalara/minieuso_cpu) [![Documentation Status](https://readthedocs.org/projects/minieuso-software/badge/?version=latest)](http://minieuso-software.readthedocs.io/en/latest/?badge=latest)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/8a8b19d626334b75a5d5e88e89afcbca)](https://www.codacy.com/manual/cescalara/minieuso_cpu?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=cescalara/minieuso_cpu&amp;utm_campaign=Badge_Grade) [![DOI](https://zenodo.org/badge/72226620.svg)](https://zenodo.org/badge/latestdoi/72226620)
 
 This is the repository for the Mini-EUSO instrument software. If you make use of this code in your work, please cite the above DOI and the paper listed below.
 
