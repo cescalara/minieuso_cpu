@@ -26,7 +26,7 @@
 #define FTP_TIMEOUT 10 /* seconds */
 
 /* number of seconds to wait for HV file transfer on FTP */
-#define HV_FILE_TIMEOUT 7
+#define HV_FILE_TIMEOUT 1
 
 
 /** NIGHT operational mode: data acquisition
