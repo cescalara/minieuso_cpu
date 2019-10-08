@@ -157,8 +157,9 @@ int RunInstrument::DebugMode() {
   std::cout << "running checks of all subsystems..." <<std::endl;
   std::cout << std::endl;
 
-   /* Testing HvpsSwitch fix */
-  for {i=0; i<10; i++} {
+  /* Testing HvpsSwitch fix */
+  int i;
+  for (i=0; i<10; i++) {
   
     this->CmdLine->hvps_status = ZynqManager::ON;
     HvpsSwitch();
