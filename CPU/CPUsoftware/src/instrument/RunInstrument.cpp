@@ -156,23 +156,7 @@ int RunInstrument::DebugMode() {
   std::cout << std::endl;
   std::cout << "running checks of all subsystems..." <<std::endl;
   std::cout << std::endl;
-
-  /* Testing HvpsSwitch fix */
-  int i;
-  for (i=0; i<10; i++) {
   
-    this->CmdLine->hvps_status = ZynqManager::ON;
-    HvpsSwitch();
-
-    sleep(2);
-  
-    this->CmdLine->hvps_status = ZynqManager::OFF;
-    HvpsSwitch();
-
-  }
-
-  
-  /*
   std::cout << "USB" << std::endl;
   int num_usb_storage = this->Usb.LookupUsbStorage();
   std::cout << "there are " << num_usb_storage << " USB storage devices connected" << std::endl;
@@ -247,7 +231,6 @@ int RunInstrument::DebugMode() {
   std::cout << "Zynq OFF " << std::endl;
   this->Lvps.SwitchOff(LvpsManager::ZYNQ);
   std::cout << "done!" << std::endl;
-  */
   
   std::cout << "debug tests completed, exiting the program" << std::endl;
 
