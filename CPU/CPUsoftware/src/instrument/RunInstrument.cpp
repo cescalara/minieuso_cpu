@@ -914,6 +914,7 @@ int RunInstrument::NightOperations() {
   /* set the HV as required */
   if (this->CmdLine->hvps_on) {
     this->ConfigOut->hv_on = true;
+    this->CmdLine->hvps_status = ZynqManager::ON;
     HvpsSwitch();
   }
 
