@@ -1,15 +1,6 @@
 #ifndef _ANALOG_MANAGER_H
 #define _ANALOG_MANAGER_H
 
-// 0 REAL HW
-// 1 simulator
-// 2 use without Arduino connected (ie. automatically in night mode)
-#define ARDUINO_DEBUG 0
-
-#define PRINT_DEBUG_INFO 1
-// COMMENT no debug
-// ANY NUMBER print all
-
 #include <mutex>
 #include <memory>
 #include <thread>
@@ -18,12 +9,9 @@
 #include <termios.h>
 #include <fcntl.h> 
 #include <stdlib.h>
-
-#if ARDUINO_DEBUG ==0
-  #include <unistd.h>
-  #include <termios.h>
-  #include "log.h"
-#endif
+#include <unistd.h>
+#include <termios.h>
+#include "log.h"
 
 #include "SynchronisedFile.h"
 #include "ConfigManager.h"
