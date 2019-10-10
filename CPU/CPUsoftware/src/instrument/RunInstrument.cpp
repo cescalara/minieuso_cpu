@@ -652,7 +652,8 @@ int RunInstrument::PollInstrument() {
 
 	/* switch mode to DAY */
 	printf("PollInst: from night to day\n");
-
+	clog << "info: " << logstream::info << "PollInstrument: from night to day" << std::endl;
+ 
 	/* To notify isDay to an external program for zip purpose */
 	this->isDay.open ("/media/usb0/is_day.txt");
 	this->isDay <<  "1";
@@ -673,7 +674,8 @@ int RunInstrument::PollInstrument() {
 
 	/* switch mode to NIGHT */
 	printf("\nPollInst: from day to night\n");
-
+	clog << "info: " << logstream::info << "PollInstrument: from day to night" << std::endl;
+ 
 	/* To notify isDay to an external program for zip purpose */
 	this->isDay.open ("/media/usb0/is_day.txt");
 	this->isDay<< "2";
