@@ -355,13 +355,8 @@ int RunInstrument::StartUp() {
 
   /* reload and parse the configuration file */
   std::string config_dir(CONFIG_DIR);
-  #if ARDUINO_DEBUG==1
-  std::string conf_file_usb0 = config_dir + "/dummy_usb0.conf";
-  std::string conf_file_usb1 = config_dir + "/dummy_usb1.conf";
-  #else
   std::string conf_file_usb0 = "/media/usb0/dummy_usb.conf";
   std::string conf_file_usb1 = "/media/usb1/dummy_usb.conf";
-  #endif
   std::string conf_file_local = config_dir + "/dummy_local.conf";
   ConfigManager CfManager(conf_file_local, conf_file_usb0, conf_file_usb1);
   CfManager.Configure();
@@ -798,7 +793,6 @@ int RunInstrument::RunningStatusCheck() {
     std::cout << std::endl;
     std::cout << "STATUS UPDATE" << std::endl;
 
- #if ARDUINO_DEBUG !=1
     /* telnet connection and HV */
     {
       std::unique_lock<std::mutex> lock(this->Zynq.m_zynq);
@@ -827,7 +821,6 @@ int RunInstrument::RunningStatusCheck() {
     std::cout << "No. of files written: " << n_files_written << std::endl;
     std::cout << std::endl;
     std::cout << std::endl;
-#endif
 
     /* wait until next status check */
     sleep(ConfigOut->status_period);
@@ -845,8 +838,6 @@ int RunInstrument::Acquisition() {
 
   std::cout << "starting acquisition run..." <<std::endl;
   clog << "info: " << logstream::info << "starting acquisition run" << std::endl;
-
-#if ARDUINO_DEBUG !=1
 
   /* clear the FTP server */
   CpuTools::ClearFolder(DATA_DIR);
@@ -891,7 +882,6 @@ int RunInstrument::Acquisition() {
     this->Cam.KillCamAcq();
   }
 
-  #endif
   return 0;
 }
 
@@ -984,7 +974,6 @@ void RunInstrument::Stop() {
  */
 void RunInstrument::Start() {
 
-  #if ARDUINO_DEBUG !=1
   /* check for execute-and-exit commands */
   if (this->CmdLine->lvps_on) {
     LvpsSwitch();
@@ -994,16 +983,12 @@ void RunInstrument::Start() {
     CheckStatus();
     return;
   }
-#endif
 
   /* run start-up  */
   int check = this->StartUp();
   if (check !=0 ){
     return;
   }
-
-
-#if ARDUINO_DEBUG !=1
 
   /* check for execute-and-exit commands which require config */
   if (this->CmdLine->hvps_switch) {
@@ -1014,12 +999,10 @@ void RunInstrument::Start() {
     DebugMode();
     return;
   }
-#endif
 
   /* check systems and operational mode */
   this->CheckSystems();
 
-  #if ARDUINO_DEBUG !=1
   {
     std::unique_lock<std::mutex> lock(this->Zynq.m_zynq);
     if (!this->Zynq.telnet_connected) {
@@ -1027,7 +1010,6 @@ void RunInstrument::Start() {
       return;
     }
   }
-#endif
 
   /* launch data backup in background */
   /* disable for now, planning to work with a single USB system */
