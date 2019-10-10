@@ -16,13 +16,8 @@
  * Define the commands needed to launch the cameras, used by CamManager::DefineLaunchCmd()
  * NB: trailing "/" in directories is important for multiplecam software to work
  */
-#if ARDUINO_DEBUG ==1
-#define CAMERA_SOFTWARE_DIR "/home/minieuso_cpu/CPU/cameras/multiplecam/"
-#define OTHER_WRITE_DIR "/home/minieuso_cpu/CPU/cameras/multiplecam/"
-#else
 #define CAMERA_SOFTWARE_DIR "/home/software/CPU/cameras/multiplecam/"
 #define OTHER_WRITE_DIR "/home/software/CPU/cameras/multiplecam/"
-#endif
 
 #define CAMERA_EXEC "./multiplecam.sh"
 #define USB_WRITE_DIR "/media/usb0/"
