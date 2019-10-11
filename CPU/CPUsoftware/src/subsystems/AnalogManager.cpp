@@ -76,7 +76,6 @@ int AnalogManager::SerialReadOut(int fd) {
   unsigned int total_length = 0;
   unsigned int len = 50;
   unsigned int i, ijk;
-  unsigned int start_search = 0; // offset to look of 0xAA55AA55
   unsigned int header_not_found = 0;
   
   unsigned int Time_Elapsed = 0; // should be in ms, now is in attempts
@@ -109,8 +108,9 @@ int AnalogManager::SerialReadOut(int fd) {
 
   }
   else {
-     
-    start_search = 0;
+    
+    unsigned int start_search = 0; // offset to look of 0xAA55AA55
+
     do {
       
       /* some bytes read */
