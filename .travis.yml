@@ -2,12 +2,15 @@ language: cpp
 sudo: required
 dist: trusty
 
+before_install:
+  - sudo apt-get update|| true
+
 addons:
   apt:
     packages:
       - libusb-1.0
       - inotify-tools
-      - libboost-all-dev
+      - libboost-dev
       
 script:
   - (cd CPU/CPUsoftware/lib && make)

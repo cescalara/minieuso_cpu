@@ -156,7 +156,7 @@ int RunInstrument::DebugMode() {
   std::cout << std::endl;
   std::cout << "running checks of all subsystems..." <<std::endl;
   std::cout << std::endl;
-
+  
   std::cout << "USB" << std::endl;
   int num_usb_storage = this->Usb.LookupUsbStorage();
   std::cout << "there are " << num_usb_storage << " USB storage devices connected" << std::endl;
@@ -231,7 +231,7 @@ int RunInstrument::DebugMode() {
   std::cout << "Zynq OFF " << std::endl;
   this->Lvps.SwitchOff(LvpsManager::ZYNQ);
   std::cout << "done!" << std::endl;
-
+  
   std::cout << "debug tests completed, exiting the program" << std::endl;
 
   return 0;
@@ -355,13 +355,8 @@ int RunInstrument::StartUp() {
 
   /* reload and parse the configuration file */
   std::string config_dir(CONFIG_DIR);
-  #if ARDUINO_DEBUG==1
-  std::string conf_file_usb0 = config_dir + "/dummy_usb0.conf";
-  std::string conf_file_usb1 = config_dir + "/dummy_usb1.conf";
-  #else
   std::string conf_file_usb0 = "/media/usb0/dummy_usb.conf";
   std::string conf_file_usb1 = "/media/usb1/dummy_usb.conf";
-  #endif
   std::string conf_file_local = config_dir + "/dummy_local.conf";
   ConfigManager CfManager(conf_file_local, conf_file_usb0, conf_file_usb1);
   CfManager.Configure();
@@ -652,7 +647,8 @@ int RunInstrument::PollInstrument() {
 
 	/* switch mode to DAY */
 	printf("PollInst: from night to day\n");
-
+	clog << "info: " << logstream::info << "PollInstrument: from night to day" << std::endl;
+ 
 	/* To notify isDay to an external program for zip purpose */
 	this->isDay.open ("/media/usb0/is_day.txt");
 	this->isDay <<  "1";
@@ -673,7 +669,8 @@ int RunInstrument::PollInstrument() {
 
 	/* switch mode to NIGHT */
 	printf("\nPollInst: from day to night\n");
-
+	clog << "info: " << logstream::info << "PollInstrument: from day to night" << std::endl;
+ 
 	/* To notify isDay to an external program for zip purpose */
 	this->isDay.open ("/media/usb0/is_day.txt");
 	this->isDay<< "2";
@@ -796,7 +793,6 @@ int RunInstrument::RunningStatusCheck() {
     std::cout << std::endl;
     std::cout << "STATUS UPDATE" << std::endl;
 
- #if ARDUINO_DEBUG !=1
     /* telnet connection and HV */
     {
       std::unique_lock<std::mutex> lock(this->Zynq.m_zynq);
@@ -825,7 +821,6 @@ int RunInstrument::RunningStatusCheck() {
     std::cout << "No. of files written: " << n_files_written << std::endl;
     std::cout << std::endl;
     std::cout << std::endl;
-#endif
 
     /* wait until next status check */
     sleep(ConfigOut->status_period);
@@ -843,8 +838,6 @@ int RunInstrument::Acquisition() {
 
   std::cout << "starting acquisition run..." <<std::endl;
   clog << "info: " << logstream::info << "starting acquisition run" << std::endl;
-
-#if ARDUINO_DEBUG !=1
 
   /* clear the FTP server */
   CpuTools::ClearFolder(DATA_DIR);
@@ -889,7 +882,6 @@ int RunInstrument::Acquisition() {
     this->Cam.KillCamAcq();
   }
 
-  #endif
   return 0;
 }
 
@@ -914,6 +906,7 @@ int RunInstrument::NightOperations() {
   /* set the HV as required */
   if (this->CmdLine->hvps_on) {
     this->ConfigOut->hv_on = true;
+    this->CmdLine->hvps_status = ZynqManager::ON;
     HvpsSwitch();
   }
 
@@ -981,7 +974,6 @@ void RunInstrument::Stop() {
  */
 void RunInstrument::Start() {
 
-  #if ARDUINO_DEBUG !=1
   /* check for execute-and-exit commands */
   if (this->CmdLine->lvps_on) {
     LvpsSwitch();
@@ -991,16 +983,12 @@ void RunInstrument::Start() {
     CheckStatus();
     return;
   }
-#endif
 
   /* run start-up  */
   int check = this->StartUp();
   if (check !=0 ){
     return;
   }
-
-
-#if ARDUINO_DEBUG !=1
 
   /* check for execute-and-exit commands which require config */
   if (this->CmdLine->hvps_switch) {
@@ -1011,12 +999,10 @@ void RunInstrument::Start() {
     DebugMode();
     return;
   }
-#endif
 
   /* check systems and operational mode */
   this->CheckSystems();
 
-  #if ARDUINO_DEBUG !=1
   {
     std::unique_lock<std::mutex> lock(this->Zynq.m_zynq);
     if (!this->Zynq.telnet_connected) {
@@ -1024,7 +1010,6 @@ void RunInstrument::Start() {
       return;
     }
   }
-#endif
 
   /* launch data backup in background */
   /* disable for now, planning to work with a single USB system */
