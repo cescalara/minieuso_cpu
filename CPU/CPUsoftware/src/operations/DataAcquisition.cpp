@@ -161,7 +161,7 @@ int DataAcquisition::CreateCpuRun(RunType run_type, std::shared_ptr<Config> Conf
   std::string run_info_string = BuildCpuFileInfo(ConfigOut, CmdLine);
   strncpy(cpu_file_header->run_info, run_info_string.c_str(), (size_t)run_info_string.length());
 
-  if (CmdLine->single_run) {
+  if (CmdLine->single_run && CmdLine->acq_len < RUN_SIZE) {
     cpu_file_header->run_size = CmdLine->acq_len;
   }
   else {
@@ -667,9 +667,10 @@ int DataAcquisition::ProcessIncomingData(std::shared_ptr<Config> ConfigOut, CmdL
   clog << "info: " << logstream::info << "start watching " << DONE_DIR << std::endl;
   wd = inotify_add_watch(fd, DATA_DIR, IN_CLOSE_WRITE);
 
-  /* to keep track of good and bad packets */
+  /* to keep track of good and bad packets, and also single runs */
   int packet_counter = 0;
   int bad_packet_counter = 0;
+  int total_packet_counter = 0; // Not reset every RUN_SIZE
 
   /* initilaise timeout timer */
   time_t start = time(0);
@@ -773,9 +774,10 @@ int DataAcquisition::ProcessIncomingData(std::shared_ptr<Config> ConfigOut, CmdL
 	      
 		  /* increment the packet counter */
 		  packet_counter++;
-	      
+		  total_packet_counter++;
+		  
 		/* leave loop for a single run file */
-		if (packet_counter == CmdLine->acq_len-1 && CmdLine->single_run) {
+		if (total_packet_counter == CmdLine->acq_len-1 && CmdLine->single_run) {
 
 		  /* send shutdown signal to RunInstrument */
 		  /* interrupt signal to main thread */

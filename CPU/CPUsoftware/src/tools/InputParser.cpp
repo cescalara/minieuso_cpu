@@ -160,13 +160,13 @@ CmdLineInputs * InputParser::ParseCmdLineInputs() {
     const std::string & acq_len_str = getCmdOption("-short");
     if (!acq_len_str.empty()) {
       this->CmdLine->acq_len = std::stoi(acq_len_str);
-      if (this->CmdLine->acq_len >= RUN_SIZE) {
-	std::cout << "Error: for -short option length (int < RUN_SIZE) must be provided" << std::endl;
+      if (this->CmdLine->acq_len >= MAX_ACQ_LEN) {
+	std::cout << "Error: for -short option length (int < MAX_ACQ_LEN) must be provided" << std::endl;
 	return NULL;      
       }
     }
     else {
-      std::cout << "Error: for -short option length (int < RUN_SIZE) must be provided" << std::endl;
+      std::cout << "Error: for -short option length (int < MAX_ACQ_LEN) must be provided" << std::endl;
       return NULL;      
     }
     

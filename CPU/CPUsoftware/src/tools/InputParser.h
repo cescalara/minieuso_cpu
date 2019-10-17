@@ -10,6 +10,11 @@
 #include "minieuso_data_format.h"
 
 /*
+ * maximum length of -short acquisition
+ */
+#define MAX_ACQ_LEN 999
+
+/*
  * maximum length of filename comments
  */
 #define FILENAME_COMMENT_LEN 100
