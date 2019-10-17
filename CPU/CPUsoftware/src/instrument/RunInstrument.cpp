@@ -905,9 +905,24 @@ int RunInstrument::NightOperations() {
 
   /* set the HV as required */
   if (this->CmdLine->hvps_on) {
-    this->ConfigOut->hv_on = true;
-    this->CmdLine->hvps_status = ZynqManager::ON;
-    HvpsSwitch();
+
+    clog << "info: " << logstream::info << "HVPS switch on requested, running light level safety check" << std::endl;
+    std::cout << "HVPS switch on requested, running light level safety check" << std::endl;
+
+    /* Extra safety check */
+    if (this->Daq.Analog->CompareLightLevel(this->ConfigOut) == AnalogManager::LIGHT_BELOW_NIGHT_THR) {
+
+      clog << "info: " << logstream::info << "HVPS safety check: OK - light level is BELOW night threshold" << std::endl;
+      std::cout << "HVPS safety check: OK - light level is BELOW night threshold" << std::endl;
+
+      this->ConfigOut->hv_on = true;
+      this->CmdLine->hvps_status = ZynqManager::ON;
+      HvpsSwitch();
+    }
+
+    clog << "info: " << logstream::info << "HVPS safety check: FAIL - light level is ABOVE night threshold" << std::endl;
+    std::cout << "HVPS safety check: FAIL - light level is ABOVE night threshold" << std::endl;
+
   }
 
   /* start data acquisition */

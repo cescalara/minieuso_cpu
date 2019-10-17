@@ -215,7 +215,11 @@ int AnalogManager::GetLightLevel(std::shared_ptr<Config> ConfigOut)
   }
   
   /* read out the data */
-  AnalogDataCollect();
+  {
+    std::unique_lock<std::mutex> lock(this->m_light_level);
+    AnalogDataCollect();
+  }
+    
   ph[0] = (float)(this->analog_acq->val[0][0]); 
   ph[1] = (float)(this->analog_acq->val[0][1]);
   ph[2] = (float)(this->analog_acq->val[0][2]);
