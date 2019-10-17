@@ -73,7 +73,7 @@ The CPU handles the data acquisition from all subsystems.
     * ``-stop``: stop ASIC DAC for threshold scan (max = 1023)
     * ``-acc``: number of GTU taken at each ASIC DAC step
       
-  * ``-short <N>``: run a short acquisition of ``<N>`` CPU_PACKETs (NB: ``<N>`` must be less than ``RUN_SIZE`` defined in minieuso_data_format.h)
+  * ``-short <N>``: run a short acquisition of ``<N>`` CPU_PACKETs (NB: ``<N>`` must be less than ``MAX_ACQ_LEN`` defined in minieuso_data_format.h)
   * ``-zynq <MODE>``: use the Zynq acquisition mode (see section below for details, default = ``periodic``)
   * ``-test_zynq <MODE>``: use the Zynq test mode (see section below for details, default = ``pdm``)
   * ``-keep_zynq_pkt``: keep the Zynq packets on FTP
