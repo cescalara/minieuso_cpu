@@ -683,11 +683,16 @@ int DataAcquisition::ProcessIncomingData(std::shared_ptr<Config> ConfigOut, CmdL
 				   std::chrono::milliseconds(WAIT_PERIOD),
 				   [this] { return this->_switch; }) /* no signal */
 	&& (time_left > 0 || !first_loop) ) { /* no timeout */
-
+    
     /* timeout if no activity after FTP_TIMEOUT reached */
     time_t end = time(0);
     time_t time_taken = end - start;
     time_left = FTP_TIMEOUT - time_taken;
+
+    /* DEBUG */
+    clog << "info: " << logstream::info << "The Daq switch status is " << this->_cv_switch.wait_for(lock, std::chrono::milliseconds(1)[this]{return this->_switch;})<< std::endl;
+    clog << "info: " << logstream::info << "The Daq time left is " << time_left << " and first loop status is " << first_loop << std::endl;
+   
     
     /* read out a set of inotify events into a buffer */
     struct inotify_event * event;
