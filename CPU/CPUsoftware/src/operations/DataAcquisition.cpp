@@ -680,7 +680,7 @@ int DataAcquisition::ProcessIncomingData(std::shared_ptr<Config> ConfigOut, CmdL
   std::unique_lock<std::mutex> lock(this->_m_switch);
   /* enter data processing loop while instrument mode switching not requested */
   while(!this->_cv_switch.wait_for(lock,
-				       std::chrono::milliseconds(WAIT_PERIOD),
+				   std::chrono::milliseconds(WAIT_PERIOD),
 				   [this] { return this->_switch; }) /* no signal */
 	&& (time_left > 0 || !first_loop) ) { /* no timeout */
 
@@ -769,6 +769,7 @@ int DataAcquisition::ProcessIncomingData(std::shared_ptr<Config> ConfigOut, CmdL
 		  }
 	      
 		  /* print update to screen */
+		  printf("TOTAL PACKET COUNTER = %i\n", total_packet_counter);
 		  printf("PACKET COUNTER = %i\n", packet_counter);
 		  printf("The packet %s was read out\n", zynq_file_name.c_str());
 	      
@@ -777,11 +778,14 @@ int DataAcquisition::ProcessIncomingData(std::shared_ptr<Config> ConfigOut, CmdL
 		  total_packet_counter++;
 		  
 		/* leave loop for a single run file */
-		if (total_packet_counter == CmdLine->acq_len-1 && CmdLine->single_run) {
+		if (total_packet_counter == CmdLine->acq_len && CmdLine->single_run) {
 
 		  /* send shutdown signal to RunInstrument */
 		  /* interrupt signal to main thread */
 		  pthread_kill((pthread_t)main_thread, SIGINT);
+
+		  sleep(2);
+		  
 		  break;
 
 		}
