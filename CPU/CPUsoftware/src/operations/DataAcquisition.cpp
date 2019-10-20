@@ -690,7 +690,7 @@ int DataAcquisition::ProcessIncomingData(std::shared_ptr<Config> ConfigOut, CmdL
     time_left = FTP_TIMEOUT - time_taken;
 
     /* DEBUG */
-    clog << "info: " << logstream::info << "The Daq switch status is " << this->_cv_switch.wait_for(lock, std::chrono::milliseconds(1)[this]{return this->_switch;})<< std::endl;
+    clog << "info: " << logstream::info << "The Daq switch status is " << this->_cv_switch.wait_for(lock, std::chrono::milliseconds(1), [this]{return this->_switch;})<< std::endl;
     clog << "info: " << logstream::info << "The Daq time left is " << time_left << " and first loop status is " << first_loop << std::endl;
    
     
