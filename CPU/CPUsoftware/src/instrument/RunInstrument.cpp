@@ -154,6 +154,17 @@ int RunInstrument::DebugMode() {
   std::cout << "-----------------------------" << std::endl;
   std::cout << "https://github.com/cescalara/minieuso_cpu" << std::endl;
   std::cout << std::endl;
+
+  std::cout << "running check of AnalogManager::SerialReadOutTest()" << std::endl;
+
+  std::cout << "Starting execution, timer set to zero" << std::endl;  
+  time_t start = time(0); 
+  this->Daq.Analog->SerialReadOutTest();
+  time_t end = time(0);
+  time_t time_past = end-start;
+  std::cout << "Execution time: " << time_past << " seconds." << std::endl;  
+ 
+  /*
   std::cout << "running checks of all subsystems..." <<std::endl;
   std::cout << std::endl;
   
@@ -231,6 +242,7 @@ int RunInstrument::DebugMode() {
   std::cout << "Zynq OFF " << std::endl;
   this->Lvps.SwitchOff(LvpsManager::ZYNQ);
   std::cout << "done!" << std::endl;
+  */
   
   std::cout << "debug tests completed, exiting the program" << std::endl;
 

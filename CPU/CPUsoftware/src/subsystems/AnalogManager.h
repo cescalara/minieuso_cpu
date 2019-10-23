@@ -105,7 +105,9 @@ public:
   /* handle instrument mode switching */
   int Notify();
   int Reset();
-  
+
+  int SerialReadOutTest();
+
 private:
 
   /*
@@ -146,8 +148,6 @@ private:
   int SetInterfaceAttribs(int fd, int speed);
   int SerialReadOut(int fd);
   float ConvertToTemp(char data[9]);
-
-  int SerialReadOutTest();
 
 };
 
