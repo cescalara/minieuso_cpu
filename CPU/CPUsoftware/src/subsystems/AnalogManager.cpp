@@ -487,6 +487,168 @@ int AnalogManager::WriteThermPkt() {
 }
 
 
+/**
+ * Test version of AnalogManager::SerialReadOut() with dummy values.
+ */
+int AnalogManager::SerialReadOutTest() {
+
+  unsigned char a[] = { 0xAA, 0x55, 0xAA, 0x55 };
+  unsigned char buf[(unsigned int)(X_TOTAL_BUF_SIZE_HEADER*6)];
+  unsigned char temp_buf[(unsigned int)(X_TOTAL_BUF_SIZE_HEADER*6)];
+  unsigned char simulated_buf[(unsigned int)(X_TOTAL_BUF_SIZE_HEADER*6)];
+    
+  unsigned int temp_checksum = 0;
+  unsigned int buffer_checksum = 0;
+  int checksum_passed = -1;
+  
+  std::string needle(a, a + 4);
+  
+  unsigned int total_length = 0;
+  unsigned int len = 50;
+  unsigned int i, ijk;
+  unsigned int header_not_found = 0;
+
+  /* make a simulated buffer for testing */
+  simulated_buf[0] = 0xAA;
+  simulated_buf[1] = 0x55;
+  simulated_buf[2] = 0xAA;
+  simulated_buf[3] = 0x55;
+  for (i = 4; i < sizeof(simulated_buf); i++) {
+      simulated_buf[i] = i;
+  }
+  simulated_buf[10] = 0xAA;
+  simulated_buf[11] = 0x55;
+  simulated_buf[12] = 0xAA;
+  simulated_buf[13] = 0x55;
+
+  /* calculate checksum */
+  temp_checksum = 0;
+  for (ijk = 0; ijk < (X_TOTAL_BUF_SIZE / 2); ijk++) {
+    temp_checksum += (simulated_buf[16 + ijk * 2 ] << 8) + simulated_buf[17 + ijk * 2 ];
+  }
+  temp_checksum = temp_checksum & 0xFFFF;
+  simulated_buf[16 + X_TOTAL_BUF_SIZE] = (temp_checksum >> 8) & 0xFF;
+  simulated_buf[17 + X_TOTAL_BUF_SIZE] = (temp_checksum) & 0xFF;
+  
+  unsigned int Time_Elapsed = 0; // should be in ms, now is in attempts
+  
+  /* repeat until full data has arrived, at least twice the buffer size */
+  /* @TODO should get time to put timeout */
+  unsigned int MAX_Length = ((X_TOTAL_BUF_SIZE_HEADER)*4);
+  
+  while ((total_length < MAX_Length) && (Time_Elapsed < READ_ARDUINO_TIMEOUT) ) {
+
+    /* clean temp_buf */
+    for (ijk = 0; ijk < sizeof(temp_buf); ijk++) {
+      temp_buf[ijk] = 0;
+    }
+	    	    
+    for (ijk = 0; ijk < 50; ijk++) {
+      temp_buf[ijk] = simulated_buf[ijk+ total_length];
+    }
+    len = 50;
+    //len = read(fd, &temp_buf, sizeof(temp_buf)); 
+    
+    Time_Elapsed++;
+    for (ijk = 0; ijk<len; ijk++) {
+      buf[ijk + total_length] = temp_buf[ijk];
+    }
+    total_length += len;
+    
+  }
+		
+  if (total_length < 0) {
+
+    printf("\n Error from read: %d: %s\n", len, std::strerror(errno));
+    return(-1);
+
+  }
+  else {
+    
+    unsigned int start_search = 0; // offset to look of 0xAA55AA55
+
+    do {
+      
+      /* some bytes read */
+      if (total_length > 0) {
+	     
+	/* Look for AA55AA55 */
+	std::string haystack(buf, buf + sizeof(buf));  // or "+ sizeof Buffer"
+	std::size_t n = haystack.find(needle, start_search);
+	     
+	if ((n == std::string::npos) || ( (sizeof(buf)-n)<(4+2+8+128+2+90+56+10) ) ) {
+
+	  header_not_found = 1; 
+
+	}
+	else {
+	  
+	  /* read out the photodiode values */
+	  this->analog_acq->val[0][0] = (buf[n + 6] << 8) + buf[n + 7];
+	  this->analog_acq->val[0][1] = (buf[n + 8] << 8) + buf[n + 9];
+	  this->analog_acq->val[0][2] = (buf[n + 10] << 8) + buf[n + 11];
+	  this->analog_acq->val[0][3] = (buf[n + 12] << 8) + buf[n + 13];
+	  
+	  /* read out the SiPM values */
+	  for (ijk = 0; ijk < X_SIPM_BUF_SIZE; ijk++) {
+	    this->analog_acq->val[0][ijk + 4] = (buf[n + 14 + (2*ijk)] << 8) + buf[n + 15 + (2*ijk)];
+	  }
+
+	  /* read out the thermistors */
+	  for (ijk=0; ijk < N_CHANNELS_THERM; ijk++) {
+		  
+	    float converted_temp_output = 0;
+	    char raw_temp_output[9];
+	    int k;
+	    
+	    /* get 9 byte temp info */
+	    for (k = 0; k < 9; k++) {
+	      raw_temp_output[k] =  buf[(n + X_TOTAL_BUF_SIZE*2 + 8 + (ijk*9) + k)];
+	    }
+		   
+	    /* convert to float */
+	    converted_temp_output = ConvertToTemp(raw_temp_output);
+	    
+	    /* assign to analog_acq struct */
+	    this->analog_acq->val[0][N_CHANNELS_PHOTODIODE+N_CHANNELS_SIPM+ijk] = converted_temp_output; 
+	    
+	  }
+	
+	  /* calculate checksum */
+	  buffer_checksum = (buf[(n+(X_TOTAL_BUF_SIZE)*2 + 6)] << 8) + buf[(n + (X_TOTAL_BUF_SIZE)*2 + 7)];
+	  temp_checksum = 0;
+	  for (ijk = 0; ijk < (X_TOTAL_BUF_SIZE ); ijk++) {
+
+	    temp_checksum += (buf[n + ijk * 2 + 6] << 8) + buf[n + ijk * 2 + 6 + 1];
+
+	  }
+	  temp_checksum = temp_checksum & 0xFFFF;
+
+	  if (temp_checksum == buffer_checksum) {
+
+	    checksum_passed = 1;
+
+	  }
+	  else {
+
+	    checksum_passed = 0;
+	    start_search = n + 4;
+
+	  }
+	}
+      } /* if (total_length > 0) */
+	 
+    } while (((checksum_passed == 0) &&
+	      ((start_search + X_TOTAL_BUF_SIZE_HEADER) < total_length)) &&
+	     (header_not_found==0));
+
+  }
+  
+  if (checksum_passed == 1) return (0);
+  else return (-1);
+  
+}
+
 
 
 
