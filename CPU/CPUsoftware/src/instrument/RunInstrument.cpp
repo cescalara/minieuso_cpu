@@ -636,28 +636,36 @@ int RunInstrument::PollInstrument() {
   /* different procedure for day and night */
   while (!signal_shutdown.load()) {
 
+    clog << "info: " << logstream::info << "PollInstrument: run GetInstMode()" << std::endl;
+     
     switch(GetInstMode()) {
 
     case RunInstrument::NIGHT:
 
+      clog << "info: " << logstream::info << "PollInstrument: it is NIGHT, now sleep fo light_poll_time = " << this->ConfigOut->light_poll_time << " sec" << std::endl;     
+      
       sleep(this->ConfigOut->light_poll_time);
 
+      clog << "info: " << logstream::info << "PollInstrument: run CompareLightLevel, check for LIGHT_ABOVE_DAY_THR" << std::endl;     
+ 
       /* check if the output of the analog acquisition is above day threshold */
       if (this->Daq.Analog->CompareLightLevel(this->ConfigOut) == AnalogManager::LIGHT_ABOVE_DAY_THR) {
-
+	
 	/* switch mode to DAY */
 	printf("PollInst: from night to day\n");
-	clog << "info: " << logstream::info << "PollInstrument: from night to day" << std::endl;
+	clog << "info: " << logstream::info << "PollInstrument: from night to day, write to is_day.txt" << std::endl;
  
 	/* To notify isDay to an external program for zip purpose */
 	this->isDay.open ("/media/usb0/is_day.txt");
 	this->isDay <<  "1";
 	this->isDay.close();
 
+	clog << "info: " << logstream::info << "PollInstrument: from night to day, now change mode and send stop signal" << std::endl;
 	this->SetInstMode(RunInstrument::DAY);
 	this->Daq.Notify();
 
       }
+      clog << "info: " << logstream::info << "PollInstrument: Done for this loop" << std::endl;     
       break;
 
     case RunInstrument::DAY:
