@@ -155,14 +155,23 @@ int RunInstrument::DebugMode() {
   std::cout << "https://github.com/cescalara/minieuso_cpu" << std::endl;
   std::cout << std::endl;
 
-  std::cout << "running check of AnalogManager::SerialReadOutTest()" << std::endl;
+  time_t start; 
+  time_t end;
+  time_t delta_t;
 
-  std::cout << "Starting execution, timer set to zero" << std::endl;  
-  time_t start = time(0); 
+  std::cout << "running check of AnalogManager::AnalogDataCollect()" << std::endl;
+  start = time(0);
+  this->Daq.Analog->AnalogDataCollect();
+  end = time(0);
+  delta_t = end - start;
+  std::cout << "Execution time: " << delta_t << " seconds" << std::endl;
+  
+  std::cout << "running check of AnalogManager::SerialReadOutTest()" << std::endl;
+  start = time(0);
   this->Daq.Analog->SerialReadOutTest();
-  time_t end = time(0);
-  time_t time_past = end-start;
-  std::cout << "Execution time: " << time_past << " seconds." << std::endl;  
+  end = time(0);
+  delta_t = end - start;
+  std::cout << "Execution time: " << delta_t << " seconds" << std::endl;  
  
   /*
   std::cout << "running checks of all subsystems..." <<std::endl;

@@ -83,6 +83,9 @@ int AnalogManager::SerialReadOut(int fd) {
   /* repeat until full data has arrived, at least twice the buffer size */
   /* @TODO should get time to put timeout */
   unsigned int MAX_Length = ((X_TOTAL_BUF_SIZE_HEADER)*4);
+
+  clog << "info: " << logstream::info << "AnalogManager::SerialReadOut() - entering read loop" << std::endl;
+
   
   while ((total_length < MAX_Length) && (Time_Elapsed < READ_ARDUINO_TIMEOUT) ) {
 
@@ -100,7 +103,10 @@ int AnalogManager::SerialReadOut(int fd) {
     total_length += len;
     
   }
-		
+
+  clog << "info: " << logstream::info << "AnalogManager::SerialReadOut() - exiting read loop" << std::endl;
+  clog << "info: " << logstream::info << "AnalogManager::SerialReadOut() - looking for header tag" << std::endl;
+
   if (total_length < 0) {
 
     printf("\n Error from read: %d: %s\n", len, std::strerror(errno));
@@ -126,18 +132,24 @@ int AnalogManager::SerialReadOut(int fd) {
 
 	}
 	else {
-	  
+
+	  clog << "info: " << logstream::info << "AnalogManager::SerialReadOut() - reading out photodiode values" << std::endl;
+
 	  /* read out the photodiode values */
 	  this->analog_acq->val[0][0] = (buf[n + 6] << 8) + buf[n + 7];
 	  this->analog_acq->val[0][1] = (buf[n + 8] << 8) + buf[n + 9];
 	  this->analog_acq->val[0][2] = (buf[n + 10] << 8) + buf[n + 11];
 	  this->analog_acq->val[0][3] = (buf[n + 12] << 8) + buf[n + 13];
-	  
+
+	  clog << "info: " << logstream::info << "AnalogManager::SerialReadOut() - reading out SiPM values" << std::endl;
+
 	  /* read out the SiPM values */
 	  for (ijk = 0; ijk < X_SIPM_BUF_SIZE; ijk++) {
 	    this->analog_acq->val[0][ijk + 4] = (buf[n + 14 + (2*ijk)] << 8) + buf[n + 15 + (2*ijk)];
 	  }
 
+	  clog << "info: " << logstream::info << "AnalogManager::SerialReadOut() - reading out thermistors" << std::endl;
+	  
 	  /* read out the thermistors */
 	  for (ijk=0; ijk < N_CHANNELS_THERM; ijk++) {
 		  
@@ -157,7 +169,9 @@ int AnalogManager::SerialReadOut(int fd) {
 	    this->analog_acq->val[0][N_CHANNELS_PHOTODIODE+N_CHANNELS_SIPM+ijk] = converted_temp_output; 
 	    
 	  }
-	
+
+	  clog << "info: " << logstream::info << "AnalogManager::SerialReadOut() - calculating checksum" << std::endl;
+
 	  /* calculate checksum */
 	  buffer_checksum = (buf[(n+(X_TOTAL_BUF_SIZE)*2 + 6)] << 8) + buf[(n + (X_TOTAL_BUF_SIZE)*2 + 7)];
 	  temp_checksum = 0;
@@ -186,7 +200,11 @@ int AnalogManager::SerialReadOut(int fd) {
 	      ((start_search + X_TOTAL_BUF_SIZE_HEADER) < total_length)) &&
 	     (header_not_found==0));
 
+    clog << "info: " << logstream::info << "AnalogManager::SerialReadOut() - stop looking for header" << std::endl;
+
   }
+
+  clog << "info: " << logstream::info << "AnalogManager::SerialReadOut() - exiting function" << std::endl;
   
   if (checksum_passed == 1) return (0);
   else return (-1);
