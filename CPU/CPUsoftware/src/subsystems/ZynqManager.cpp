@@ -332,12 +332,6 @@ int ZynqManager::HvpsTurnOn(int cv, std::string hvps_dv_string, std::string hvps
   /* setup the telnet connection */
   sockfd = ConnectTelnet();
   
-  /* set the cathode voltage */
-  /* make the command string from config file values */
-  cmd = CpuTools::BuildStr("hvps cathode", " ", cv, N_EC);
-  std::cout << "Set HVPS cathode to " << cv << ": "; 
-  Telnet(cmd, sockfd, true);
-
   /* find max_dv to ramp to, assume small differences between EC units */
   std::vector<int> dv_values = CpuTools::DelimStrToVec(hvps_dv_string, ',', N_EC, false);
   int max_dv = *max_element(dv_values.begin(), dv_values.end());
@@ -363,6 +357,12 @@ int ZynqManager::HvpsTurnOn(int cv, std::string hvps_dv_string, std::string hvps
   this->ec_values = CpuTools::DelimStrToVec(hvps_ec_string, ',', N_EC, true);
   cmd = CpuTools::BuildStrFromVec("hvps turnon", " ", this->ec_values); 
   std::cout << "Turn on HVPS: ";
+  Telnet(cmd, sockfd, true);
+
+  /* set the cathode voltage */
+  /* make the command string from config file values */
+  cmd = CpuTools::BuildStr("hvps cathode", " ", cv, N_EC);
+  std::cout << "Set HVPS cathode to " << cv << ": "; 
   Telnet(cmd, sockfd, true);
   
   /* ramp up in steps of 500 DAC */
