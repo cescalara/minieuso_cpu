@@ -334,9 +334,9 @@ int ZynqManager::HvpsTurnOn(int cv, std::string hvps_dv_string, std::string hvps
 
   /* set the cathode voltage */
   /* make the command string from config file values */
-  cmd = CpuTools::BuildStr("hvps cathode", " ", cv, N_EC);
-  std::cout << "Set HVPS cathode to " << cv << ": "; 
-  Telnet(cmd, sockfd, true);
+  //cmd = CpuTools::BuildStr("hvps cathode", " ", cv, N_EC);
+  //std::cout << "Set HVPS cathode to " << cv << ": "; 
+  //Telnet(cmd, sockfd, true);
   
   /* find max_dv to ramp to, assume small differences between EC units */
   std::vector<int> dv_values = CpuTools::DelimStrToVec(hvps_dv_string, ',', N_EC, false);
