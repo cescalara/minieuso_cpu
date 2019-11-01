@@ -282,6 +282,29 @@ int ZynqManager::InstrumentClean() {
 }
 
 /**
+ * Reboot the Zynq.
+ */
+int ZynqManager::Reboot() {
+
+  int sockfd;
+
+  clog << "info: " << logstream::info << "Rebooting the Zynq" << std::endl;
+
+  /* setup the telnet connection */
+  sockfd = ConnectTelnet();
+
+  std::string status = Telnet("reboot\n", sockfd, true);
+  close(sockfd);
+
+  /* Reset the telnet_connected switch */
+  this->telnet_connected = false;
+  
+  return 0;
+
+}
+
+
+/**
  * check the HV status 
  */
 int ZynqManager::GetHvpsStatus() {

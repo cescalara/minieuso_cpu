@@ -142,6 +142,7 @@ public:
   bool CheckScurve(int sockfd);
   static std::string GetZynqVer();
   int InstrumentClean();
+  int Reboot();
   
 private:
   

@@ -841,8 +841,11 @@ int RunInstrument::Acquisition() {
 
   /* clear the FTP server */
   CpuTools::ClearFolder(DATA_DIR);
-  this->Zynq.InstrumentClean();
-
+  {
+    std::unique_lock<std::mutex> lock(this->Zynq.m_zynq);
+    this->Zynq.InstrumentClean();
+  }
+  
   /* add acquisition with cameras if required */
   this->LaunchCam();
 
@@ -902,6 +905,27 @@ int RunInstrument::NightOperations() {
 
   /* reset mode switching */
   this->Daq.Reset();
+
+  /* reboot the Zynq */
+  clog << "info: " << logstream::info << "rebooting the Zynq system" << std::endl;
+  std::cout << "rebooting the Zynq system..." << std::endl;
+  {
+    std::unique_lock<std::mutex> lock(this->Zynq.m_zynq);
+    this->Zynq.Reboot();
+  }
+
+  /* wait for telnet connection */
+  clog << "info: " << logstream::info << "waiting for boot" << std::endl;
+  std::cout << "waiting for boot..." << std::endl;
+  this->CheckStatus();
+
+  /* set hidden pixels */
+  if (this->CmdLine->hide_pixel == true) {
+    {
+      std::unique_lock<std::mutex> lock(this->Zynq.m_zynq);
+      this->Zynq.HidePixels();
+    }
+  }
 
   /* set the HV as required */
   if (this->CmdLine->hvps_on) {
