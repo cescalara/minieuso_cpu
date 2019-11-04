@@ -906,6 +906,23 @@ int RunInstrument::NightOperations() {
   /* reset mode switching */
   this->Daq.Reset();
 
+  /* set the HV as required */
+  if (this->CmdLine->hvps_on) {
+    this->ConfigOut->hv_on = true;
+    this->CmdLine->hvps_status = ZynqManager::ON;
+    HvpsSwitch();
+  }
+
+  /* start data acquisition */
+  /* acquisition runs until signal to switch mode */
+  Acquisition();
+
+  /* turn off HV */
+  if (this->Zynq.telnet_connected) {
+    this->CmdLine->hvps_status = ZynqManager::OFF;
+    HvpsSwitch();
+  }
+
   /* reboot the Zynq */
   clog << "info: " << logstream::info << "rebooting the Zynq system" << std::endl;
   std::cout << "rebooting the Zynq system..." << std::endl;
@@ -925,23 +942,6 @@ int RunInstrument::NightOperations() {
       std::unique_lock<std::mutex> lock(this->Zynq.m_zynq);
       this->Zynq.HidePixels();
     }
-  }
-
-  /* set the HV as required */
-  if (this->CmdLine->hvps_on) {
-    this->ConfigOut->hv_on = true;
-    this->CmdLine->hvps_status = ZynqManager::ON;
-    HvpsSwitch();
-  }
-
-  /* start data acquisition */
-  /* acquisition runs until signal to switch mode */
-  Acquisition();
-
-  /* turn off HV */
-  if (this->Zynq.telnet_connected) {
-    this->CmdLine->hvps_status = ZynqManager::OFF;
-    HvpsSwitch();
   }
 
   return 0;
