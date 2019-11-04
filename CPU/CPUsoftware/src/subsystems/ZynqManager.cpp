@@ -179,7 +179,7 @@ std::string ZynqManager::Telnet(std::string send_msg, int sockfd, bool print) {
  * wrapper for use of SendTelnet() in more readable way
  * @param send_msg message to send
  * @param sockfd the socket file descriptor
- * returns 0 if sucessful
+ * returns 0 if successful
  */
 int ZynqManager::TelnetSendOnly(std::string send_msg, int sockfd) {
 
