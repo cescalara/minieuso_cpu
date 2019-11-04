@@ -131,8 +131,6 @@ int ZynqManager::SendTelnet(std::string send_msg, int sockfd) {
 
   const char * kSendMsg = send_msg.c_str();
   char buffer[256];
-  std::string recv_msg;
-  std::string err_msg = "error";
   int n;
   
   /* prepare the message to send */
