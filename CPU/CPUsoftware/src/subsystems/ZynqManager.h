@@ -142,11 +142,14 @@ public:
   bool CheckScurve(int sockfd);
   static std::string GetZynqVer();
   int InstrumentClean();
+  int Reboot();
   
 private:
   
   static std::string SendRecvTelnet(std::string send_msg, int sockfd);
+  static int SendTelnet(std::string send_msg, int sockfd);
   static std::string Telnet(std::string send_msg, int sockfd, bool print);
+  static int TelnetSendOnly(std::string send_msg, int sockfd); 
   int InstStatusTest(std::string send_msg);
   bool CheckTelnet();  
 
