@@ -20,7 +20,18 @@ AnalogManager::AnalogManager() {
   this->inst_mode_switch = false;  
   this->cpu_file_is_set = false;
 
+  this->analog_serial_fd = 0;
+  
+}
+
+/**
+ * initialise the analog serial readout 
+ */
+int AnalogManager::Init() {
+
   /*initialise the Arduino */
+  clog << "info: " << logstream::info << "initialising the Arduino" << std::endl;
+  
   this->analog_serial_fd = open(DUINO, O_RDWR | O_NOCTTY | O_SYNC);
   if (this->analog_serial_fd < 0) {
 
@@ -34,12 +45,11 @@ AnalogManager::AnalogManager() {
 
   }
 
-  /*baudrate 9600, 8 bits, no parity, 1 stop bit */
+  /* baudrate 9600, 8 bits, no parity, 1 stop bit */
   this->SetInterfaceAttribs(BAUDRATE);
 
-  
+  return 0;
 }
-
 
 /**
  * analog board read out

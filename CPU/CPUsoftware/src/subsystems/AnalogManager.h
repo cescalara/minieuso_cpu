@@ -95,6 +95,7 @@ public:
 
   LightLevelStatus current_lightlevel_status;
 
+  int Init();
   LightLevelStatus CompareLightLevel(std::shared_ptr<Config> ConfigOut);
   int ProcessAnalogData(std::shared_ptr<Config> ConfigOut);  
   int GetLightLevel(std::shared_ptr<Config> ConfigOut);

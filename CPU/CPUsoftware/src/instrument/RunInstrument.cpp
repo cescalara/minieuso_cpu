@@ -479,6 +479,9 @@ int RunInstrument::CheckSystems() {
   this->Daq.usb_num_storage_dev = this->Usb.num_storage_dev;
   this->Cam.usb_num_storage_dev = this->Usb.num_storage_dev;
 
+  /* initialise the Analog system */
+  this->Daq.Analog->Init();
+  
   /* initialise the instrument mode */
   InitInstMode();
 
