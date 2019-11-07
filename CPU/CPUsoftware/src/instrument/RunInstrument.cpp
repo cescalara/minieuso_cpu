@@ -42,7 +42,7 @@ void RunInstrument::SignalHandler(int signum) {
  */
 int RunInstrument::LvpsSwitch() {
 
-  switch (this->CmdLine->lvps_status) {
+  switch (this->CmdLine->lvps_) {
     case LvpsManager::ON:
 
       switch (this->CmdLine->lvps_subsystem) {
@@ -1043,7 +1043,7 @@ void RunInstrument::Start() {
   this->MonitorInstrument();
 
   /* launch background process to run status checker */
-  //this->StatusChecker();
+  this->StatusChecker();
 
   /* enable signal handling */
   signal(SIGINT, SignalHandler);
