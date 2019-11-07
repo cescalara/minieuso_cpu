@@ -141,10 +141,14 @@ private:
    * to wait for a mode switch
    */
   std::condition_variable cv_mode_switch;
-
+  /*
+   * to store the analog serial file descriptor
+   * for use in SetInterfaceAttribs and SerialReadOut
+   */
+  int analog_serial_fd;
   
-  int SetInterfaceAttribs(int fd, int speed);
-  int SerialReadOut(int fd);
+  int SetInterfaceAttribs(int speed);
+  int SerialReadOut();
   float ConvertToTemp(char data[9]);
 };
 

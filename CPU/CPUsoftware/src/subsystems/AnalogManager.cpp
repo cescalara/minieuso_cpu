@@ -20,22 +20,9 @@ AnalogManager::AnalogManager() {
   this->inst_mode_switch = false;  
   this->cpu_file_is_set = false;
 
-}
-
-
-/**
- * analog board read out
- * uses the Arduino to collect data on the analog ports, 
- * as defined in AnalogManager.h
- */
-int AnalogManager::AnalogDataCollect() {
-
-  /* run the actual analog readout from the Arduino  */
-  int fd;
-
-  fd = open(DUINO, O_RDWR | O_NOCTTY | O_SYNC);
-
-  if (fd < 0) {
+  /*initialise the Arduino */
+  this->analog_serial_fd = open(DUINO, O_RDWR | O_NOCTTY | O_SYNC);
+  if (this->analog_serial_fd < 0) {
 
     clog << "error: " << logstream::error << "error opening Arduino " << DUINO << " " << std::strerror(errno) << std::endl;
     return -1;
@@ -48,10 +35,21 @@ int AnalogManager::AnalogDataCollect() {
   }
 
   /*baudrate 9600, 8 bits, no parity, 1 stop bit */
-  SetInterfaceAttribs(fd, BAUDRATE);
+  this->SetInterfaceAttribs(BAUDRATE);
+
+  
+}
+
+
+/**
+ * analog board read out
+ * uses the Arduino to collect data on the analog ports, 
+ * as defined in AnalogManager.h
+ */
+int AnalogManager::AnalogDataCollect() {
   
   clog << "info: " << logstream::info << "now running AnalogManager::SerialReadOut()" << std::endl;
-  SerialReadOut(fd);
+  SerialReadOut();
 
   return 0;
 }
@@ -59,9 +57,8 @@ int AnalogManager::AnalogDataCollect() {
 /**
  * Read serial output from a file descriptor.
  * returns -1 if failed. 
- * @param fd file descriptor
  */
-int AnalogManager::SerialReadOut(int fd) {
+int AnalogManager::SerialReadOut() {
 
   unsigned char a[] = { 0xAA, 0x55, 0xAA, 0x55 };
   unsigned char buf[(unsigned int)(X_TOTAL_BUF_SIZE_HEADER*6)];
@@ -91,7 +88,7 @@ int AnalogManager::SerialReadOut(int fd) {
       temp_buf[ijk] = 0;
     }
 	    	    
-    len = read(fd, &temp_buf, sizeof(temp_buf)); 
+    len = read(this->analog_serial_fd, &temp_buf, sizeof(temp_buf)); 
 
     Time_Elapsed++;
     for (ijk = 0; ijk<len; ijk++) {
@@ -381,11 +378,11 @@ int AnalogManager::Notify() {
 /**
  * Set up interface attributes for the interface with the Arduino device.
  */
-int AnalogManager::SetInterfaceAttribs(int fd, int speed) {
+int AnalogManager::SetInterfaceAttribs(int speed) {
 
   struct termios tty;
   
-  if (tcgetattr(fd, &tty) < 0) {
+  if (tcgetattr(this->analog_serial_fd, &tty) < 0) {
     printf("Error from tcgetattr: %s\n", std::strerror(errno));
     return -1;
   }
@@ -408,7 +405,7 @@ int AnalogManager::SetInterfaceAttribs(int fd, int speed) {
   tty.c_cc[VMIN] = 0;
   tty.c_cc[VTIME] = 5;
   
-  if (tcsetattr(fd, TCSANOW, &tty) != 0) {
+  if (tcsetattr(this->analog_serial_fd, TCSANOW, &tty) != 0) {
     printf("Error from tcsetattr: %s\n", std::strerror(errno));
     return -1;
   }
