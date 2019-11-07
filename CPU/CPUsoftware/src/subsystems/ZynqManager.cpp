@@ -121,6 +121,35 @@ std::string ZynqManager::SendRecvTelnet(std::string send_msg, int sockfd) {
  }
 
 /**
+ * send a command over the telnet connection
+ * does not wait for a reply, to be used with "reboot" command
+ * to be used inside a function which opens the telnet connection 
+ * @param send_msg the message to be sent
+ * @param sockfd the socket field descriptor
+ */
+int ZynqManager::SendTelnet(std::string send_msg, int sockfd) {
+
+  const char * kSendMsg = send_msg.c_str();
+  char buffer[256];
+  int n;
+  
+  /* prepare the message to send */
+  bzero(buffer, 256);
+  strncpy(buffer, kSendMsg, sizeof(buffer));
+  send_msg.erase(std::remove(send_msg.begin(), send_msg.end(), '\n'), send_msg.end());
+  clog << "info: " << logstream::info << "sending via telnet: " << send_msg << std::endl;
+ 
+  n = write(sockfd, buffer, strlen(buffer));
+  if (n < 0) {
+    clog << "error: " << logstream::error << "error writing to socket" << std::endl;
+    return -1;
+  }
+
+  return 0;
+}
+
+
+/**
  * wrapper for use of SendRecvTelnet() in more readable way
  * @param send_msg message to send
  * @param sockfd the socket file descriptor
@@ -143,6 +172,27 @@ std::string ZynqManager::Telnet(std::string send_msg, int sockfd, bool print) {
   }
   return status_string;
 }
+
+/**
+ * wrapper for use of SendTelnet() in more readable way
+ * @param send_msg message to send
+ * @param sockfd the socket file descriptor
+ * returns 0 if successful
+ */
+int ZynqManager::TelnetSendOnly(std::string send_msg, int sockfd) {
+
+  int status = 0;
+  
+  if (sockfd > 0) {
+    status = SendTelnet(send_msg, sockfd);
+    usleep(SLEEP_TIME);
+  }
+  else {
+    clog << "error: " << logstream::error << "bad socket passed to ZynqManager::Telnet()" << std::endl;
+  }
+  return status;
+}
+
 
 /**
  * connect via telnet to ZYNQ_IP.
@@ -280,6 +330,36 @@ int ZynqManager::InstrumentClean() {
   return 0;
 
 }
+
+/**
+ * Reboot the Zynq.
+ */
+int ZynqManager::Reboot() {
+
+  int sockfd;
+
+  clog << "info: " << logstream::info << "Rebooting the Zynq" << std::endl;
+
+  /* setup the telnet connection */
+  sockfd = ConnectTelnet();
+
+  int status = TelnetSendOnly("reboot\n", sockfd);
+  close(sockfd);
+
+  if (status == 0) {
+    clog << "info: " << logstream::info << "Reboot command sent sucessfully" << std::endl;
+  }
+  else {
+   clog << "error: " << logstream::error << "Reboot command failed to send" << std::endl;
+  }
+  
+  /* Reset the telnet_connected switch */
+  this->telnet_connected = false;
+  
+  return 0;
+
+}
+
 
 /**
  * check the HV status 
