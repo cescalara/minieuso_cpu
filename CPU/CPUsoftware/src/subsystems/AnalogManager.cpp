@@ -87,7 +87,7 @@ int AnalogManager::SerialReadOut(int fd) {
   clog << "info: " << logstream::info << "AnalogManager::SerialReadOut() - entering read loop" << std::endl;
 
   
-  while ((total_length < MAX_Length) || (Time_Elapsed < READ_ARDUINO_TIMEOUT) ) {
+  while ((total_length < MAX_Length) && (Time_Elapsed < READ_ARDUINO_TIMEOUT) ) {
 
     /* clean temp_buf */
     for (ijk = 0; ijk < sizeof(temp_buf); ijk++) {
