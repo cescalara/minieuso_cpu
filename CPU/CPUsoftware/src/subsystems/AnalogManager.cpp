@@ -314,21 +314,30 @@ AnalogManager::LightLevelStatus AnalogManager::CompareLightLevel(std::shared_ptr
   
   /* debug */
   clog << "info: " << logstream::info << "average photodiode reading is: " << ph_avg << std::endl;
-  
+
   /* compare the result to day and night thresholds */
   if (ph_avg >= ConfigOut->day_light_threshold) {
+
     current_lightlevel_status = AnalogManager::LIGHT_ABOVE_DAY_THR;
     clog << "info: " << logstream::info << "light level is ABOVE day_light_threshold" << std::endl;
+    std::cout << "Photodiode value is: " << ph_avg << " => ABOVE day_light_threshold" << std::endl;
+  
   }
   
   else if (ph_avg <= ConfigOut->night_light_threshold) {
+
     current_lightlevel_status = AnalogManager::LIGHT_BELOW_NIGHT_THR;
     clog << "info: " << logstream::info << "light level is BELOW night_light_threshold" << std::endl;
+    std::cout << "Photodiode value is: " << ph_avg << " => BELOW night_light_threshold" << std::endl;
+
   }
   
   else if (ph_avg > ConfigOut->night_light_threshold && ph_avg < ConfigOut->day_light_threshold) {
+
     current_lightlevel_status = AnalogManager::LIGHT_UNDEF;
     clog << "info: " << logstream::info << "light level is BETWEEN  night_light_threshold and day_light_threshold" << std::endl;
+    std::cout << "Photodiode value is: " << ph_avg << " => BETWEEN thresholds" << std::endl;
+
   }
   
   return current_lightlevel_status;
