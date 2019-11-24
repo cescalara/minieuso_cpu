@@ -251,6 +251,8 @@ int ZynqManager::ConnectTelnet() {
 
   connect(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr));
 
+  clog << "info: " << logstream::info << "setup fdset" << std::endl;  
+
   FD_ZERO(&fdset);
   FD_SET(sockfd, &fdset);
 
