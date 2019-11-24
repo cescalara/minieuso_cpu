@@ -221,6 +221,8 @@ int ZynqManager::ConnectTelnet() {
   }
 
   /* debug */
+  clog << "info: " << logstream::info << "sockfd is " << sockfd << std::endl;  
+   
   clog << "info: " << logstream::info << "retrieving server" << std::endl;  
    
   server = gethostbyname(ip);
@@ -244,6 +246,9 @@ int ZynqManager::ConnectTelnet() {
 
   /* set non-blocking */
   int opts = fcntl(sockfd, F_SETFL, O_NONBLOCK);
+
+  clog << "info: " << logstream::info << "connect to socket" << std::endl;  
+
   connect(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr));
 
   FD_ZERO(&fdset);
@@ -254,7 +259,7 @@ int ZynqManager::ConnectTelnet() {
   tv.tv_usec = 0;
 
   /* debug */
-  clog << "info: " << logstream::info << "connect to socket" << std::endl;  
+  clog << "info: " << logstream::info << "check connection to socket" << std::endl;  
   
   if (select(sockfd + 1, NULL, &fdset, NULL, &tv) == 1) {
       int so_error;
