@@ -653,7 +653,18 @@ int RunInstrument::PollInstrument() {
 	this->isDay.open ("/media/usb0/is_day.txt");
 	this->isDay <<  "1";
 	this->isDay.close();
+	
+	/* Quick fix: continue collecting data with HVPS off */
 
+	/* turn off HV */
+	//if (this->Zynq.telnet_connected) {
+	//  this->CmdLine->hvps_status = ZynqManager::OFF;
+	//  HvpsSwitch();
+	//}
+
+	/* delay 10 min */
+	sleep(10*60);
+	
 	this->SetInstMode(RunInstrument::DAY);
 	this->Daq.Notify();
 
