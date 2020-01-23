@@ -664,7 +664,7 @@ int DataAcquisition::ProcessIncomingData(std::shared_ptr<Config> ConfigOut, CmdL
   }
 
   /* watch the data directory for incoming files */
-  clog << "info: " << logstream::info << "start watching " << DONE_DIR << std::endl;
+  clog << "info: " << logstream::info << "start watching " << DATA_DIR << std::endl;
   wd = inotify_add_watch(fd, DATA_DIR, IN_CLOSE_WRITE);
 
   /* to keep track of good and bad packets */
