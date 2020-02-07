@@ -233,6 +233,16 @@ int RunInstrument::DebugMode() {
   this->Lvps.SwitchOff(LvpsManager::ZYNQ);
   std::cout << "done!" << std::endl;
   */
+
+  /* check the available disk space */
+  const char * cmd = "df -h";
+  std::string output = CpuTools::CommandToStr(cmd);	
+
+  std::cout << "Checking disk space: " << std::endl;
+  std::cout << output << std::endl;
+
+  clog << "info: " << logstream::info << "Checking disk space:" << std::endl << output << std::endl;
+ 
   
   std::cout << "debug tests completed, exiting the program" << std::endl;
 
