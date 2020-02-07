@@ -240,9 +240,6 @@ int RunInstrument::DebugMode() {
 
   std::cout << "Checking disk space: " << std::endl;
   std::cout << output << std::endl;
-
-  clog << "info: " << logstream::info << "Checking disk space:" << std::endl << output << std::endl;
- 
   
   std::cout << "debug tests completed, exiting the program" << std::endl;
 
@@ -476,6 +473,7 @@ int RunInstrument::CheckSystems() {
   }
 
   /* turn on all systems */
+  /*
   std::cout << "switching on all systems..." << std::endl;
   if (this->CmdLine->cam_on ==true) {
     this->Lvps.SwitchOn(LvpsManager::CAMERAS);
@@ -483,11 +481,13 @@ int RunInstrument::CheckSystems() {
   this->Lvps.SwitchOn(LvpsManager::HK);
   sleep(this->ConfigOut->pwr_on_delay);
   this->Lvps.SwitchOn(LvpsManager::ZYNQ);
-
+  */
   /* wait for boot */
+  /*
   std::cout << "waiting for boot..." << std::endl;
   this->CheckStatus();
-
+  */
+  
   /* check the number storage Usbs connected */
   std::cout << "there are " << (int)this->Usb.LookupUsbStorage() << " USB storage devices connected " << std::endl;
   this->Daq.usb_num_storage_dev = this->Usb.num_storage_dev;
