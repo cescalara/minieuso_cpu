@@ -853,7 +853,7 @@ int RunInstrument::RunningStatusCheck() {
     std::cout << std::endl;
 
     /* check CPU usage */
-    const char * cmd = "top -d 5 -b -n1 |grep \"load average\" -A 15";
+    const char * cmd = "top -d 5 -b -n1 | grep \"load average\" -A 15";
     std::string output = CpuTools::CommandToStr(cmd);   
     std::cout << "Checking CPU usage: " << std::endl;
     std::cout << output << std::endl;
