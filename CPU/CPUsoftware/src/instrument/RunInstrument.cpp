@@ -157,7 +157,6 @@ int RunInstrument::DebugMode() {
   std::cout << "running checks of all subsystems..." <<std::endl;
   std::cout << std::endl;
   
-  /*
   std::cout << "USB" << std::endl;
   int num_usb_storage = this->Usb.LookupUsbStorage();
   std::cout << "there are " << num_usb_storage << " USB storage devices connected" << std::endl;
@@ -232,7 +231,6 @@ int RunInstrument::DebugMode() {
   std::cout << "Zynq OFF " << std::endl;
   this->Lvps.SwitchOff(LvpsManager::ZYNQ);
   std::cout << "done!" << std::endl;
-  */
 
   /* check the available disk space */
   const char * cmd1 = "df -h";
@@ -248,8 +246,7 @@ int RunInstrument::DebugMode() {
   std::cout << "Checking CPU usage: " << std::endl;
   std::cout << output2 << std::endl;
   clog << "info: " << logstream::info << "Checking CPU usage:" << std::endl;
-  clog << "info: " << logstream::info << output2 << std::endl;
-    
+  clog << "info: " << logstream::info << output2 << std::endl;    
   
   std::cout << "debug tests completed, exiting the program" << std::endl;
 
