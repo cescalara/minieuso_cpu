@@ -235,13 +235,22 @@ int RunInstrument::DebugMode() {
   */
 
   /* check the available disk space */
-  const char * cmd = "df -h";
-  std::string output = CpuTools::CommandToStr(cmd);   
+  const char * cmd1 = "df -h";
+  std::string output1 = CpuTools::CommandToStr(cmd1);   
   std::cout << "Checking disk space: " << std::endl;
-  std::cout << output << std::endl;
+  std::cout << output1 << std::endl;
   clog << "info: " << logstream::info << "Checking disk space:" << std::endl;
-  clog << "info: " << logstream::info << output << std::endl;
- 
+  clog << "info: " << logstream::info << output1 << std::endl;
+
+  /* check CPU usage */
+  const char * cmd2 = "top -d 5 -b -n1 | grep \"load average\" -A 15";
+  std::string output2 = CpuTools::CommandToStr(cmd2);   
+  std::cout << "Checking CPU usage: " << std::endl;
+  std::cout << output2 << std::endl;
+  clog << "info: " << logstream::info << "Checking CPU usage:" << std::endl;
+  clog << "info: " << logstream::info << output2 << std::endl;
+    
+  
   std::cout << "debug tests completed, exiting the program" << std::endl;
 
   return 0;
@@ -843,6 +852,14 @@ int RunInstrument::RunningStatusCheck() {
     std::cout << std::endl;
     std::cout << std::endl;
 
+    /* check CPU usage */
+    const char * cmd = "top -d 5 -b -n1 |grep \"load average\" -A 15";
+    std::string output = CpuTools::CommandToStr(cmd);   
+    std::cout << "Checking CPU usage: " << std::endl;
+    std::cout << output << std::endl;
+    clog << "info: " << logstream::info << "Checking CPU usage:" << std::endl;
+    clog << "info: " << logstream::info << output << std::endl;
+    
     /* wait until next status check */
     sleep(ConfigOut->status_period);
 
