@@ -231,6 +231,22 @@ int RunInstrument::DebugMode() {
   std::cout << "Zynq OFF " << std::endl;
   this->Lvps.SwitchOff(LvpsManager::ZYNQ);
   std::cout << "done!" << std::endl;
+
+  /* check the available disk space */
+  const char * cmd1 = "df -h";
+  std::string output1 = CpuTools::CommandToStr(cmd1);   
+  std::cout << "Checking disk space: " << std::endl;
+  std::cout << output1 << std::endl;
+  clog << "info: " << logstream::info << "Checking disk space:" << std::endl;
+  clog << "info: " << logstream::info << output1 << std::endl;
+
+  /* check CPU usage */
+  const char * cmd2 = "top -d 5 -b -n1 | grep \"load average\" -A 15";
+  std::string output2 = CpuTools::CommandToStr(cmd2);   
+  std::cout << "Checking CPU usage: " << std::endl;
+  std::cout << output2 << std::endl;
+  clog << "info: " << logstream::info << "Checking CPU usage:" << std::endl;
+  clog << "info: " << logstream::info << output2 << std::endl;    
   
   std::cout << "debug tests completed, exiting the program" << std::endl;
 
@@ -353,6 +369,8 @@ int RunInstrument::StartUp() {
   clog << std::endl;
   clog << "info: " << logstream::info << "log created" << std::endl;
 
+  clog << "info: " << logstream::info << "Mini-EUSO CPU SOFTWARE Version: " << VERSION << " Date: " << VERSION_DATE_STRING << std::endl;
+  
   /* reload and parse the configuration file */
   std::string config_dir(CONFIG_DIR);
   std::string conf_file_usb0 = "/media/usb0/dummy_usb.conf";
@@ -426,7 +444,7 @@ int RunInstrument::StartUp() {
   printf("CAMERA_ON is %d\n", this->ConfigOut->camera_on);
 
   std::cout << std::endl;
-
+  
   return 0;
 }
 
@@ -479,6 +497,15 @@ int RunInstrument::CheckSystems() {
   this->Daq.usb_num_storage_dev = this->Usb.num_storage_dev;
   this->Cam.usb_num_storage_dev = this->Usb.num_storage_dev;
 
+
+  /* check the available disk space */
+  const char * cmd = "df -h";
+  std::string output = CpuTools::CommandToStr(cmd);	
+  std::cout << "Checking disk space: " << std::endl;
+  std::cout << output << std::endl;
+  clog << "info: " << logstream::info << "Checking disk space:" << std::endl;
+  clog << "info: " << logstream::info << output << std::endl;
+  
   /* initialise the instrument mode */
   InitInstMode();
 
@@ -822,6 +849,14 @@ int RunInstrument::RunningStatusCheck() {
     std::cout << std::endl;
     std::cout << std::endl;
 
+    /* check CPU usage */
+    const char * cmd = "top -d 5 -b -n1 | grep \"load average\" -A 15";
+    std::string output = CpuTools::CommandToStr(cmd);   
+    std::cout << "Checking CPU usage: " << std::endl;
+    std::cout << output << std::endl;
+    clog << "info: " << logstream::info << "Checking CPU usage:" << std::endl;
+    clog << "info: " << logstream::info << output << std::endl;
+    
     /* wait until next status check */
     sleep(ConfigOut->status_period);
 
