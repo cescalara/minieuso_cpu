@@ -504,7 +504,7 @@ int RunInstrument::CheckSystems() {
   std::cout << "Checking disk space: " << std::endl;
   std::cout << output << std::endl;
   clog << "info: " << logstream::info << "Checking disk space:" << std::endl;
-  clog << "info: " << logstream::info << output << std::endl;
+  clog << "info: " << logstream::info << "\n" << output << std::endl;
   
   /* initialise the instrument mode */
   InitInstMode();
@@ -855,7 +855,7 @@ int RunInstrument::RunningStatusCheck() {
     std::cout << "Checking CPU usage: " << std::endl;
     std::cout << output << std::endl;
     clog << "info: " << logstream::info << "Checking CPU usage:" << std::endl;
-    clog << "info: " << logstream::info << output << std::endl;
+    clog << "info: " << logstream::info << "\n" << output << std::endl;
     
     /* wait until next status check */
     sleep(ConfigOut->status_period);
