@@ -104,7 +104,9 @@ int RunInstrument::HvpsSwitch() {
     {
       std::unique_lock<std::mutex> lock(this->Zynq.m_zynq);
       this->Zynq.HvpsTurnOff();
-      this->Zynq.SetDac(0);
+      if (this->ConfigOut->dac_level != NO_DAC_SET) {
+	this->Zynq.SetDac(0);
+      }
       break;
     }
   case ZynqManager::UNDEF:
