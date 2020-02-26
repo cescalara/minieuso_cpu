@@ -973,6 +973,14 @@ int RunInstrument::NightOperations() {
   std::cout << "waiting for boot..." << std::endl;
   this->CheckStatus();
 
+  /* setup the Zynq */
+  clog << "info: " << logstream::info << "setting up Zynq with DAC 10 tables and trigger mask" << std::endl; 
+  std::string usb_str(USB_MOUNTPOINT_0);
+  {
+    std::unique_lock<std::mutex> lock(this->Zynq.m_zynq);
+    this->Zynq.Setup(usb_str);
+  }
+
   /* set hidden pixels */
   if (this->CmdLine->hide_pixel == true) {
     {

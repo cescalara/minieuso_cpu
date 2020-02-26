@@ -360,6 +360,34 @@ int ZynqManager::Reboot() {
 
 }
 
+int ZynqManager::Setup(std::string setup_script_path) {
+
+  std::stringstream conv_dac;
+  std::stringstream conv_trig;
+  std::string cmd_str;
+  const char * cmd = "";
+
+  std::string sub_dir(ZYNQ_SETUP_SUBDIR);
+  std::string cmd_path = setup_script_path + sub_dir;
+  std::string output;
+  
+  /* set ASIC DAC from tables */
+  conv_dac << "(cd " << cmd_path << " && " << MATRIX_DAC_10_EXEC << ")" << std::endl;
+  cmd_str = conv_dac.str();
+  cmd = cmd_str.c_str();
+  output = CpuTools::CommandToStr(cmd);
+  clog << "info: " << logstream::info << "Zynq setup of ASIC DAC from tables output: " << output << std::endl;
+  
+  /* set trigger mask */
+  conv_trig << "(cd " << cmd_path << " && " << NO_TRIG_MASK_EXEC << ")" << std::endl;
+  cmd_str = conv_dac.str();
+  cmd = cmd_str.c_str();
+  output = CpuTools::CommandToStr(cmd);
+  clog << "info: " << logstream::info << "Zynq setup of trigger mask output: " << output << std::endl;
+
+  return 0;
+}
+ 
 
 /**
  * check the HV status 

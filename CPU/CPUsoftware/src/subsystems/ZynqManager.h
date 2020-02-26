@@ -36,6 +36,12 @@
 /* time between consecutive telnet commands in mus */
 #define SLEEP_TIME 500000
 
+/* location of Zynq setup executables */
+#define ZYNQ_SETUP_SUBDIR "/automated_boot"
+#define MATRIX_DAC_10_EXEC "./SetMatrixDac10"
+#define NO_TRIG_MASK_EXEC "./SetNoTriggerMask"
+
+
 /**
  * class to handle the Zynq interface. 
  * commands and information are sent and received over telnet
@@ -143,6 +149,7 @@ public:
   static std::string GetZynqVer();
   int InstrumentClean();
   int Reboot();
+  int Setup(std::string setup_script_path);
   
 private:
   
