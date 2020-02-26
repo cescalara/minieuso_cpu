@@ -252,27 +252,6 @@ int RunInstrument::DebugMode() {
   clog << "info: " << logstream::info << "Checking CPU usage:" << std::endl;
   clog << "info: " << logstream::info << output2 << std::endl;    
 
-  /* check new commands */
-  std::string usb_str(USB_MOUNTPOINT_0);
-  std::string sub_dir(ZYNQ_SETUP_SUBDIR);
-  std::string cmd_path = usb_str + sub_dir;
-
-  std::cout << "cmd_path: " << cmd_path << std::endl;
-
-  std::stringstream conv_dac;
-  std::stringstream conv_trig;
-  std::string cmd_str;
- 
-  conv_dac << "(cd " << cmd_path << " && " << MATRIX_DAC_10_EXEC << ")" << std::endl;
-  cmd_str = conv_dac.str();
-  std::cout << "cmd_str: " << cmd_str << std::endl;
-
-  conv_trig << "(cd " << cmd_path << " && " << NO_TRIG_MASK_EXEC << ")" << std::endl;
-  cmd_str = conv_dac.str();
-  std::cout << "cmd_str: " << cmd_str << std::endl;
- 
-  std::cout << "debug tests completed, exiting the program" << std::endl;
-
   return 0;
 }
 
