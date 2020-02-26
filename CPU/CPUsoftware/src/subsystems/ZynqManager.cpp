@@ -377,14 +377,19 @@ int ZynqManager::Setup(std::string setup_script_path) {
   cmd = cmd_str.c_str();
   output = CpuTools::CommandToStr(cmd);
   clog << "info: " << logstream::info << "Zynq setup of ASIC DAC from tables output: " << output << std::endl;
+  std::cout << "Zynq setup of ASIC DAC from tables output: " << std::endl;
+  std::cout << output << std::endl;
+  
   
   /* set trigger mask */
   conv_trig << "(cd " << cmd_path << " && " << NO_TRIG_MASK_EXEC << ")" << std::endl;
-  cmd_str = conv_dac.str();
+  cmd_str = conv_trig.str();
   cmd = cmd_str.c_str();
   output = CpuTools::CommandToStr(cmd);
   clog << "info: " << logstream::info << "Zynq setup of trigger mask output: " << output << std::endl;
-
+  std::cout << "Zynq setup of trigger mask output: " << std::endl;
+  std::cout << output << std::endl;
+  
   return 0;
 }
  
