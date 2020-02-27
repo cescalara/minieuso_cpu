@@ -391,8 +391,10 @@ int ZynqManager::Setup(std::string setup_script_path) {
 
   std::cout << "Sending the following command: " << NO_TRIG_MASK_EXEC << std::endl; 
   system(NO_TRIG_MASK_EXEC);
+  system(NO_TRIG_MASK_EXEC);
 
   std::cout << "Sending the following command: " << MATRIX_DAC_10_EXEC << std::endl;
+  system(MATRIX_DAC_10_EXEC);
   system(MATRIX_DAC_10_EXEC);
   
   return 0;
