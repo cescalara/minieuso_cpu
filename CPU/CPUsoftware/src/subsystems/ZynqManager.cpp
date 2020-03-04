@@ -362,6 +362,7 @@ int ZynqManager::Reboot() {
 
 int ZynqManager::Setup(std::string setup_script_path) {
 
+  /*
   std::stringstream conv_dac;
   std::stringstream conv_trig;
   std::string cmd_str;
@@ -370,6 +371,7 @@ int ZynqManager::Setup(std::string setup_script_path) {
   std::string sub_dir(ZYNQ_SETUP_SUBDIR);
   std::string cmd_path = setup_script_path + sub_dir;
   std::string output;
+  */
   
   /* set ASIC DAC from tables */
   //conv_dac << "(cd " << cmd_path << " && " << MATRIX_DAC_10_EXEC << ")" << std::endl;
@@ -389,13 +391,8 @@ int ZynqManager::Setup(std::string setup_script_path) {
   //std::cout << "Zynq setup of trigger mask output: " << std::endl;
   //std::cout << output << std::endl;
 
-  std::cout << "Sending the following command: " << NO_TRIG_MASK_EXEC << std::endl; 
-  system(NO_TRIG_MASK_EXEC);
-  system(NO_TRIG_MASK_EXEC);
-
-  std::cout << "Sending the following command: " << MATRIX_DAC_10_EXEC << std::endl;
-  system(MATRIX_DAC_10_EXEC);
-  system(MATRIX_DAC_10_EXEC);
+  std::cout << "Trying to set DAC 10 values to 200...." << std::endl;
+  this->SetDac(200);
   
   return 0;
 }
