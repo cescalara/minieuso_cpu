@@ -261,3 +261,31 @@ uint32_t CpuTools::BuildCpuTimeStamp() {
 
   return timestamp;
 }
+
+/**
+ * read the DAC10 matrix file into a vector
+ */
+std::vector<int> CpuTools::ReadMatrixDac10(std::string dac10_filename) {
+
+  std::vector<int> output;
+
+  std::ifstream matrix(dac10_filename, std::ios::in);
+  int number;
+
+   while(matrix >> number){
+
+     output.push_back(number);
+
+   }
+
+    if(output.size() != 36){
+
+      /* debug */
+      std::cout << "ERROR: file \"" << dac10_filename << "\" is out of format. Check number of elements." << std::endl;
+      return output;
+
+    }
+    matrix.close();
+
+    return output;
+}

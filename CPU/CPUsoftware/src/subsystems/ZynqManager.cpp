@@ -360,39 +360,81 @@ int ZynqManager::Reboot() {
 
 }
 
+/**
+ * Set the ASIC DAC10 values from a text file provided by the USB.
+ * Adapted from C. Giammanco's script to use socket programming instead of netcat.
+ */
+int ZynqManager::SetMatrixDac10(std::string usb_mountpoint, bool debug) {
+
+  std::string dac10_filename;
+  std::vector<int> dac10_values;
+  
+  dac10_filename = usb_mountpoint + ZYNQ_SETUP_SUBDIR + "/" + MATRIX_DAC_10;
+
+  /* read values */
+  if (debug == true) {
+
+    /* set all values to 200 for testing */
+    for (int i=0; i<N_PMT; i++) {
+      dac10_values.push_back(200);
+    }
+    
+  }
+  else {
+
+    /* read values from file */
+    dac10_values = CpuTools::ReadMatrixDac10(dac10_filename);
+    if (dac10_values.size() != N_PMT) {
+      clog << "error: " << logstream::error << "Dac10 matrix has more than " << N_PMT << " values." << std::endl;
+    }
+    
+  }
+
+  /* connect to telnet */
+  int sockfd = ConnectTelnet();
+  std::string cmd;
+  
+  /* enter command loop */
+  int line = 0, pixel = 0, val = 0;
+  unsigned int index;
+  for (int asic=0; asic<N_ASIC; asic++) {
+
+    cmd = "slowctrl asic " + std::to_string(asic) + "\n";
+    Telnet(cmd, sockfd, true);
+
+    for (int board=0; board<N_ASIC; board++) {
+
+      line = 5 - board;
+      cmd = "slowctrl line " + std::to_string(line) + "\n";
+      Telnet(cmd, sockfd, true);
+      
+      index = (asic * 6) + board;
+      cmd = "slowctrl pixel " + std::to_string(pixel) + "\n";
+      Telnet(cmd, sockfd, true);
+      
+      val = dac10_values[index];
+      cmd = "slowctrl dac10 " + std::to_string(val) + "\n";
+      Telnet (cmd, sockfd, true);
+      
+    }
+  }
+  cmd = "slowctrl apply\n";
+  Telnet(cmd, sockfd, true);
+
+  close(sockfd);
+ 
+  return 0;
+}
+
+/**
+ * Performs the necessary Zynq setup following a reboot.
+ */
 int ZynqManager::Setup(std::string setup_script_path) {
 
-  /*
-  std::stringstream conv_dac;
-  std::stringstream conv_trig;
-  std::string cmd_str;
-  const char * cmd = "";
-
-  std::string sub_dir(ZYNQ_SETUP_SUBDIR);
-  std::string cmd_path = setup_script_path + sub_dir;
-  std::string output;
-  */
-  
-  /* set ASIC DAC from tables */
-  //conv_dac << "(cd " << cmd_path << " && " << MATRIX_DAC_10_EXEC << ")" << std::endl;
-  //cmd_str = conv_dac.str();
-  //cmd = cmd_str.c_str();
-  //output = CpuTools::CommandToStr(cmd);
-  //clog << "info: " << logstream::info << "Zynq setup of ASIC DAC from tables output: " << output << std::endl;
-  //std::cout << "Zynq setup of ASIC DAC from tables output: " << std::endl;
-  //std::cout << output << std::endl;
-  
-  /* set trigger mask */
-  //conv_trig << "(cd " << cmd_path << " && " << NO_TRIG_MASK_EXEC << ")" << std::endl;
-  //cmd_str = conv_trig.str();
-  //cmd = cmd_str.c_str();
-  //output = CpuTools::CommandToStr(cmd);
-  //clog << "info: " << logstream::info << "Zynq setup of trigger mask output: " << output << std::endl;
-  //std::cout << "Zynq setup of trigger mask output: " << std::endl;
-  //std::cout << output << std::endl;
-
   std::cout << "Trying to set DAC 10 values to 200...." << std::endl;
-  this->SetDac(200);
+  std::cout << "Using new ZynqManager::SetMatrixDac10()!" << std::endl;
+
+  this->SetMatrixDac10(setup_script_path, true);
   
   return 0;
 }
