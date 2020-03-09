@@ -158,7 +158,8 @@ int RunInstrument::DebugMode() {
   std::cout << std::endl;
   std::cout << "running checks of all subsystems..." <<std::endl;
   std::cout << std::endl;
-  
+
+  /*
   std::cout << "USB" << std::endl;
   int num_usb_storage = this->Usb.LookupUsbStorage();
   std::cout << "there are " << num_usb_storage << " USB storage devices connected" << std::endl;
@@ -233,25 +234,32 @@ int RunInstrument::DebugMode() {
   std::cout << "Zynq OFF " << std::endl;
   this->Lvps.SwitchOff(LvpsManager::ZYNQ);
   std::cout << "done!" << std::endl;
-
+  */
+  
   /* check the available disk space */
+  /*
   const char * cmd1 = "df -h";
   std::string output1 = CpuTools::CommandToStr(cmd1);   
   std::cout << "Checking disk space: " << std::endl;
   std::cout << output1 << std::endl;
   clog << "info: " << logstream::info << "Checking disk space:" << std::endl;
   clog << "info: " << logstream::info << output1 << std::endl;
-
+  */
+  
   /* check CPU usage */
+  /*
   const char * cmd2 = "top -d 5 -b -n1 | grep \"load average\" -A 15";
   std::string output2 = CpuTools::CommandToStr(cmd2);   
   std::cout << "Checking CPU usage: " << std::endl;
   std::cout << output2 << std::endl;
   clog << "info: " << logstream::info << "Checking CPU usage:" << std::endl;
   clog << "info: " << logstream::info << output2 << std::endl;    
+  */
   
-  std::cout << "debug tests completed, exiting the program" << std::endl;
-
+  /* test new DAC10 commands */
+  std::string path(USB_MOUNTPOINT_0);
+  this->Zynq.SetMatrixDac10(path, false);
+  
   return 0;
 }
 
@@ -972,6 +980,14 @@ int RunInstrument::NightOperations() {
   clog << "info: " << logstream::info << "waiting for boot" << std::endl;
   std::cout << "waiting for boot..." << std::endl;
   this->CheckStatus();
+
+  /* setup the Zynq */
+  clog << "info: " << logstream::info << "setting up Zynq with DAC 10 tables and trigger mask" << std::endl; 
+  std::string usb_str(USB_MOUNTPOINT_0);
+  {
+    std::unique_lock<std::mutex> lock(this->Zynq.m_zynq);
+    this->Zynq.Setup(usb_str);
+  }
 
   /* set hidden pixels */
   if (this->CmdLine->hide_pixel == true) {
