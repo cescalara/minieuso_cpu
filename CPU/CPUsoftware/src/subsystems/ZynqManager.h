@@ -32,9 +32,16 @@
 
 /* for use with HV interface functions */
 #define N_EC 9
+#define N_PMT 36
+#define N_ASIC 6
 
 /* time between consecutive telnet commands in mus */
 #define SLEEP_TIME 500000
+
+/* location of Zynq setup files */
+#define ZYNQ_SETUP_SUBDIR "/automated_boot"
+#define MATRIX_DAC_10 "dac10.txt"
+
 
 /**
  * class to handle the Zynq interface. 
@@ -143,6 +150,8 @@ public:
   static std::string GetZynqVer();
   int InstrumentClean();
   int Reboot();
+  int SetMatrixDac10(std::string usb_mountpoint, bool debug);
+  int Setup(std::string setup_script_path);
   
 private:
   

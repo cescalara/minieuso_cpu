@@ -42,7 +42,7 @@ public:
   static std::streampos FileSize(std::string file_path);
   static uint32_t BuildCpuHeader(uint32_t type, uint32_t ver);
   static uint32_t BuildCpuTimeStamp();
-  
+  static std::vector<int> ReadMatrixDac10(std::string dac10_filename);
   
 };
 
