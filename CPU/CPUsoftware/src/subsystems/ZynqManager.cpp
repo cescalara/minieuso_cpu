@@ -434,7 +434,7 @@ int ZynqManager::Setup(std::string setup_script_path) {
   std::cout << "Trying to set DAC 10 values to 200...." << std::endl;
   std::cout << "Using new ZynqManager::SetMatrixDac10()!" << std::endl;
 
-  this->SetMatrixDac10(setup_script_path, true);
+  this->SetMatrixDac10(setup_script_path, false);
   
   return 0;
 }
