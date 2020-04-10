@@ -8,7 +8,8 @@ ThermManager::ThermManager() {
 
   this->cpu_file_is_set = false;
   this->inst_mode_switch = false;
-
+  this->RunAccess = NULL;
+  
 }
 
 /**
@@ -17,7 +18,7 @@ ThermManager::ThermManager() {
 void ThermManager::Init() {
 
   const char * cmd = "digitemp -s /dev/ttyS0 -i";
-  std::string output = CpuTools::CommandToStr(cmd);
+  CpuTools::CommandToStr(cmd);
 
 }
 
@@ -81,8 +82,8 @@ TempAcq * ThermManager::ParseDigitempOutput(std::string input_string) {
   TempAcq * temperature_result = new TempAcq();
 
   /* check for null output */
-  int k = 0;
   if (input_string == "output_error") {
+    int k;
     for (k = 0; k < N_CHANNELS_THERM; k++) {
       temperature_result->val[k] = 99;
     }    

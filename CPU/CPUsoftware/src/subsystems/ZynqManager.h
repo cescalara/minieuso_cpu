@@ -150,14 +150,14 @@ public:
   static std::string GetZynqVer();
   int InstrumentClean();
   int Reboot();
-  int SetMatrixDac10(std::string usb_mountpoint, bool debug);
+  int SetMatrixDac10(const std::string &usb_mountpoint, bool debug);
   int Setup(std::string setup_script_path);
   
 private:
   
   static std::string SendRecvTelnet(std::string send_msg, int sockfd);
   static int SendTelnet(std::string send_msg, int sockfd);
-  static std::string Telnet(std::string send_msg, int sockfd, bool print);
+  static std::string Telnet(const std::string & send_msg, int sockfd, bool print);
   static int TelnetSendOnly(std::string send_msg, int sockfd); 
   int InstStatusTest(std::string send_msg);
   bool CheckTelnet();  

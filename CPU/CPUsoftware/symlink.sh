@@ -1,12 +1,12 @@
 #!/bin/bash
 
-platform=`uname -s`
+platform=$(uname -s)
 
 if [ "$platform" == "Darwin" ]
 then
     ln -sf $(PWD)/bin/mecontrol /usr/local/bin/mecontrol
 else
-    LinuxOS=`lsb_release -si`
+    LinuxOS=$(lsb_release -si)
 
     if [ "$LinuxOS" != "Ubuntu" ]
     then

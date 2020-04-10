@@ -5,8 +5,6 @@
 #capel.francesca@gmail.com
 #Please see README for correct setup procedure
 
-ZYNQ_IP=192.168.7.10
-CPU_IP=192.168.7.2
 TEST_IP=8.8.8.8
 
 echo "Mini-EUSO CPU setup"
