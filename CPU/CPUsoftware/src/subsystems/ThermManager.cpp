@@ -8,7 +8,8 @@ ThermManager::ThermManager() {
 
   this->cpu_file_is_set = false;
   this->inst_mode_switch = false;
-
+  this->RunAccess = NULL;
+  
 }
 
 /**
@@ -17,7 +18,7 @@ ThermManager::ThermManager() {
 void ThermManager::Init() {
 
   const char * cmd = "digitemp -s /dev/ttyS0 -i";
-  std::string output = CpuTools::CommandToStr(cmd);
+  CpuTools::CommandToStr(cmd);
 
 }
 
