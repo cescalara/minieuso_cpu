@@ -1013,7 +1013,7 @@ int RunInstrument::DayOperations() {
   this->Daq.Reset();
   
   /* Housekeeping acquisition runs until signal to switch mode */
-  this->Daq.CollectHousekeeping(this->ConfigOut);
+  this->Daq.CollectHousekeeping(this->ConfigOut, this->CmdLine);
     
   return 0;
 }

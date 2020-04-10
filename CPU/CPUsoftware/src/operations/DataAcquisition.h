@@ -74,7 +74,7 @@ public:
   int CloseCpuRun(RunType run_type);
   int CollectSc(ZynqManager * ZqManager, std::shared_ptr<Config> ConfigOut, CmdLineInputs * CmdLine);
   int CollectData(ZynqManager * ZqManager, std::shared_ptr<Config> ConfigOut, CmdLineInputs * CmdLine);
-  int CollectHousekeeping(std::shared_ptr<Config> ConfigOut);
+  int CollectHousekeeping(std::shared_ptr<Config> ConfigOut, CmdLineInputs * CmdLine);
   bool IsScurveDone();
   static int WriteFakeZynqPkt();
   static int ReadFakeZynqPkt();
@@ -100,6 +100,7 @@ private:
   HK_PACKET * AnalogPktReadOut();
   int WriteScPkt(SC_PACKET * sc_packet);
   int WriteHvPkt(HV_PACKET * hv_packet, std::shared_ptr<Config> ConfigOut);
+  int WriteHkPkt(HK_PACKET * hk_packet);
   int WriteCpuPkt(ZYNQ_PACKET * zynq_packet, HK_PACKET * hk_packet, std::shared_ptr<Config> ConfigOut);
   int GetHvInfo(std::shared_ptr<Config> ConfigOut, CmdLineInputs * CmdLine);
   int GetScurve(ZynqManager * Zynq, std::shared_ptr<Config> ConfigOut, CmdLineInputs * CmdLine);

@@ -450,7 +450,24 @@ HK_PACKET * DataAcquisition::AnalogPktReadOut() {
   return hk_packet;
 }
 
+/**
+ * write a single HK_PACKET to file.
+ * @param hk_packet the HK data acquired from the analog board
+ * asynchronous write to the HK file are handled with the SynchronisedFile class
+ */
+int DataAcquisition::WriteHkPkt(HK_PACKET * hk_packet) {
 
+  static unsigned int pkt_counter = 0;
+
+  hk_packet->hk_packet_header.pkt_num = pkt_counter;
+
+  this->RunAccess->WriteToSynchFile<HK_PACKET *> (hk_packet,
+						  SynchronisedFile::CONSTANT);
+  
+  delete hk_packet;
+  pkt_counter++;
+  return 0;
+}
 
 /**
  * write the CPU_PACKET to the current CPU file 
@@ -1091,6 +1108,10 @@ int DataAcquisition::CollectData(ZynqManager * Zynq, std::shared_ptr<Config> Con
   return 0;
 }
 
+/**
+ * Used by DataAcquisition::CollectHousekeeping() to gather and write HK_PACKETs 
+ * containing photodiode data. 
+ */
 int DataAcquisition::ProcessHousekeeping(std::shared_ptr<Config> ConfigOut, CmdLineInputs * CmdLine){
 
   /* Create a new HK run file */
@@ -1103,7 +1124,16 @@ int DataAcquisition::ProcessHousekeeping(std::shared_ptr<Config> ConfigOut, CmdL
 				   std::chrono::milliseconds(WAIT_PERIOD),
 				   [this] { return this->_switch; })) { 
 
+    /* Generate packets */
+    HK_PACKET * hk_packet = AnalogPktReadOut();
+		
     
+    /* check for NULL packets */
+    if (hk_packet != nullptr) {
+      
+      /* generate cpu packet and append to file */
+      WriteHkPkt(hk_packet);
+    }
     
   } 
 
@@ -1111,14 +1141,26 @@ int DataAcquisition::ProcessHousekeeping(std::shared_ptr<Config> ConfigOut, CmdL
   return 0;
 }
 
-int DataAcquisition::CollectHousekeeping(std::shared_ptr<Config> ConfigOut){
+/**
+ * Used in daytime acquisition to acquire photodiode and thermistor data.
+ * These two datasets are gathered independently on different threads, 
+ * even though they are both read out through the Analog board. This 
+ * reflects an older hardware design where this was not the case, and 
+ * is useful as we generall want photodiode data much more regularly than 
+ * thermistor data. 
+ */
+int DataAcquisition::CollectHousekeeping(std::shared_ptr<Config> ConfigOut, CmdLineInputs * CmdLine){
 
+  /* collect data from the photodiodes */
+  std::thread photo(&DataAcquisition::ProcessHousekeeping, this, ConfigOut, CmdLine);
+  
   /* collect data from the thermistors */
-  std::thread analog(&AnalogManager::ProcessAnalogData, this->Analog, ConfigOut);
+  std::thread therm(&AnalogManager::ProcessAnalogData, this->Analog, ConfigOut);
 
   /* wait for thread to join */
-  analog.join();
-
+  therm.join();
+  photo.join();
+  
   /* only reached for instrument mode change */
   if (this->CpuFile->IsOpen()) {
     CloseCpuRun(HK);
