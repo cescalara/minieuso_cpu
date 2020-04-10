@@ -71,7 +71,7 @@ public:
   DataAcquisition();
   std::string CreateCpuRunName(RunType run_type, std::shared_ptr<Config> ConfigOut, CmdLineInputs * CmdLine);
   int CreateCpuRun(RunType run_type, std::shared_ptr<Config> ConfigOut, CmdLineInputs * CmdLine);
-  int CloseCpuRun(RunType run_type);
+  int CloseCpuRun();
   int CollectSc(ZynqManager * ZqManager, std::shared_ptr<Config> ConfigOut, CmdLineInputs * CmdLine);
   int CollectData(ZynqManager * ZqManager, std::shared_ptr<Config> ConfigOut, CmdLineInputs * CmdLine);
   int CollectHousekeeping(std::shared_ptr<Config> ConfigOut, CmdLineInputs * CmdLine);

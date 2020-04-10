@@ -194,7 +194,7 @@ int DataAcquisition::CreateCpuRun(RunType run_type, std::shared_ptr<Config> Conf
  * this closes the run and runs a CRC calculation which is 
  * the stored in the file trailer and appended
  */
-int DataAcquisition::CloseCpuRun(RunType run_type) {
+int DataAcquisition::CloseCpuRun() {
 
   CpuFileTrailer * cpu_file_trailer = new CpuFileTrailer();
   
@@ -751,7 +751,7 @@ int DataAcquisition::ProcessIncomingData(std::shared_ptr<Config> ConfigOut, CmdL
 	    
 		/* new run file every RUN_SIZE packets */
 		if (packet_counter == RUN_SIZE) {
-		  CloseCpuRun(CPU);
+		  CloseCpuRun();
 	      
 		  /* reset the packet counter */
 		  packet_counter = 0;
@@ -855,7 +855,7 @@ int DataAcquisition::ProcessIncomingData(std::shared_ptr<Config> ConfigOut, CmdL
 	      /* print update to screen */
 	      printf("The scurve %s was read out\n", sc_file_name.c_str());
 	    
-	      CloseCpuRun(SC);
+	      CloseCpuRun();
 
 	      /* delete upon completion */
 	      if (!CmdLine->keep_zynq_pkt) {
@@ -1095,7 +1095,7 @@ int DataAcquisition::CollectData(ZynqManager * Zynq, std::shared_ptr<Config> Con
 
   /* close the CPU file, if it has been opened */
   if (this->CpuFile->IsOpen()) {
-    CloseCpuRun(CPU);
+    CloseCpuRun();
   }
   
   /* stop Zynq acquisition */
@@ -1134,7 +1134,8 @@ int DataAcquisition::ProcessHousekeeping(std::shared_ptr<Config> ConfigOut, CmdL
       /* generate cpu packet and append to file */
       WriteHkPkt(hk_packet);
     }
-    
+
+    sleep(5);
   } 
 
   /* Exit */
@@ -1163,7 +1164,7 @@ int DataAcquisition::CollectHousekeeping(std::shared_ptr<Config> ConfigOut, CmdL
   
   /* only reached for instrument mode change */
   if (this->CpuFile->IsOpen()) {
-    CloseCpuRun(HK);
+    CloseCpuRun();
   }
   
   return 0;
