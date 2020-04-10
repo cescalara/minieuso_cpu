@@ -59,6 +59,9 @@ std::string DataAcquisition::CreateCpuRunName(RunType run_type, std::shared_ptr<
     time_str = "/CPU_RUN_HV__%Y_%m_%d__%H_%M_%S"
       + CmdLine->comment_fn + ".dat";
     break;
+  case HK:
+    time_str = "/CPU_RUN_HK__%Y_%m_%d__%H_%M_%S"
+      + CmdLine->comment_fn + ".dat";
   }
   
   std::string cpu_str;
@@ -1082,6 +1085,10 @@ int DataAcquisition::CollectData(ZynqManager * Zynq, std::shared_ptr<Config> Con
   return 0;
 }
 
+int DataAcquisition::CollectHousekeeping(){
+
+  return 0;
+}
 
 /** 
  * function to generate and write a fake Zynq packet 

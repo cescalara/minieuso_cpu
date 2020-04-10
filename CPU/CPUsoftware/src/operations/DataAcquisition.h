@@ -63,13 +63,16 @@ public:
     CPU = 0,
     SC = 1,
     HV = 2,
+    HK = 3,
   };
 
   DataAcquisition();
+  std::string CreateCpuRunName(RunType run_type, std::shared_ptr<Config> ConfigOut, CmdLineInputs * CmdLine);
   int CreateCpuRun(RunType run_type, std::shared_ptr<Config> ConfigOut, CmdLineInputs * CmdLine);
   int CloseCpuRun(RunType run_type);
   int CollectSc(ZynqManager * ZqManager, std::shared_ptr<Config> ConfigOut, CmdLineInputs * CmdLine);
   int CollectData(ZynqManager * ZqManager, std::shared_ptr<Config> ConfigOut, CmdLineInputs * CmdLine);
+  int CollectHousekeeping();
   bool IsScurveDone();
   static int WriteFakeZynqPkt();
   static int ReadFakeZynqPkt();
@@ -88,7 +91,6 @@ private:
    */
   bool _scurve;  
 
-  std::string CreateCpuRunName(RunType run_type, std::shared_ptr<Config> ConfigOut, CmdLineInputs * CmdLine);
   std::string BuildCpuFileInfo(std::shared_ptr<Config> ConfigOut, CmdLineInputs * CmdLine);
   SC_PACKET * ScPktReadOut(std::string sc_file_name, std::shared_ptr<Config> ConfigOut);
   HV_PACKET * HvPktReadOut(std::string hv_file_name, std::shared_ptr<Config> ConfigOut);
