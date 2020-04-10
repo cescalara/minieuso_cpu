@@ -1010,12 +1010,10 @@ int RunInstrument::DayOperations() {
   std::cout << "entering DAY mode..." << std::endl;
 
   /* reset mode switching */
-  //this->Data.Reset();
   this->Daq.Reset();
   
-  /* data reduction runs until signal to switch mode */
-  //this->Data.Start();
-  this->Daq.CollectHousekeeping();
+  /* Housekeeping acquisition runs until signal to switch mode */
+  this->Daq.CollectHousekeeping(this->ConfigOut);
     
   return 0;
 }

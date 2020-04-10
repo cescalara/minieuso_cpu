@@ -9,7 +9,8 @@ DataAcquisition::DataAcquisition() {
   this->cpu_main_file_name = "";
   this->cpu_sc_file_name = "";    
   this->cpu_hv_file_name = "";
-
+  this->cpu_hk_file_name = "";
+  
   /* usb storage devices */
   this->usb_num_storage_dev = 0;
 
@@ -153,6 +154,11 @@ int DataAcquisition::CreateCpuRun(RunType run_type, std::shared_ptr<Config> Conf
     clog << "info: " << logstream::info << "Set cpu_hv_file_name to: " << cpu_hv_file_name << std::endl;
     this->CpuFile = std::make_shared<SynchronisedFile>(this->cpu_hv_file_name);
     cpu_file_header->header = CpuTools::BuildCpuHeader(HV_FILE_TYPE, HV_FILE_VER);
+    break;
+  case HK:
+    this->cpu_hk_file_name = CreateCpuRunName(HK, ConfigOut, CmdLine);
+    this->CpuFile = std::make_shared<SynchronisedFile>(this->cpu_hk_file_name);
+    cpu_file_header->header = CpuTools::BuildCpuHeader(HK_FILE_TYPE, HK_FILE_VER);
     break;
   }
   this->RunAccess = new Access(this->CpuFile);
@@ -1085,8 +1091,39 @@ int DataAcquisition::CollectData(ZynqManager * Zynq, std::shared_ptr<Config> Con
   return 0;
 }
 
-int DataAcquisition::CollectHousekeeping(){
+int DataAcquisition::ProcessHousekeeping(std::shared_ptr<Config> ConfigOut, CmdLineInputs * CmdLine){
 
+  /* Create a new HK run file */
+  CreateCpuRun(HK, ConfigOut, CmdLine);
+
+  /* Loop over photodiode data collection */
+  std::unique_lock<std::mutex> lock(this->_m_switch);
+  /* enter data processing loop while instrument mode switching not requested */
+  while(!this->_cv_switch.wait_for(lock,
+				   std::chrono::milliseconds(WAIT_PERIOD),
+				   [this] { return this->_switch; })) { 
+
+    
+    
+  } 
+
+  /* Exit */
+  return 0;
+}
+
+int DataAcquisition::CollectHousekeeping(std::shared_ptr<Config> ConfigOut){
+
+  /* collect data from the thermistors */
+  std::thread analog(&AnalogManager::ProcessAnalogData, this->Analog, ConfigOut);
+
+  /* wait for thread to join */
+  analog.join();
+
+  /* only reached for instrument mode change */
+  if (this->CpuFile->IsOpen()) {
+    CloseCpuRun(HK);
+  }
+  
   return 0;
 }
 

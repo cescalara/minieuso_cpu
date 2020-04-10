@@ -38,6 +38,8 @@ public:
   std::string cpu_main_file_name;
   std::string cpu_sc_file_name;
   std::string cpu_hv_file_name;
+  std::string cpu_hk_file_name;
+  
   uint8_t usb_num_storage_dev;
   int n_files_written;
   std::mutex m_nfiles;
@@ -72,7 +74,7 @@ public:
   int CloseCpuRun(RunType run_type);
   int CollectSc(ZynqManager * ZqManager, std::shared_ptr<Config> ConfigOut, CmdLineInputs * CmdLine);
   int CollectData(ZynqManager * ZqManager, std::shared_ptr<Config> ConfigOut, CmdLineInputs * CmdLine);
-  int CollectHousekeeping();
+  int CollectHousekeeping(std::shared_ptr<Config> ConfigOut);
   bool IsScurveDone();
   static int WriteFakeZynqPkt();
   static int ReadFakeZynqPkt();
@@ -103,6 +105,7 @@ private:
   int GetScurve(ZynqManager * Zynq, std::shared_ptr<Config> ConfigOut, CmdLineInputs * CmdLine);
   void FtpPoll(bool monitor);
   int ProcessIncomingData(std::shared_ptr<Config> ConfigOut, CmdLineInputs * CmdLine, long unsigned int main_thread, bool scurve);
+  int ProcessHousekeeping(std::shared_ptr<Config> ConfigOut, CmdLineInputs * CmdLine);
   void SignalScurveDone();
   
 };
