@@ -556,8 +556,6 @@ int RunInstrument::SelectAcqOption() {
  */
 int RunInstrument::LaunchCam() {
 
-  size_t check;
-
   this->Cam.n_relaunch_attempt = 0;
 
   /* set which cameras should be switched on */
@@ -584,8 +582,8 @@ int RunInstrument::LaunchCam() {
     if (this->CmdLine->cam_verbose) {
       this->Cam.SetVerbose();
     }
-
-    check = this->Cam.CollectData();
+    
+    size_t check = this->Cam.CollectData();
 
     /* react if launched with errors */
     while ((check != 0) &&

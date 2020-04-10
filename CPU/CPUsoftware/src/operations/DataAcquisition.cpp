@@ -639,7 +639,7 @@ void DataAcquisition::FtpPoll(bool monitor) {
  */
 int DataAcquisition::ProcessIncomingData(std::shared_ptr<Config> ConfigOut, CmdLineInputs * CmdLine, long unsigned int main_thread, bool scurve) {
 #ifndef __APPLE__
-  int N_events = 0;
+
   int fd, wd;
   char buffer[BUF_LEN];
 
@@ -684,7 +684,7 @@ int DataAcquisition::ProcessIncomingData(std::shared_ptr<Config> ConfigOut, CmdL
     
     /* read out a set of inotify events into a buffer */
     struct inotify_event * event;
-    N_events = read(fd, buffer, BUF_LEN);
+     int N_events = read(fd, buffer, BUF_LEN);
     
     if (N_events < 0) {
       clog << "error: " << logstream::error << "unable to read from inotify file descriptor" << std::endl;

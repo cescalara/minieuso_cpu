@@ -68,8 +68,6 @@ int AnalogManager::SerialReadOut(int fd) {
   unsigned char buf[(unsigned int)(X_TOTAL_BUF_SIZE_HEADER*6)];
   unsigned char temp_buf[(unsigned int)(X_TOTAL_BUF_SIZE_HEADER*6)];
   
-  unsigned int temp_checksum = 0;
-  unsigned int buffer_checksum;
   int checksum_passed = -1;
   
   std::string needle(a, a + 4);
@@ -160,8 +158,8 @@ int AnalogManager::SerialReadOut(int fd) {
 	  }
 	
 	  /* calculate checksum */
-	  buffer_checksum = (buf[(n+(X_TOTAL_BUF_SIZE)*2 + 6)] << 8) + buf[(n + (X_TOTAL_BUF_SIZE)*2 + 7)];
-	  temp_checksum = 0;
+	  unsigned int buffer_checksum = (buf[(n+(X_TOTAL_BUF_SIZE)*2 + 6)] << 8) + buf[(n + (X_TOTAL_BUF_SIZE)*2 + 7)];
+	  unsigned int temp_checksum = 0;
 	  for (ijk = 0; ijk < (X_TOTAL_BUF_SIZE ); ijk++) {
 
 	    temp_checksum += (buf[n + ijk * 2 + 6] << 8) + buf[n + ijk * 2 + 6 + 1];
