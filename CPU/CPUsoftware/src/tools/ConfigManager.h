@@ -92,14 +92,14 @@ public:
   std::shared_ptr<Config> ConfigOut;
 
   ConfigManager();
-  ConfigManager(std::string, std::string, std::string);
+  ConfigManager(const std::string&, const std::string&, const std::string&);
   void Configure();
   bool IsParsed();
 
 private:
+  void Initialise();
   bool CopyFile(const char * SRC, const char * DEST);
   void Parse(std::string);
-
 };
 
 #endif
