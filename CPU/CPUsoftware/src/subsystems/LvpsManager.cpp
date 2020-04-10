@@ -12,6 +12,10 @@ LvpsManager::LvpsManager() {
   this->hk_status = UNDEF;
 
   /* initialise ports */
+  int i;
+  for (i = 0; i < 4; i++) {
+    this->P1Bits[i] = 0;
+  }
   
 }
 

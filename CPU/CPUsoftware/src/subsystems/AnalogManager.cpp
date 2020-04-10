@@ -8,8 +8,9 @@ AnalogManager::AnalogManager() {
   this->light_level = std::make_shared<LightLevel>();
   this->analog_acq = std::make_shared<AnalogAcq>();
   this->temperature_acq = std::make_shared<TemperatureAcq>();
+  this->current_lightlevel_status = LIGHT_UNDEF;
   
-  int i = 0, j = 0;
+  int i, j;
 
   for (i = 0; i < FIFO_DEPTH; i++) {
     for (j = 0; j < CHANNELS; j++) {
@@ -67,8 +68,6 @@ int AnalogManager::SerialReadOut(int fd) {
   unsigned char buf[(unsigned int)(X_TOTAL_BUF_SIZE_HEADER*6)];
   unsigned char temp_buf[(unsigned int)(X_TOTAL_BUF_SIZE_HEADER*6)];
   
-  unsigned int temp_checksum = 0;
-  unsigned int buffer_checksum = 0;
   int checksum_passed = -1;
   
   std::string needle(a, a + 4);
@@ -101,7 +100,7 @@ int AnalogManager::SerialReadOut(int fd) {
     
   }
 		
-  if (total_length < 0) {
+  if (total_length == 0) {
 
     printf("\n Error from read: %d: %s\n", len, std::strerror(errno));
     return(-1);
@@ -159,8 +158,8 @@ int AnalogManager::SerialReadOut(int fd) {
 	  }
 	
 	  /* calculate checksum */
-	  buffer_checksum = (buf[(n+(X_TOTAL_BUF_SIZE)*2 + 6)] << 8) + buf[(n + (X_TOTAL_BUF_SIZE)*2 + 7)];
-	  temp_checksum = 0;
+	  unsigned int buffer_checksum = (buf[(n+(X_TOTAL_BUF_SIZE)*2 + 6)] << 8) + buf[(n + (X_TOTAL_BUF_SIZE)*2 + 7)];
+	  unsigned int temp_checksum = 0;
 	  for (ijk = 0; ijk < (X_TOTAL_BUF_SIZE ); ijk++) {
 
 	    temp_checksum += (buf[n + ijk * 2 + 6] << 8) + buf[n + ijk * 2 + 6 + 1];
@@ -310,7 +309,7 @@ AnalogManager::LightLevelStatus AnalogManager::CompareLightLevel(std::shared_ptr
   
   else if (ph_avg > ConfigOut->night_light_threshold && ph_avg < ConfigOut->day_light_threshold) {
     current_lightlevel_status = AnalogManager::LIGHT_UNDEF;
-    clog << "info: " << logstream::info << "light level is BETWEEN  night_light_threshold and day_light_threshold" << std::endl;
+    clog << "info: " << logstream::info << "light level is BETWEEN night_light_threshold and day_light_threshold" << std::endl;
   }
   
   return current_lightlevel_status;

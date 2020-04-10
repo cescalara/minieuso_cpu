@@ -555,7 +555,6 @@ int RunInstrument::SelectAcqOption() {
  * up to 3 times
  */
 int RunInstrument::LaunchCam() {
-  size_t check = 0;
 
   this->Cam.n_relaunch_attempt = 0;
 
@@ -583,8 +582,8 @@ int RunInstrument::LaunchCam() {
     if (this->CmdLine->cam_verbose) {
       this->Cam.SetVerbose();
     }
-
-    check = this->Cam.CollectData();
+    
+    size_t check = this->Cam.CollectData();
 
     /* react if launched with errors */
     while ((check != 0) &&

@@ -7,7 +7,7 @@
 UsbManager::UsbManager() {
   this->num_storage_dev = N_USB_UNDEF;
   this->backup_launched = false;  
-  
+  this->storage_bus = STORAGE_BUS_NEW;
 }
 
 /**
@@ -239,7 +239,7 @@ int UsbManager::DataBackup() {
 
   std::string cmd;
   std::string log_path(LOG_DIR);
-  std::string inotify_log = "/inotify.log";
+  //std::string inotify_log = "/inotify.log";
   std::string mp_0(USB_MOUNTPOINT_0);
   std::string mp_1(USB_MOUNTPOINT_1);
 

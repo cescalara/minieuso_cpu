@@ -7,41 +7,8 @@ ConfigManager::ConfigManager () {
   this->config_file_local = CONFIG_FILE_LOCAL;
   this->config_file_usb0 = CONFIG_FILE_USB0;
   this->config_file_usb1 = CONFIG_FILE_USB1;
-  this->ConfigOut = std::make_shared<Config>();
-  
-  /* initialise struct members to -1 */
-  this->ConfigOut->cathode_voltage = -1;
-  this->ConfigOut->dynode_voltage_string = "";
-  this->ConfigOut->scurve_start = -1;
-  this->ConfigOut->scurve_step = -1;
-  this->ConfigOut->scurve_stop = -1;
-  this->ConfigOut->scurve_acc = -1;
-  this->ConfigOut->dac_level = -1;
-  this->ConfigOut->N1 = -1;
-  this->ConfigOut->N2 = -1;
-  this->ConfigOut->L2_N_BG = -1;
-  this->ConfigOut->L2_LOW_THRESH = -1;
-  this->ConfigOut->arduino_wait_period =-1;
-  this->ConfigOut->ana_sensor_num = -1;
-  this->ConfigOut->average_depth = -1;
-  this->ConfigOut->day_light_threshold = -1;
-  this->ConfigOut->night_light_threshold = -1;
-  this->ConfigOut->light_poll_time = -1;
-  this->ConfigOut->light_acq_time = -1;
-  this->ConfigOut->status_period = -1;
-  this->ConfigOut->pwr_on_delay =-1;
-  this->ConfigOut->camera_on =-1;
-  
-  /* initialise HV switch to be set by InputParser */
-  /* stored here to be easily passed around the DataAcquisition */
-  this->ConfigOut->hv_on = false;
 
-  /* initialise instrument and acquisition modes to be set by RunInstrument */
-  /* stored here to be easily passed around the DataAcquisition */
-  this->ConfigOut->instrument_mode = 0;
-  this->ConfigOut->acquisition_mode = 0;
-  this->ConfigOut->hvps_log_len = 0;
-  
+  this->Initialise();
 }
 
 /**
@@ -49,10 +16,16 @@ ConfigManager::ConfigManager () {
  * @param cfl path to the local configuration file
  * @param cf path to the configuration file to be copied over 
  */
-ConfigManager::ConfigManager (std::string cfl, std::string cf0, std::string cf1) {
+ConfigManager::ConfigManager (const std::string & cfl, const std::string & cf0, const std::string & cf1) {
   this->config_file_local = cfl;
   this->config_file_usb0 = cf0;
   this->config_file_usb1 = cf1;
+
+  this->Initialise();
+}
+
+void ConfigManager::Initialise(){
+
   this->ConfigOut = std::make_shared<Config>();
   
   /* initialise struct members to -1 */
@@ -87,9 +60,7 @@ ConfigManager::ConfigManager (std::string cfl, std::string cf0, std::string cf1)
   this->ConfigOut->instrument_mode = 0;
   this->ConfigOut->acquisition_mode = 0;
   this->ConfigOut->hvps_log_len = 0;
-
-  //  this->ConfigOut->lightlevel_status =0;
-
+  
 }
 
 /**
