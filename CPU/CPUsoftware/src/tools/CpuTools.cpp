@@ -83,7 +83,7 @@ std::string CpuTools::SpaceToUnderscore(std::string text) {
  * check if you can ping an IP address
  * @param ip_adress the IP address as a string
  */
-bool CpuTools::PingConnect(std::string ip_address) {
+bool CpuTools::PingConnect(const std::string & ip_address) {
 
   bool is_connected = false;
 
@@ -161,7 +161,7 @@ std::vector<int> CpuTools::DelimStrToVec(std::string input_string, char delim, u
  * @param val the int value to be repeated
  * @param number of times to repeat val
  */
-std::string CpuTools::BuildStr(std::string stem, std::string sep, int val, int rep) {
+std::string CpuTools::BuildStr(std::string stem, const std::string & sep, int val, int rep) {
 
   std::string output_string;
   std::stringstream ss;

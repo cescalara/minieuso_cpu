@@ -228,12 +228,6 @@ SC_PACKET * DataAcquisition::ScPktReadOut(std::string sc_file_name, std::shared_
 
   clog << "info: " << logstream::info << "reading out the file " << sc_file_name << std::endl;
   
-  ptr_scfile = fopen(kScFileName, "rb");
-  if (!ptr_scfile) {
-    clog << "error: " << logstream::error << "cannot open the file " << sc_file_name << std::endl;
-    return NULL;
-  }
-  
   /* prepare the scurve packet */
   sc_packet->sc_packet_header.header = CpuTools::BuildCpuHeader(SC_PACKET_TYPE, SC_PACKET_VER);
   sc_packet->sc_packet_header.pkt_size = sizeof(SC_PACKET);
@@ -598,7 +592,7 @@ void DataAcquisition::FtpPoll(bool monitor) {
       
   /* convert stringstream to char * */
   ftp_clear_str = conv1.str();
-  ftp_clear = ftp_cmd_str.c_str();
+  ftp_clear = ftp_clear_str.c_str();
 
   output = CpuTools::CommandToStr(ftp_clear);
  
@@ -645,7 +639,7 @@ void DataAcquisition::FtpPoll(bool monitor) {
  */
 int DataAcquisition::ProcessIncomingData(std::shared_ptr<Config> ConfigOut, CmdLineInputs * CmdLine, long unsigned int main_thread, bool scurve) {
 #ifndef __APPLE__
-  int N_events, event_number = 0;
+  int N_events = 0;
   int fd, wd;
   char buffer[BUF_LEN];
 
@@ -697,7 +691,7 @@ int DataAcquisition::ProcessIncomingData(std::shared_ptr<Config> ConfigOut, CmdL
     }
 
     /* Loop through the events and read out the corresponding files */
-    event_number = 0;
+    int event_number = 0;
     while (event_number < N_events) {
 
       event = (struct inotify_event *) &buffer[event_number];
@@ -926,9 +920,10 @@ int DataAcquisition::GetHvInfo(std::shared_ptr<Config> ConfigOut, CmdLineInputs 
   
   /* get the filename */
   DIR * dir;
-  struct dirent * ent;
   if ((dir = opendir(data_str.c_str())) != NULL) {
 
+    struct dirent * ent;
+    
     /* check all files within directory */
     while ((ent = readdir(dir)) != NULL) {
 

@@ -156,7 +156,7 @@ int ZynqManager::SendTelnet(std::string send_msg, int sockfd) {
  * @param print if true, received message is printed
  * returns the recieved telnet response
  */
-std::string ZynqManager::Telnet(std::string send_msg, int sockfd, bool print) {
+std::string ZynqManager::Telnet(const std::string & send_msg, int sockfd, bool print) {
 
   std::string status_string = "";
   
@@ -364,7 +364,7 @@ int ZynqManager::Reboot() {
  * Set the ASIC DAC10 values from a text file provided by the USB.
  * Adapted from C. Giammanco's script to use socket programming instead of netcat.
  */
-int ZynqManager::SetMatrixDac10(std::string usb_mountpoint, bool debug) {
+int ZynqManager::SetMatrixDac10(const std::string &usb_mountpoint, bool debug) {
 
   std::string dac10_filename;
   std::vector<int> dac10_values;
@@ -904,8 +904,6 @@ std::string ZynqManager::GetZynqVer() {
  * Hide the corrupted Pixels give in DeadPixelMask.txt
  */
 int ZynqManager::HidePixels() {
-
-  int sockfd;
   
   clog << "info: " << logstream::info << "Hiding corrupted pixels" << std::endl;
   
@@ -916,7 +914,9 @@ int ZynqManager::HidePixels() {
   int n_max=mask.c2send.size();
   
   if(n_max>0){
-    
+
+    int sockfd;
+
     sockfd = ConnectTelnet();
     
     for(int i=0;i<n_max;i++){

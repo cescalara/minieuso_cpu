@@ -555,7 +555,8 @@ int RunInstrument::SelectAcqOption() {
  * up to 3 times
  */
 int RunInstrument::LaunchCam() {
-  size_t check = 0;
+
+  size_t check;
 
   this->Cam.n_relaunch_attempt = 0;
 

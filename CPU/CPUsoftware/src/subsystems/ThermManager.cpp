@@ -81,8 +81,8 @@ TempAcq * ThermManager::ParseDigitempOutput(std::string input_string) {
   TempAcq * temperature_result = new TempAcq();
 
   /* check for null output */
-  int k = 0;
   if (input_string == "output_error") {
+    int k;
     for (k = 0; k < N_CHANNELS_THERM; k++) {
       temperature_result->val[k] = 99;
     }    

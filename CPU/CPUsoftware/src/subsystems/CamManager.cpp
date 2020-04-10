@@ -145,7 +145,6 @@ int CamManager::CollectData() {
 int CamManager::KillCamAcq() {
 
   std::string output;
-  const char * ps_cmd;
   std::stringstream conv;
   
   clog << "info: " << logstream::info << "killing the camera acquisition, if possible" << std::endl;
@@ -153,6 +152,8 @@ int CamManager::KillCamAcq() {
   /* check camera launch successful, ie. thread runnning */
   if (this->launch_running) {
 
+    const char * ps_cmd;
+  
     /* look for multiplecam process */
     conv << "ps | grep multiplecam" << std::endl;
     ps_cmd = conv.str().c_str();
