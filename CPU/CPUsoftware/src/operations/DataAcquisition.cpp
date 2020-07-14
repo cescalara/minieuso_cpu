@@ -155,11 +155,13 @@ int DataAcquisition::CreateCpuRun(RunType run_type, std::shared_ptr<Config> Conf
     this->CpuFile = std::make_shared<SynchronisedFile>(this->cpu_hv_file_name);
     cpu_file_header->header = CpuTools::BuildCpuHeader(HV_FILE_TYPE, HV_FILE_VER);
     break;
+    /*
   case HK:
     this->cpu_hk_file_name = CreateCpuRunName(HK, ConfigOut, CmdLine);
     this->CpuFile = std::make_shared<SynchronisedFile>(this->cpu_hk_file_name);
     cpu_file_header->header = CpuTools::BuildCpuHeader(HK_FILE_TYPE, HK_FILE_VER);
     break;
+    */
   }
   this->RunAccess = new Access(this->CpuFile);
 
@@ -1115,7 +1117,7 @@ int DataAcquisition::CollectData(ZynqManager * Zynq, std::shared_ptr<Config> Con
 int DataAcquisition::ProcessHousekeeping(std::shared_ptr<Config> ConfigOut, CmdLineInputs * CmdLine){
 
   /* Create a new HK run file */
-  CreateCpuRun(HK, ConfigOut, CmdLine);
+  CreateCpuRun(CPU, ConfigOut, CmdLine);
 
   /* Loop over photodiode data collection */
   std::unique_lock<std::mutex> lock(this->_m_switch);

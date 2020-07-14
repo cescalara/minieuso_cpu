@@ -99,7 +99,7 @@ typedef struct
 #define CPU_FILE_TYPE 'C'
 #define SC_FILE_TYPE 'S'  
 #define HV_FILE_TYPE 'H'
-#define HK_FILE_TYPE 'K'
+//#define HK_FILE_TYPE 'K'
 #define SC_FILE_VER 1
 #define HV_FILE_VER 1
 #define CPU_FILE_VER 1
