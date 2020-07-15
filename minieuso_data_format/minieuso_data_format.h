@@ -99,7 +99,6 @@ typedef struct
 #define CPU_FILE_TYPE 'C'
 #define SC_FILE_TYPE 'S'  
 #define HV_FILE_TYPE 'H'
-//#define HK_FILE_TYPE 'K'
 #define SC_FILE_VER 1
 #define HV_FILE_VER 1
 #define CPU_FILE_VER 1
@@ -111,14 +110,12 @@ typedef struct
 
 #define THERM_PACKET_TYPE 'T'
 #define HK_PACKET_TYPE 'H'
-#define HK_EXT_PACKET_TYPE 'E'
 #define HV_PACKET_TYPE 'V'
 #define SC_PACKET_TYPE 'S'
 #define CPU_PACKET_TYPE 'P'
 #define TRAILER_PACKET_TYPE 'Q'
 #define THERM_PACKET_VER 1
 #define HK_PACKET_VER 1
-#define HK_EXT_PACKET_VER 1
 #define HV_PACKET_VER 1
 #define SC_PACKET_VER 2
 #define CPU_PACKET_VER 2
