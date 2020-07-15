@@ -715,6 +715,9 @@ int RunInstrument::PollInstrument() {
 	this->SetInstMode(RunInstrument::NIGHT);
 	this->Data.Notify();
 
+	/* To handle new photodiode daytime readout */
+	this->Daq.Notify();
+	
       }
       break;
 
