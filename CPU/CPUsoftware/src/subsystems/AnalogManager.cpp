@@ -336,9 +336,10 @@ int AnalogManager::ProcessAnalogData(std::shared_ptr<Config> ConfigOut) {
     std::unique_lock<std::mutex> lock(m);
     this->cond_var.wait(lock, [this]{return cpu_file_is_set == true;});
 
-    if (this->temperature_acq != NULL) {
-      WriteThermPkt();
-    }
+    /* Comment to debug */
+    //if (this->temperature_acq != NULL) {
+    //  WriteThermPkt();
+    //}
        
     sleep(ConfigOut->light_acq_time);
 
@@ -448,6 +449,7 @@ float AnalogManager::ConvertToTemp(char data[9]) {
 
  return celsius;
 }
+
 
 /*
  * write the temperature packet to file 

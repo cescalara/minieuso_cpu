@@ -461,6 +461,8 @@ int DataAcquisition::WriteHkPkt(HK_PACKET * hk_packet) {
 
   static unsigned int pkt_counter = 0;
 
+  clog << "info: " << logstream::info << "writing new photodiode packet to " << this->RunAccess->path << std::endl;
+  
   hk_packet->hk_packet_header.pkt_num = pkt_counter;
 
   this->RunAccess->WriteToSynchFile<HK_PACKET *> (hk_packet,
@@ -1131,9 +1133,9 @@ int DataAcquisition::ProcessHousekeeping(std::shared_ptr<Config> ConfigOut, CmdL
 		
     
     /* check for NULL packets */
-    if (hk_packet != nullptr) {
+    if (hk_packet != nullptr && hk_packet != NULL) {
       
-      /* generate cpu packet and append to file */
+      /* generate hk packet and append to file */
       WriteHkPkt(hk_packet);
     }
 
