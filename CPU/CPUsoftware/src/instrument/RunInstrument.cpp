@@ -715,6 +715,9 @@ int RunInstrument::PollInstrument() {
 	this->SetInstMode(RunInstrument::NIGHT);
 	this->Data.Notify();
 
+	/* To handle new photodiode daytime readout */
+	this->Daq.Notify();
+	
       }
       break;
 
@@ -1010,11 +1013,11 @@ int RunInstrument::DayOperations() {
   std::cout << "entering DAY mode..." << std::endl;
 
   /* reset mode switching */
-  this->Data.Reset();
-
-  /* data reduction runs until signal to switch mode */
-  this->Data.Start();
-
+  this->Daq.Reset();
+  
+  /* Housekeeping acquisition runs until signal to switch mode */
+  this->Daq.CollectHousekeeping(this->ConfigOut, this->CmdLine);
+    
   return 0;
 }
 

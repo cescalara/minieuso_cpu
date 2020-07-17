@@ -9,7 +9,8 @@ DataAcquisition::DataAcquisition() {
   this->cpu_main_file_name = "";
   this->cpu_sc_file_name = "";    
   this->cpu_hv_file_name = "";
-
+  this->cpu_hk_file_name = "";
+  
   /* usb storage devices */
   this->usb_num_storage_dev = 0;
 
@@ -59,6 +60,9 @@ std::string DataAcquisition::CreateCpuRunName(RunType run_type, std::shared_ptr<
     time_str = "/CPU_RUN_HV__%Y_%m_%d__%H_%M_%S"
       + CmdLine->comment_fn + ".dat";
     break;
+  case HK:
+    time_str = "/CPU_RUN_HK__%Y_%m_%d__%H_%M_%S"
+      + CmdLine->comment_fn + ".dat";
   }
   
   std::string cpu_str;
@@ -151,6 +155,13 @@ int DataAcquisition::CreateCpuRun(RunType run_type, std::shared_ptr<Config> Conf
     this->CpuFile = std::make_shared<SynchronisedFile>(this->cpu_hv_file_name);
     cpu_file_header->header = CpuTools::BuildCpuHeader(HV_FILE_TYPE, HV_FILE_VER);
     break;
+    /*
+  case HK:
+    this->cpu_hk_file_name = CreateCpuRunName(HK, ConfigOut, CmdLine);
+    this->CpuFile = std::make_shared<SynchronisedFile>(this->cpu_hk_file_name);
+    cpu_file_header->header = CpuTools::BuildCpuHeader(HK_FILE_TYPE, HK_FILE_VER);
+    break;
+    */
   }
   this->RunAccess = new Access(this->CpuFile);
 
@@ -185,7 +196,7 @@ int DataAcquisition::CreateCpuRun(RunType run_type, std::shared_ptr<Config> Conf
  * this closes the run and runs a CRC calculation which is 
  * the stored in the file trailer and appended
  */
-int DataAcquisition::CloseCpuRun(RunType run_type) {
+int DataAcquisition::CloseCpuRun() {
 
   CpuFileTrailer * cpu_file_trailer = new CpuFileTrailer();
   
@@ -441,7 +452,26 @@ HK_PACKET * DataAcquisition::AnalogPktReadOut() {
   return hk_packet;
 }
 
+/**
+ * write a single HK_PACKET to file.
+ * @param hk_packet the HK data acquired from the analog board
+ * asynchronous write to the HK file are handled with the SynchronisedFile class
+ */
+int DataAcquisition::WriteHkPkt(HK_PACKET * hk_packet) {
 
+  static unsigned int pkt_counter = 0;
+
+  clog << "info: " << logstream::info << "writing new photodiode packet to " << this->RunAccess->path << std::endl;
+  
+  hk_packet->hk_packet_header.pkt_num = pkt_counter;
+
+  this->RunAccess->WriteToSynchFile<HK_PACKET *> (hk_packet,
+						  SynchronisedFile::CONSTANT);
+  
+  delete hk_packet;
+  pkt_counter++;
+  return 0;
+}
 
 /**
  * write the CPU_PACKET to the current CPU file 
@@ -725,7 +755,7 @@ int DataAcquisition::ProcessIncomingData(std::shared_ptr<Config> ConfigOut, CmdL
 	    
 		/* new run file every RUN_SIZE packets */
 		if (packet_counter == RUN_SIZE) {
-		  CloseCpuRun(CPU);
+		  CloseCpuRun();
 	      
 		  /* reset the packet counter */
 		  packet_counter = 0;
@@ -829,7 +859,7 @@ int DataAcquisition::ProcessIncomingData(std::shared_ptr<Config> ConfigOut, CmdL
 	      /* print update to screen */
 	      printf("The scurve %s was read out\n", sc_file_name.c_str());
 	    
-	      CloseCpuRun(SC);
+	      CloseCpuRun();
 
 	      /* delete upon completion */
 	      if (!CmdLine->keep_zynq_pkt) {
@@ -1069,7 +1099,7 @@ int DataAcquisition::CollectData(ZynqManager * Zynq, std::shared_ptr<Config> Con
 
   /* close the CPU file, if it has been opened */
   if (this->CpuFile->IsOpen()) {
-    CloseCpuRun(CPU);
+    CloseCpuRun();
   }
   
   /* stop Zynq acquisition */
@@ -1082,6 +1112,67 @@ int DataAcquisition::CollectData(ZynqManager * Zynq, std::shared_ptr<Config> Con
   return 0;
 }
 
+/**
+ * Used by DataAcquisition::CollectHousekeeping() to gather and write HK_PACKETs 
+ * containing photodiode data. 
+ */
+int DataAcquisition::ProcessHousekeeping(std::shared_ptr<Config> ConfigOut, CmdLineInputs * CmdLine){
+
+  /* Create a new HK run file */
+  CreateCpuRun(CPU, ConfigOut, CmdLine);
+
+  /* Loop over photodiode data collection */
+  std::unique_lock<std::mutex> lock(this->_m_switch);
+  /* enter data processing loop while instrument mode switching not requested */
+  while(!this->_cv_switch.wait_for(lock,
+				   std::chrono::milliseconds(WAIT_PERIOD),
+				   [this] { return this->_switch; })) { 
+
+    /* Generate packets */
+    HK_PACKET * hk_packet = AnalogPktReadOut();
+		
+    
+    /* check for NULL packets */
+    if (hk_packet != nullptr && hk_packet != NULL) {
+      
+      /* generate hk packet and append to file */
+      WriteHkPkt(hk_packet);
+    }
+
+    sleep(5);
+  } 
+
+  /* Exit */
+  return 0;
+}
+
+/**
+ * Used in daytime acquisition to acquire photodiode and thermistor data.
+ * These two datasets are gathered independently on different threads, 
+ * even though they are both read out through the Analog board. This 
+ * reflects an older hardware design where this was not the case, and 
+ * is useful as we generall want photodiode data much more regularly than 
+ * thermistor data. 
+ */
+int DataAcquisition::CollectHousekeeping(std::shared_ptr<Config> ConfigOut, CmdLineInputs * CmdLine){
+
+  /* collect data from the photodiodes */
+  std::thread photo(&DataAcquisition::ProcessHousekeeping, this, ConfigOut, CmdLine);
+  
+  /* collect data from the thermistors */
+  std::thread therm(&AnalogManager::ProcessAnalogData, this->Analog, ConfigOut);
+
+  /* wait for thread to join */
+  therm.join();
+  photo.join();
+  
+  /* only reached for instrument mode change */
+  if (this->CpuFile->IsOpen()) {
+    CloseCpuRun();
+  }
+  
+  return 0;
+}
 
 /** 
  * function to generate and write a fake Zynq packet 

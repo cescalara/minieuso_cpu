@@ -1,4 +1,5 @@
 #include "DataReduction.h"
+#include "DataAcquisition.h"
 
 /** 
  * constructor 
@@ -30,6 +31,9 @@ void DataReduction::Start() {
  */
 int DataReduction::RunDataReduction() {
 
+  /* Open a new run file */
+
+  
   /* enter loop while instrument mode switching not requested */
   std::unique_lock<std::mutex> lock(this->_m_switch); 
   while(!this->_cv_switch.wait_for(lock,
@@ -37,9 +41,17 @@ int DataReduction::RunDataReduction() {
 				   [this] { return this->_switch; } )) {   
 
     std::cout << "running data reduction loop..." << std::endl;
+
+    /* Read photodiodes */
+
+    /* Store in file */
+  
     sleep(1);
     
   }
+
+
+  /* Close run file */
   
   return 0;
 }

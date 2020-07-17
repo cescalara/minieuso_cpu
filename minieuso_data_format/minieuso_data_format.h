@@ -19,8 +19,8 @@
  * software definitions
  */
 
-#define VERSION 8.8
-#define VERSION_DATE_STRING "09/03/2020"
+#define VERSION 9.1
+#define VERSION_DATE_STRING "17/07/2020"
 
 /*
  * instrument definitions 
@@ -98,11 +98,11 @@ typedef struct
 
 #define CPU_FILE_TYPE 'C'
 #define SC_FILE_TYPE 'S'  
-#define HV_FILE_TYPE 'H'  
+#define HV_FILE_TYPE 'H'
 #define SC_FILE_VER 1
 #define HV_FILE_VER 1
 #define CPU_FILE_VER 1
-
+#define HK_FILE_VER 1
 
 /*
  * packet types 
