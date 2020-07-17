@@ -20,7 +20,7 @@
  */
 
 #define VERSION 9.1
-#define VERSION_DATE_STRING "15/07/2020"
+#define VERSION_DATE_STRING "17/07/2020"
 
 /*
  * instrument definitions 
