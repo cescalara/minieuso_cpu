@@ -358,12 +358,13 @@ ZYNQ_PACKET * DataAcquisition::ZynqPktReadOut(std::string zynq_file_name, std::s
   for (int i = 0; i < ConfigOut->N1; i++) {
     check = fread(zynq_d1_packet_holder, sizeof(*zynq_d1_packet_holder), 1, ptr_zfile);
     if (check != 1) {
-      std::cout << "ERROR: fread from " << zynq_file_name << " failed" << std::endl;
-      std::cout << "Check: " << check << std::endl;
-      std::cout << "feof: " << feof(ptr_zfile) << std::endl;
-      std::cout << "ferror: " << ferror(ptr_zfile) << std::endl;
+      std::cout << "ERROR: fread from " << zynq_file_name << " failed for D1 data" << std::endl;
   
-      clog << "error: " << logstream::error << "fread from " << zynq_file_name << " failed" << std::endl;
+      clog << "error: " << logstream::error << "fread from " << zynq_file_name << " failed for D1 data" << std::endl;
+      clog << "error: " << logstream::error << "fread returned " << check << std::endl;
+      clog << "error: " << logstream::error << "feof gives " << feof(ptr_zfile) << std::endl;
+      clog << "error: " << logstream::error << "ferror gives " << ferror(ptr_zfile) << std::endl;
+  
       return nullptr;
     }
     zynq_packet->level1_data.push_back(*zynq_d1_packet_holder);
@@ -373,13 +374,13 @@ ZYNQ_PACKET * DataAcquisition::ZynqPktReadOut(std::string zynq_file_name, std::s
   for (int i = 0; i < ConfigOut->N2; i++) {
     check = fread(zynq_d2_packet_holder, sizeof(*zynq_d2_packet_holder), 1, ptr_zfile);
     if (check != 1) {
-      std::cout << "ERROR: fread from " << zynq_file_name << " failed" << std::endl;
-      std::cout << "Check: " << check << std::endl;
-      std::cout << "feof: " << feof(ptr_zfile) << std::endl;
-      std::cout << "ferror: " << ferror(ptr_zfile) << std::endl;
+      std::cout << "ERROR: fread from " << zynq_file_name << " failed for D2 data" << std::endl;
   
-      clog << "error: " << logstream::error << "fread from " << zynq_file_name << " failed" << std::endl;
-
+      clog << "error: " << logstream::error << "fread from " << zynq_file_name << " failed for D2 data" << std::endl;
+      clog << "error: " << logstream::error << "fread returned " << check << std::endl;
+      clog << "error: " << logstream::error << "feof gives " << feof(ptr_zfile) << std::endl;
+      clog << "error: " << logstream::error << "ferror gives " << ferror(ptr_zfile) << std::endl;
+  
       return nullptr;
     }
     zynq_packet->level2_data.push_back(*zynq_d2_packet_holder);
@@ -388,11 +389,13 @@ ZYNQ_PACKET * DataAcquisition::ZynqPktReadOut(std::string zynq_file_name, std::s
   /* data level D3 */
   check = fread(&zynq_packet->level3_data, sizeof(zynq_packet->level3_data), 1, ptr_zfile);
   if (check != 1) {
-    std::cout << "ERROR: fread from " << zynq_file_name << " failed" << std::endl;
-    std::cout << "Check: " << check << std::endl;
-    std::cout << "feof: " << feof(ptr_zfile) << std::endl;
-    std::cout << "ferror: " << ferror(ptr_zfile) << std::endl;
-    clog << "error: " << logstream::error << "fread from " << zynq_file_name << " failed" << std::endl;
+    std::cout << "ERROR: fread from " << zynq_file_name << " failed for D3 data" << std::endl;
+    
+    clog << "error: " << logstream::error << "fread from " << zynq_file_name << " failed for D3 data" << std::endl;
+    clog << "error: " << logstream::error << "fread returned " << check << std::endl;
+    clog << "error: " << logstream::error << "feof gives " << feof(ptr_zfile) << std::endl;
+    clog << "error: " << logstream::error << "ferror gives " << ferror(ptr_zfile) << std::endl;
+  
     return nullptr;
   }
   
