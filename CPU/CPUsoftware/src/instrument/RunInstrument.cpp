@@ -1095,8 +1095,11 @@ void RunInstrument::Start() {
   this->MonitorInstrument();
 
   /* launch background process to run status checker */
-  this->StatusChecker();
-
+  /* only if not an S-curve acquisition */
+  if (!this->CmdLine->sc_on) {
+    this->StatusChecker();
+  }
+  
   /* enable signal handling */
   signal(SIGINT, SignalHandler);
 
