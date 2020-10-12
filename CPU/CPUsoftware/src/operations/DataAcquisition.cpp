@@ -1002,10 +1002,16 @@ int DataAcquisition::CollectSc(ZynqManager * Zynq, std::shared_ptr<Config> Confi
     std::unique_lock<std::mutex> lock(Zynq->m_zynq);  
     Zynq->Scurve(ConfigOut->scurve_start, ConfigOut->scurve_step, ConfigOut->scurve_stop, ConfigOut->scurve_acc);
   }
+
+  // Debug
+  clog << "info: " << logstream::info << "launching FtpPoll() from CollectSc()" << std::endl;
   
   /* FTP polling */
   std::thread ftp_poll (&DataAcquisition::FtpPoll, this, false);
 
+  // Debug
+  clog << "info: " << logstream::info << "launching ProcessInocmingData() from CollectSc()" << std::endl;
+  
   /* collect the data */
   std::thread collect_data (&DataAcquisition::ProcessIncomingData, this, ConfigOut, CmdLine, main_thread, true);
 
