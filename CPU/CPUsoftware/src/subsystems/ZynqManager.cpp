@@ -657,7 +657,7 @@ bool ZynqManager::CheckScurve(int sockfd) {
     scurve_status = true;
   }
   else {
-    clog << "error: " << logstream::error << "bad socket in ZynqManager::CheckScurve()" << std::endl;
+    clog << "info: " << logstream::info << "Update ZynqManager::CheckScurve(), Scurve not yet complete" << std::endl;
     
   }
   
