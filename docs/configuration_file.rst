@@ -24,8 +24,8 @@ The following parameters can be set in the configuration file:
 * ``AVERAGE_DEPTH``: Depth of analog acquisitions to calculate an average over (an integer between 1 and 3)
 * ``DAY_LIGHT_THRESHOLD``: Minimum light threshold for day mode 
 * ``NIGHT_LIGHT_THRESHOLD``: Maximum light threshold for night mode 
-* ``LIGHT_POLL_TIME``: Period in *seconds* for updating the light level and thermistor readings
-* ``LIGHT_ACQ_TIME``: Period in *seconds* for reading out a :cpp:class:`THERM_PACKET` 
+* ``LIGHT_POLL_TIME``: Period in *seconds* for updating the light level and thermistor readings (should be > 1 to avoid overloading CPU)
+* ``LIGHT_ACQ_TIME``: Period in *seconds* for reading out a :cpp:class:`THERM_PACKET` (should be > 1 to avoid overloading CPU)
 * ``STATUS_PERIOD``: Period in *seconds* for printing a general status check to the screen and logs
 * ``PWR_ON_DELAY``: Delay in *seconds* between switching on the Zynq and the high voltage
 * ``CAMERA_ON``: Select which camera to launch acquisition with (11 <=> both, 10 <=> NIR only, 01 <=> VIS only) 
