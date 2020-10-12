@@ -1005,7 +1005,7 @@ int DataAcquisition::CollectSc(ZynqManager * Zynq, std::shared_ptr<Config> Confi
   
   /* FTP polling */
   std::thread ftp_poll (&DataAcquisition::FtpPoll, this, false);
-  
+
   /* collect the data */
   std::thread collect_data (&DataAcquisition::ProcessIncomingData, this, ConfigOut, CmdLine, main_thread, true);
 
@@ -1015,7 +1015,7 @@ int DataAcquisition::CollectSc(ZynqManager * Zynq, std::shared_ptr<Config> Confi
   /* join threads */
   collect_data.join();
   ftp_poll.join();
-  
+    
 #endif /* __APPLE__ */
   return 0;
 }

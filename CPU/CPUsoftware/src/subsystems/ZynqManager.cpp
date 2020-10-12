@@ -653,11 +653,13 @@ bool ZynqManager::CheckScurve(int sockfd) {
   size_t noacq_found = status_string.find("GatheringInProgress=0");
   if (noacq_found != std::string::npos) {
 
+    clog << "info: " << logstream::info << "update ZynqManager::CheckScurve(), Scurve completed!" << std::endl;
+    
     /* scurve gathering is done */
     scurve_status = true;
   }
   else {
-    clog << "info: " << logstream::info << "Update ZynqManager::CheckScurve(), Scurve not yet complete" << std::endl;
+    clog << "info: " << logstream::info << "update ZynqManager::CheckScurve(), Scurve not yet complete..." << std::endl;
     
   }
   
