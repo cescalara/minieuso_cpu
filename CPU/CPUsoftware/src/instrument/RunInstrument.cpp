@@ -967,35 +967,39 @@ int RunInstrument::NightOperations() {
     HvpsSwitch();
   }
 
-  /* reboot the Zynq */
-  clog << "info: " << logstream::info << "rebooting the Zynq system" << std::endl;
-  std::cout << "rebooting the Zynq system..." << std::endl;
-  {
-    std::unique_lock<std::mutex> lock(this->Zynq.m_zynq);
-    this->Zynq.Reboot();
-  }
-
-  /* wait for telnet connection */
-  clog << "info: " << logstream::info << "waiting for boot" << std::endl;
-  std::cout << "waiting for boot..." << std::endl;
-  this->CheckStatus();
-
-  /* setup the Zynq */
-  clog << "info: " << logstream::info << "setting up Zynq with DAC 10 tables and trigger mask" << std::endl; 
-  std::string usb_str(USB_MOUNTPOINT_0);
-  {
-    std::unique_lock<std::mutex> lock(this->Zynq.m_zynq);
-    this->Zynq.Setup(usb_str);
-  }
-
-  /* set hidden pixels */
-  if (this->CmdLine->hide_pixel == true) {
+  /* only reboot & reset the Zynq if not an S-curve acquisition */
+  if (!this->CmdLine->sc_on) {
+    
+    /* reboot the Zynq */
+    clog << "info: " << logstream::info << "rebooting the Zynq system" << std::endl;
+    std::cout << "rebooting the Zynq system..." << std::endl;
     {
       std::unique_lock<std::mutex> lock(this->Zynq.m_zynq);
-      this->Zynq.HidePixels();
+      this->Zynq.Reboot();
+    }
+
+    /* wait for telnet connection */
+    clog << "info: " << logstream::info << "waiting for boot" << std::endl;
+    std::cout << "waiting for boot..." << std::endl;
+    this->CheckStatus();
+
+    /* setup the Zynq */
+    clog << "info: " << logstream::info << "setting up Zynq with DAC 10 tables and trigger mask" << std::endl; 
+    std::string usb_str(USB_MOUNTPOINT_0);
+    {
+      std::unique_lock<std::mutex> lock(this->Zynq.m_zynq);
+      this->Zynq.Setup(usb_str);
+    }
+
+    /* set hidden pixels */
+    if (this->CmdLine->hide_pixel == true) {
+      {
+	std::unique_lock<std::mutex> lock(this->Zynq.m_zynq);
+	this->Zynq.HidePixels();
+      }
     }
   }
-
+  
   return 0;
 }
 
