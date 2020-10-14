@@ -43,6 +43,13 @@ The CPU controls the HV sent to the PMTs via the Zynq board.
 * To check the current status, use ``mecontrol -check_status``
 * If an acquisition with HV is interrupted using ``CTRL-C``, the HV will be switched off automatically
 
+* Use of ``dac10.txt`` to set individual ``-asicdac`` values for each PMT
+
+  * The ``-asicdac`` flag or ``DAC_LEVEL`` entry in the configuration file can be used to set the same DAC level for all PMTS
+
+  * To set individual values, the ``dac10.txt`` file can be placed in ``automated_boot/dac10.txt`` which the software looks for under ``USB_MOUNTPOINT_0`` set in ``UsbManager.h``
+
+  * The format of this file is a 6x6 grid of numbers separated by single spaces and newlines - an example can be found in ``CPU/dac_setting/dac10.txt`` in the main code repo 
   
 Control of the low voltage power supply (LVPS)
 ----------------------------------------------
