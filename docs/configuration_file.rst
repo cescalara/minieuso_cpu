@@ -13,8 +13,8 @@ The following parameters can be set in the configuration file:
 * ``SCURVE_START``: The DAC pulse threshold at which to start S-curve acquisition (an integer between 0 and 1023) 
 * ``SCURVE_STEP``: The DAC step to take in sweeping the pulse threshold in an S-curve (an integer between 0 and 1023)
 * ``SCURVE_STOP``: The DAC pulse threshold at which to stop S-curve acquisition (an integer between 0 and 1023)
-* ``SCURVE_ACC``: The number of frames to average over during each step of the S-curve acquisition (an integer between 1 aand 999999)
-* ``DAC_LEVEL``: The DAC pulse threshold to use during standard data acquisition - usually set by looking at S-curves (an integer between 0 and 1023)
+* ``SCURVE_ACC``: The number of frames to average over during each step of the S-curve acquisition (an integer between 1 and 999999)
+* ``DAC_LEVEL``: The DAC pulse threshold to use during standard data acquisition - usually set by looking at S-curves (an integer between 0 and 1023) **NB: if you want the DAC level to be set individually for all PMTs by the dac10.txt table, set this parameter to -99**
 * ``N1``: Number of level 1 (D1) data packets to be read out by the Zynq (an integer between 1 and 8)
 * ``N2``: Number of level 2 (D2) data packets to be read out by the Zynq (an integer between 1 and 8)
 * ``L2_N_BG``: Level 2 trigger - number of times above background level to set threshold (an integer between 2 and max value if unsigned int)

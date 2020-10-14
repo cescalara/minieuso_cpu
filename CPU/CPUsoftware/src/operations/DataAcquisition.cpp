@@ -582,23 +582,28 @@ void DataAcquisition::FtpPoll(bool monitor) {
   const char * ftp_cmd = "";
   std::string ftp_cmd_str;
 
-  std::stringstream conv1;
   std::stringstream conv2;
 
-  /* clear the server */
-  clog << "info: " << logstream::info << "clearing old files from FTP server" << std::endl;
+  if (monitor) {
 
-  /* build the command */
-  conv1 << "lftp -u minieusouser,minieusopass -e "
-       << "\"set ftp:passive-mode off;mrm *;quit\""
-       << " 192.168.7.10" << "> /dev/null 2>&1" << std::endl;
+    std::stringstream conv1;
+    
+    /* clear the server */
+    clog << "info: " << logstream::info << "clearing old files from FTP server" << std::endl;
+
+    /* build the command */
+    conv1 << "lftp -u minieusouser,minieusopass -e "
+	  << "\"set ftp:passive-mode off;mrm *;quit\""
+	  << " 192.168.7.10" << "> /dev/null 2>&1" << std::endl;
       
-  /* convert stringstream to char * */
-  ftp_clear_str = conv1.str();
-  ftp_clear = ftp_clear_str.c_str();
+    /* convert stringstream to char * */
+    ftp_clear_str = conv1.str();
+    ftp_clear = ftp_clear_str.c_str();
 
-  output = CpuTools::CommandToStr(ftp_clear);
- 
+    output = CpuTools::CommandToStr(ftp_clear);
+
+  }
+  
   /* start FTP polling */
   clog << "info: " << logstream::info << "starting FTP server polling" << std::endl;
   
@@ -1002,19 +1007,32 @@ int DataAcquisition::CollectSc(ZynqManager * Zynq, std::shared_ptr<Config> Confi
     std::unique_lock<std::mutex> lock(Zynq->m_zynq);  
     Zynq->Scurve(ConfigOut->scurve_start, ConfigOut->scurve_step, ConfigOut->scurve_stop, ConfigOut->scurve_acc);
   }
-  
-  /* FTP polling */
-  std::thread ftp_poll (&DataAcquisition::FtpPoll, this, false);
+
+  // Debug
+  clog << "info: " << logstream::info << "launching ProcessInocmingData() from CollectSc()" << std::endl;
   
   /* collect the data */
   std::thread collect_data (&DataAcquisition::ProcessIncomingData, this, ConfigOut, CmdLine, main_thread, true);
 
+  // Debug
+  clog << "info: " << logstream::info << "launching FtpPoll() from CollectSc()" << std::endl;
+  std::cout << "Now polling FTP server, please wait..." << std::endl; 
+    
+  /* FTP polling */
+  std::thread ftp_poll (&DataAcquisition::FtpPoll, this, false);
+  ftp_poll.join();
+
+  clog << "info: " << logstream::info << "signalling Scurve completion to ProcessIncomingData()" << std::endl;
+  std::cout << "Signalling Scurve completion..." << std::endl; 
+  
   /* signal that scurve is done */
   this->SignalScurveDone();
+
+  clog << "info: " << logstream::info << "waiting for ProcessIncomingData() to join" << std::endl;
+  std::cout << "Waiting for data collection to complete..." << std::endl; 
   
-  /* join threads */
+  /* join remaining thread */
   collect_data.join();
-  ftp_poll.join();
   
 #endif /* __APPLE__ */
   return 0;
