@@ -7,6 +7,8 @@ General
 * ``mecontrol -help`` show a list of all the command line options
 * ``mecontrol -ver`` show the version info
 * ``mecontrol -db`` run a debug program for diagnostic tests of all subsystems
+
+**NB: the use of command line arguments will always override the corresponding values specified in the configuration file**. This is beacsue command line use is intended for testing in the lab, whereas the configuration file specifies these values more robustly for automated use on the ISS. 
   
 
 Control of the high voltage (HV)
@@ -34,7 +36,7 @@ The CPU controls the HV sent to the PMTs via the Zynq board.
   * the flag ``-dv <X>`` sets the dynode voltage to X, where X is the DAC between 0 and 4096 
   * the flag ``-dvr <X>`` sets the dynode voltage to X, where X is the voltage in VOLTS between 0 and 1100
   * the conversion between this number ``<X>`` and a voltage is ``<X>/4096 * 2.44 * 466``, ie. ``DAC/maxDAC * maxDAC_voltage * 466``
-  * the flag ``-asicdac <Y>`` sets the ASIC dac level, or the point in an S-curve that we want to use to acquire data (should be in the S-curve plateau)
+  * the flag ``-asicdac <Y>`` sets the ASIC dac level, or the point in an S-curve that we want to use to acquire data (should be in the S-curve plateau), this will override the ``DAC_LEVEL`` set in the configuration file
   * the ``-asicdac`` flag was previously ``-hvdac`` but this was changed to avoid confusion, however, for the sake of compatibility, ``-hvdac`` can still be used with identical functionality
   * if these flags are not supplied, their default values are used from the configuration file in ``CPUsoftware/config``
 
