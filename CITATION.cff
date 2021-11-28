@@ -1,0 +1,39 @@
+cff-version: 9.5.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Francesca"
+  given-names: "Capel"
+  orcid: "https://orcid.org/0000-0002-1153-2139"
+title: "The Mini-EUSO instrument software"
+version: 9.5.0
+url: "https://github.com/cescalara/minieuso_cpu"
+preferred-citation:
+  type: article
+  authors:
+  - family-names: "Capel"
+    given-names: "Francesca"
+    orcid: "https://orcid.org/0000-0002-1153-2139"
+  - family-names: "Belov"
+    given-names: "Alexander"
+  - family-names: "Cambi\`{e}"
+    given-names: "Giorgio"
+  - family-names: "Casolino"
+    given-names: "Marco"
+  - family-names: "Fornaro"
+    given-names: "Claudio"
+  - family-names: "Klimov"
+    given-names: "Pavel"
+  - family-names: "Marcelli"
+    given-names: "Laura"
+  - family-names: "Piotrowski"
+    given-names: "Lech W."
+  - family-names: "Turriziani"
+    given-names: "Sara"
+  doi: "10.1117/1.JATIS.5.4.044009"
+  journal: "Journal of Astronomical Telescopes, Instruments, and Systems"
+  month: 12
+  start: 044009 # First page number
+  title: "Mini-EUSO data acquisition and control software"
+  issue: 4
+  volume: 5
+  year: 2019
