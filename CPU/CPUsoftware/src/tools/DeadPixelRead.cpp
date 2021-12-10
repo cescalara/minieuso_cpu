@@ -16,20 +16,20 @@ void DeadPixelMask::Pick_File(){
 
 
 
-    std::string filename=this->direc_usb1+"/DeadPixelMask.txt";
+    std::string filename=this->direc_usb1 + "/DeadPixelMask_cpu.txt";
 
     std::ifstream test_usb1(filename);
 
 
     if(!test_usb1.is_open()){
 
-        filename=this->direc_usb0+"/DeadPixelMask.txt";
+        filename=this->direc_usb0 + "/DeadPixelMask_cpu.txt";
         std::ifstream test_usb0 (filename) ;
 
 
         if(!test_usb0.is_open()){
 
-            filename=this->directory+"/DeadPixelMask.txt";
+            filename=this->directory + "/DeadPixelMask_cpu.txt";
 
 
         }
