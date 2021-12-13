@@ -36,7 +36,7 @@
 #define N_ASIC 6
 
 /* time between consecutive telnet commands in mus */
-#define SLEEP_TIME 500000
+#define SLEEP_TIME 200000
 
 /* location of Zynq setup files */
 #define ZYNQ_SETUP_SUBDIR "/automated_boot"
