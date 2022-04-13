@@ -372,7 +372,7 @@ int RunInstrument::StartUp() {
     clog.change_log_level(logstream::all);
   }
   else {
-   /* remove the log file */
+    /* remove the log file */
     std::string cmd = "rm " + log_name;
     system(cmd.c_str());
   }
