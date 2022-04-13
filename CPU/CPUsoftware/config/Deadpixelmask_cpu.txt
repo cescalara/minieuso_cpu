@@ -3,14 +3,14 @@
 
 				Sensor Description
 
-Sensor map in Ec unit
+Sensor map in EC unit
 
 0 1 2
 3 4 5
 6 7 8
 
 
-Simgle Ec unit map in Board and Asic
+Single EC unit map in Board and Asic
 
 The first number is the Board, the second is the Asic
 
@@ -28,7 +28,7 @@ an element (b,a) is an 8x8 sub-matrix
 
 *******************************************************************/
 
-^ /*you nead the symbol '^' to strart and end the matrix
+^ /*you need the symbol '^' to start and end the matrix
 
 01000000 00000000  00000000 00000000  00000000 00000000
 00000000 00000000  00000000 00000000  00000000 00000000
