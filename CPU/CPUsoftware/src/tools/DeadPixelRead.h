@@ -15,8 +15,8 @@
 #include <vector>
 
 #define CONFIG_DIR_M  "/home/software/CPU/CPUsoftware/config"
-#define DIR_USB0  "/media/usb0"
-#define DIR_USB1 "/media/usb1"
+#define DIR_USB0  "/media/usb0/automated_boot"
+#define DIR_USB1 "/media/usb1/automated_boot"
 
 
 /**
