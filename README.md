@@ -1,6 +1,6 @@
 Mini-EUSO Software
 ===================
-![build](https://github.com/cescalara/minieuso_cpu/actions/workflows/build.yml/badge.svg)
+[![build](https://github.com/cescalara/minieuso_cpu/actions/workflows/build.yml/badge.svg)](https://github.com/cescalara/minieuso_cpu/actions/workflows/build.yml)
 [![Documentation Status](https://readthedocs.org/projects/minieuso-software/badge/?version=latest)](http://minieuso-software.readthedocs.io/en/latest/?badge=latest) 
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/b3a3691fe0ea4c8b8caf1af3529ee872)](https://www.codacy.com/gh/cescalara/minieuso_cpu/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=cescalara/minieuso_cpu&amp;utm_campaign=Badge_Grade) 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
