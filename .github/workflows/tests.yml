@@ -11,12 +11,19 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, ubuntu-18.04]
-
+    include:
+      - runs-on: ubuntu-latest
+        compiler: gcc
+        gcc: 8
+      - runs-on: ubuntu-18.04
+        compiler: gcc
+        gcc: 8
+    
     steps:
     - uses: actions/checkout@v3
     - name: Install dependencies
       run: |
-        sudo apt-get install -y libusb-1.0 inotify-tools libboost-dev libasan
+        sudo apt-get install -y libusb-1.0 inotify-tools libboost-dev libasan5
     - name: Build
       run: |
         (cd CPU/CPUsoftware/lib && make)
