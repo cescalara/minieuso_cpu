@@ -23,5 +23,5 @@ jobs:
         (cd CPU/CPUsoftware && make)
     - name: Run
       run: |
-        mecontrol -ver
-        mecontrol -help
+        (cd CPU/CPUsoftware/bin && mecontrol -ver)
+        (cd CPU/CPUsoftware/bin && mecontrol -help)
