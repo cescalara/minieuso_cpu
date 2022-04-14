@@ -16,7 +16,7 @@ jobs:
     - uses: actions/checkout@v3
     - name: Install dependencies
       run: |
-        sudo apt-get install -y libusb-1.0 inotify-tools libboost-dev
+        sudo apt-get install -y libusb-1.0 inotify-tools libboost-dev libasan
     - name: Build
       run: |
         (cd CPU/CPUsoftware/lib && make)
