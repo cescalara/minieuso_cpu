@@ -13,6 +13,10 @@ jobs:
         os: [ubuntu-latest, ubuntu-18.04]
   
     steps:
+    - uses: egor-tensin/setup-gcc@v1
+      with:
+        version: 4.8
+        platform: x64
     - uses: actions/checkout@v3
     - name: Install dependencies
       run: |
