@@ -13,10 +13,6 @@ jobs:
         os: [ubuntu-latest, ubuntu-18.04]
   
     steps:
-    - uses: egor-tensin/setup-gcc@v1
-      with:
-        version: latest
-        platform: x64
     - uses: actions/checkout@v3
     - name: Install dependencies
       run: |
@@ -29,8 +25,8 @@ jobs:
       run: |
         gcc --version
         echo $(gcc -print-file-name=libasan.so)
-        echo LD_PRELOAD
+        echo $LD_PRELOAD
         (cd CPU/CPUsoftware/bin && ./mecontrol -ver)
         (cd CPU/CPUsoftware/bin && ./mecontrol -help)
       env:
-        LD_PRELOAD: $(gcc -print-file-name=libasan.so)
+        LD_PRELOAD: /usr/lib/gcc/x86_64-linux-gnu/7/libasan.so
