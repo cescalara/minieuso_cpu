@@ -11,15 +11,12 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, ubuntu-18.04]
-    include:
-      - runs-on: ubuntu-latest
-        compiler: gcc
-        gcc: 8
-      - runs-on: ubuntu-18.04
-        compiler: gcc
-        gcc: 8
-    
+  
     steps:
+    - uses: egor-tensin/setup-gcc@v1
+      with:
+        version: 8
+        platform: x64
     - uses: actions/checkout@v3
     - name: Install dependencies
       run: |
@@ -30,5 +27,6 @@ jobs:
         (cd CPU/CPUsoftware && make)
     - name: Run
       run: |
+        gcc --version
         (cd CPU/CPUsoftware/bin && ./mecontrol -ver)
         (cd CPU/CPUsoftware/bin && ./mecontrol -help)
