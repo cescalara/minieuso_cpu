@@ -10,13 +10,9 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-18.04]
+        os: [ubuntu-latest, ubuntu-18.04]
   
     steps:
-    - uses: egor-tensin/setup-gcc@v1
-      with:
-        version: 4.8
-        platform: x64
     - uses: actions/checkout@v3
     - name: Install dependencies
       run: |
@@ -25,10 +21,9 @@ jobs:
       run: |
         (cd CPU/CPUsoftware/lib && make)
         (cd CPU/CPUsoftware && make)
+      env:
+        TEST_ENV: GitHub
     - name: Run
       run: |
-        gcc --version
-        echo $(gcc -print-file-name=libasan.so)
-        echo $LD_PRELOAD
         (cd CPU/CPUsoftware/bin && ./mecontrol -ver)
         (cd CPU/CPUsoftware/bin && ./mecontrol -help)
