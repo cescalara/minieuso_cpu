@@ -24,7 +24,7 @@ CFLAGS   = -std=c++11 -Wall -pedantic -c -O3 $(INCLUDES) $(DEBUG)
 LDFLAGS  = -L./lib -lm -lpthread -lusb-1.0
 else ifeq ($(TEST_ENV), GitHub)
 CFLAGS   = -std=c++11 -Wall -pedantic -c -O3 $(INCLUDES) $(DEBUG)
-LDFLAGS  = -L./lib -lm -lpthread -lusb-1.0
+LDFLAGS  = -L./lib -lrtd-aDIO -lm -lpthread -lusb-1.0
 else
 CFLAGS   = -std=c++11 -Wall -pedantic -c -O3 -fsanitize=address $(INCLUDES) $(DEBUG)
 LDFLAGS  = -L./lib -lrtd-aDIO -lm -lpthread -lusb-1.0 -lasan
