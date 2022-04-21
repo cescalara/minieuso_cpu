@@ -10,7 +10,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, ubuntu-18.04]
+        os: [ubuntu-18.04]
   
     steps:
     - uses: egor-tensin/setup-gcc@v1
@@ -32,5 +32,3 @@ jobs:
         echo $LD_PRELOAD
         (cd CPU/CPUsoftware/bin && ./mecontrol -ver)
         (cd CPU/CPUsoftware/bin && ./mecontrol -help)
-      env:
-        LD_PRELOAD: /usr/lib/gcc/x86_64-linux-gnu/7/libasan.so
