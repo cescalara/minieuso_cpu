@@ -37,7 +37,7 @@ class DeadPixelMask{
     std::string directory = CONFIG_DIR_M;
     std::string direc_usb0 = DIR_USB0;
     std::string direc_usb1 = DIR_USB1;
-    std::string deal_pixel_file = DEAD_PIXEL_FILE;
+    std::string dead_pixel_file = DEAD_PIXEL_FILE;
     std::string readed_file;
 
     DeadPixelMask();
