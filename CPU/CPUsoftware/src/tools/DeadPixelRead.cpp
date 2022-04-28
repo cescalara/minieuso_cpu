@@ -2,63 +2,54 @@
 
 #include "DeadPixelRead.h"
 
-
 DeadPixelMask::DeadPixelMask(){
+  
+  Pick_File();
 
-
-     Pick_File();
-     int a=ReadDead();
-
-     }
+  int a=ReadDead();
+  
+}
 
 /*Check if the file is in usb1, usb0, local*/
 void DeadPixelMask::Pick_File(){
 
+  std::string filename=this->direc_usb1 + "/" + this->dead_pixel_file;
 
+  std::ifstream test_usb1(filename);
+  
+  if(!test_usb1.is_open()){
 
-    std::string filename=this->direc_usb1+"/DeadPixelMask.txt";
+    filename=this->direc_usb0 + "/" + this->dead_pixel_file;
+    std::ifstream test_usb0 (filename) ;
 
-    std::ifstream test_usb1(filename);
-
-
-    if(!test_usb1.is_open()){
-
-        filename=this->direc_usb0+"/DeadPixelMask.txt";
-        std::ifstream test_usb0 (filename) ;
-
-
-        if(!test_usb0.is_open()){
-
-            filename=this->directory+"/DeadPixelMask.txt";
-
-
-        }
+    if(!test_usb0.is_open()){
+      
+      filename=this->directory + "/" + this->dead_pixel_file;
 
     }
 
+  }
 
-    this->readed_file=filename;
+  this->readed_file=filename;
 
 }
 
 
 int DeadPixelMask::ReadDead(){
 
+  std::string line;
 
-    std::string line;
+  int flag=0;
 
-    int flag=0;
+  //int BOARD;
+  //int ASIC;
+  //int ECU;
 
-    //int BOARD;
-    //int ASIC;
-    //int ECU;
+  std::string filename=this->readed_file;
+  
+  std::ifstream ifile (filename);
 
-
-   std::string filename=this->readed_file;
-
-   std::ifstream ifile (filename);
-
-   if (ifile.is_open()) {
+  if (ifile.is_open()) {
 
     int nline=0;
     int X; //x and y indices inside of a chip to be converted in pixel number
@@ -66,12 +57,11 @@ int DeadPixelMask::ReadDead(){
     int Npixel;
     
     while(getline (ifile,line)){
-
-       
+   
       /*set a flag=0 to end the reading map*/
       if(line[0]=='^' && flag==1){
 	flag=0;
-	 getline (ifile,line);
+	getline (ifile,line);
       }
 
       /*set a flag=1 to read only the map*/
@@ -83,7 +73,8 @@ int DeadPixelMask::ReadDead(){
       
       if(flag==1)
 	{
-	  /*remove white space and or tab from the matrix*/
+
+	  /*remove whitespace and or tab from the matrix*/
 	  line.erase(remove_if(line.begin(),line.end(),::isspace),line.end());
 	  
 	  /*check the position of 1 in the line */
@@ -124,7 +115,7 @@ int DeadPixelMask::ReadDead(){
 	      Dead.clear();
 	      c2send.clear();
 	      return 0;
-	       
+	      
 	    }
 	    nline++;
 	  }
@@ -144,17 +135,17 @@ int DeadPixelMask::ReadDead(){
     }
     
     
-   }
+  }
+  
+  else {
+    std::cout << "Unable to open "<<filename<<std::endl;
+    Dead.clear();
+    c2send.clear();
+    return 0;
+  }
    
-   else {
-     std::cout << "Unable to open "<<filename<<std::endl;
-     Dead.clear();
-     c2send.clear();
-     return 0;
-   }
-   
-   return 1;   
-   
+  return 1;   
+  
 }
 
 

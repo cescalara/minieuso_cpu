@@ -15,12 +15,12 @@
 #include <vector>
 
 #define CONFIG_DIR_M  "/home/software/CPU/CPUsoftware/config"
-#define DIR_USB0  "/media/usb0"
-#define DIR_USB1 "/media/usb1"
-
+#define DIR_USB0  "/media/usb0/automated_boot"
+#define DIR_USB1 "/media/usb1/automated_boot"
+#define DEAD_PIXEL_FILE "Deadpixelmask_cpu.txt"
 
 /**
- * It reads the file DeadPixelMask.txt which contains the pixels to be switched-off. 
+ * It reads the file DEAD_PIXEL_FILE which contains the pixels to be switched-off. 
  * A list of the string command to send trought telnet connection i provided
  * in  .c2send. This vector has the attribute .line, .asic and, .pixel 
  */
@@ -37,6 +37,7 @@ class DeadPixelMask{
     std::string directory = CONFIG_DIR_M;
     std::string direc_usb0 = DIR_USB0;
     std::string direc_usb1 = DIR_USB1;
+    std::string deal_pixel_file = DEAD_PIXEL_FILE;
     std::string readed_file;
 
     DeadPixelMask();

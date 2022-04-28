@@ -914,6 +914,11 @@ int ZynqManager::HidePixels() {
   
   // Check that DI R_USB0 etc are defined in the right place
   int n_max=mask.c2send.size();
+
+  /* Add some debug output */
+  clog << "info: " << logstream::info << "ZynqManager::HidePixels(): Number of commands to send is" << n_max << std::endl;
+  std::cout << "ZynqManager::HidePixels(): Number of commands to send is " << n_max << std::endl;
+  std::cout << std::endl;
   
   if(n_max>0){
 
@@ -921,12 +926,27 @@ int ZynqManager::HidePixels() {
 
     sockfd = ConnectTelnet();
     
-    for(int i=0;i<n_max;i++){
+    for(int i=0; i<n_max; i++){
 
-      Telnet(mask.c2send[i].line,sockfd,true);
-      Telnet(mask.c2send[i].asic,sockfd,true);
-      Telnet(mask.c2send[i].pixel,sockfd,true);
-      Telnet("slowctrl mask 1",sockfd,true);
+      clog << "info: " << logstream::info << "ZynqManager::HidePixels(): Sending command " << i << std::endl;
+      std::cout << "ZynqManager::HidePixels(): Sending command " << i << std::endl;
+    
+      clog << "info: " << logstream::info << "ZynqManager::HidePixels(): " << mask.c2send[i].line << std::endl;
+      std::cout << "ZynqManager::HidePixels(): " << mask.c2send[i].line << std::endl;      
+      Telnet(mask.c2send[i].line, sockfd, true);
+    
+      clog << "info: " << logstream::info << "ZynqManager::HidePixels(): " << mask.c2send[i].asic << std::endl;
+      std::cout << "ZynqManager::HidePixels(): " << mask.c2send[i].asic << std::endl;      
+      Telnet(mask.c2send[i].asic, sockfd, true);
+    
+      clog << "info: " << logstream::info << "ZynqManager::HidePixels(): " << mask.c2send[i].pixel << std::endl;
+      std::cout << "ZynqManager::HidePixels(): " << mask.c2send[i].pixel << std::endl;      
+      Telnet(mask.c2send[i].pixel, sockfd, true);
+      
+      clog << "info: " << logstream::info << "ZynqManager::HidePixels(): " << "slowctrl mask 1" << std::endl;
+      std::cout << "ZynqManager::HidePixels(): " << "slowctrl mask 1" << std::endl;      
+      Telnet("slowctrl mask 1", sockfd, true);
+      
     }
     
     close(sockfd);

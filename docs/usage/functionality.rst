@@ -66,8 +66,20 @@ The Zynq power is left on by default when running subsequent ``mecontrol`` comma
 
 * ``mecontrol -zynq_reboot`` 
 
+Pixel masking
+-------------
 
-    
+Pixels can be masked by providing the file ``Deadpixelmask_cpu.txt`` in either ``DIR_USB0``, ``DIR_USB1`` or ``CONFIG_DIR_M`` as defined in ``CPU/CPUsoftware/src/tools/DeadPixelMask.h``.
+
+To use this pixel mask, use the following option when running the software, otherwise ``Deadpixelmask_cpu.txt`` will be ignored and all pixels are assumed unmasked.
+
+* ``mecontrol -hide_pixel``
+
+When ``-hide_pixel`` is used, the pixels to be masked are read out of ``Deadpixelmask_cpu.txt`` and passed to the Zynq using :cpp:func:`ZynqManager::HidePixels()`. The format of the file is a matrix of all pixels where `0` represents unmasked ("alive" pixel), and `1` represents masked ("dead" pixel). An example file with more information on the format can be found here: https://github.com/cescalara/minieuso_cpu/blob/master/CPU/CPUsoftware/config/Deadpixelmask_cpu.txt.
+
+The call to :cpp:func:`ZynqManager::HidePixels()` is run both on instrument start up within :cpp:func:`RunInstrument::StartUp()`, and at the end of each local night within :cpp:func:`RunInstrument::NightOperations()` when the Zynq is rebooted.
+
+
 Data acquisition
 ----------------
 

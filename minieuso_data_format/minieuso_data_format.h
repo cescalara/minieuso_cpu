@@ -19,8 +19,8 @@
  * software definitions
  */
 
-#define VERSION 9.5
-#define VERSION_DATE_STRING "13/10/2020"
+#define VERSION 9.6
+#define VERSION_DATE_STRING "10/12/2021"
 
 /*
  * instrument definitions 
