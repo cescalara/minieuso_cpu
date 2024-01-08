@@ -29,3 +29,4 @@ I would like to acknowledge the following contributions to the software:
 *  L. Marcelli: improving day/night thresholds and configuration file
 *  G. Cambiè & M. Casolino: Final `AnalogManager::SerialReadOut()` and testing
 *  C. Giammanco: pixel masking and automated boot scripts
+
